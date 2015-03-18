@@ -1,0 +1,4 @@
+error: asoundlib.h: No such file or directory
+
+This means that libasound2-dev is not installed correctly.
+
