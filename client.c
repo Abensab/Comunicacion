@@ -14,7 +14,16 @@ void error(const char *msg)
     exit(0);
 }
 
+long long current_timestamp() {
+    struct timeval te;
+    gettimeofday(&te, NULL); // get current time
+    long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; // caculate milliseconds
+    //printf("%lld \n",milliseconds);
+    return milliseconds;
+}
+
 int playSuperWav() {
+    fprintf (stdout, "**** File Started at: %lld ****\n",current_timestamp());
 
     pid_t pid=fork();
     if (pid==0) {
@@ -28,14 +37,6 @@ int playSuperWav() {
         waitpid(pid,0,0);
     }
     return 0;
-}
-
-long long current_timestamp() {
-    struct timeval te;
-    gettimeofday(&te, NULL); // get current time
-    long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; // caculate milliseconds
-    //printf("%lld \n",milliseconds);
-    return milliseconds;
 }
 
 int main(int argc, char *argv[]) {
@@ -73,9 +74,10 @@ int main(int argc, char *argv[]) {
         error("ERROR connecting");
     }
 
-    long long int time = current_timestamp();
+    long long int time = current_timestamp() + 3000; //time + delay (s)
     char string_time[1000];
     sprintf( string_time, "%lld", time );
+
     n = write(sockfd,&string_time,strlen(string_time));
     if (n < 0){
         error("ERROR writing to socket");
@@ -93,7 +95,16 @@ int main(int argc, char *argv[]) {
         error("ERROR writing to socket");
     }
 */
-    //playSuperWav();
+    int valorBooL = 0;
+    while (valorBooL != 1){
+        printf("Time to start: %lld \n",time - current_timestamp());
+        printf("%d \n",valorBooL);
+        if( (time - current_timestamp()) <= 0 ){
+            playSuperWav();
+            valorBooL = 1;
+        }
+        sleep(1);
+    }
 
     bzero(buffer, 256);
     n = read(sockfd, buffer, 255);

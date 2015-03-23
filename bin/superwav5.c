@@ -47,6 +47,13 @@ int kbhit(void)
   return 0;
 }
 
+long long current_timestamp() {
+    struct timeval te;
+    gettimeofday(&te, NULL); // get current time
+    long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; // caculate milliseconds
+    //printf("%lld \n",milliseconds);
+    return milliseconds;
+}
 
 int main (int argc, char *argv[]) 
 {
@@ -236,7 +243,6 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
      bufs[0]=(void *)filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
      bufs[1]=(void *)filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
 
-
     // bufs[0]=(void *)data;							  // Set the pointer array element zero to pointer bufptr ie **data
     // bufs[1]=(void *)data2;							// Set the pointer array element zero to pointer bufptr ie **data
 
@@ -303,11 +309,13 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
      }
 
 
-
       bufs[0]=(void *)(filewav[0] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
       bufs[1]=(void *)(filewav[1] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
 
-      //----- EL BUENO SON 2048
+        //Direccion de memoria del fichero en reproducción.
+        //printf("%p\n",bufs[0]);
+
+        //----- EL BUENO SON 2048
       while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0){
         printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
         // snd_pcm_prepare(playback_handle);

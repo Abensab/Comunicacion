@@ -24,7 +24,7 @@ void error(const char *msg)
 }
 
 int playSuperWav() {
-
+    fprintf (stdout, "**** File Started at: %lld ****\n",current_timestamp());
     pid_t pid=fork();
     if (pid==0) {
 
@@ -65,7 +65,18 @@ void dostuff (int sock)
     if (n < 0){
         error("ERROR writing to socket");
     }
-    playSuperWav();
+
+    int valorBooL = 0;
+    while (valorBooL != 1){
+        printf("Time to start: %lld \n",time - current_timestamp());
+        printf("%d \n",valorBooL);
+        if( (time - current_timestamp()) <= 0 ){
+            playSuperWav();
+            valorBooL = 1;
+        }
+        sleep(1);
+
+    }
 }
 
 int main(int argc, char *argv[])
