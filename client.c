@@ -97,17 +97,18 @@ int main(int argc, char *argv[]) {
 */
     int valorBooL = 0;
     while (valorBooL != 1){
-        printf("Time to start: %lld \n",time - current_timestamp());
-        printf("%d \n",valorBooL);
+        //printf("Time to start: %lld \n",time - current_timestamp());
+        //printf("%d \n",valorBooL);
         if( (time - current_timestamp()) <= 0 ){
             playSuperWav();
             valorBooL = 1;
         }
-        sleep(1);
+        //sleep(1);
     }
 
     bzero(buffer, 256);
     n = read(sockfd, buffer, 255);
+    printf("Milliseconds message Recived: %lld\n", current_timestamp());
     if (n < 0) {
         error("ERROR reading from socket");
     }

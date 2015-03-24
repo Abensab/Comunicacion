@@ -59,7 +59,8 @@ void dostuff (int sock)
 
     long long time = atoll(buffer);
 
-    printf("%lld\n",atoll(buffer));
+    printf("Moment to start: %lld\n",atoll(buffer));
+    printf("Time delay: %lld\n",(time-3000) - current_timestamp());
 
     n = write(sock,"I got your message",18);
     if (n < 0){
@@ -68,13 +69,13 @@ void dostuff (int sock)
 
     int valorBooL = 0;
     while (valorBooL != 1){
-        printf("Time to start: %lld \n",time - current_timestamp());
-        printf("%d \n",valorBooL);
+        //printf("Time to start: %lld \n",time - current_timestamp());
+        //printf("%d \n",valorBooL);
         if( (time - current_timestamp()) <= 0 ){
             playSuperWav();
             valorBooL = 1;
         }
-        sleep(1);
+        //sleep(1);
 
     }
 }

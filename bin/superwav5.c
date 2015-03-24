@@ -290,7 +290,8 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
     gettimeofday(&t1, NULL);
     
     int pasamos = 0;    
-    for(l1 = 0; l1 < 10000; l1++) {
+    //for(l1 = 0; l1 < 10000; l1++) {
+    for(l1 = 0; l1 < 100; l1++) {
 /*      for(l2 = 0; l2 < 5000; l2++) {
         s1 = (l2 % 128) * 100 - 5000;  
         s2 = (l2 % 256) * 100 - 5000;  
@@ -312,16 +313,25 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
       bufs[0]=(void *)(filewav[0] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
       bufs[1]=(void *)(filewav[1] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
 
-        //Direccion de memoria del fichero en reproducción.
-        //printf("%p\n",bufs[0]);
+        /*Imprimir en un fichero los tiempos*/
+        int *aux1= (filewav[0] + l1*2048);
+        int *aux2= (filewav[1] + l1*2048);
+        int cont;
+        for(cont = 0; cont < 2048; cont++) {
+            //Direccion de memoria del fichero en reproducción.
+            printf("\t%d\t%d\t%lld\n",cont,*(aux1 + cont),current_timestamp());
+            printf("\t%d\t%d\t%lld\n",cont,*(aux2 + cont),current_timestamp());
 
+        }
         //----- EL BUENO SON 2048
-      while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0){
+        //Reproducción del sonido
+      /*while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0){
         printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
         // snd_pcm_prepare(playback_handle);
         fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
         break;
-      }
+      }*/
+
       //pasamos ++;
       //sleep(1);
       // printf("hola --\n");
