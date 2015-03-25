@@ -39,6 +39,22 @@ int playSuperWav() {
     return 0;
 }
 
+void  writeTimeDelay(long long delayTime){
+    FILE *fp;
+    char dd[100];
+    fp = fopen("./timeDellay.txt", "a+W" );
+    if (fp==NULL)
+    {
+        printf("Error al abrir el archivo \n");
+    }
+    //printf("\t%lld\t%lld\n", current_timestamp(),delayTime);
+    sprintf(dd,"\t%lld\t%lld\n", current_timestamp(),delayTime);
+    fputs(dd,fp);
+
+    fflush(fp);
+    fclose(fp);
+}
+
 
 /******** DOSTUFF() *********************
  There is a separate instance of this function
@@ -58,25 +74,30 @@ void dostuff (int sock)
     printf("Milliseconds message recived: %lld\n", current_timestamp());
 
     long long time = atoll(buffer);
+    long long delay = (time-3000) - current_timestamp();
 
     printf("Moment to start: %lld\n",atoll(buffer));
-    printf("Time delay: %lld\n",(time-3000) - current_timestamp());
+    printf("Delay: %lld\n",delay);
 
-    n = write(sock,"I got your message",18);
-    if (n < 0){
-        error("ERROR writing to socket");
-    }
+    /*Write in a txt the delay of time*/
+    //writeTimeDelay(delay);
+
+    /*Play in that instant moment the message has been recived*/
+    //playSuperWav();
+
+    /*Play with a delay of 3 seconds*/
 
     int valorBooL = 0;
     while (valorBooL != 1){
-        //printf("Time to start: %lld \n",time - current_timestamp());
-        //printf("%d \n",valorBooL);
         if( (time - current_timestamp()) <= 0 ){
             playSuperWav();
             valorBooL = 1;
         }
-        //sleep(1);
+    }
 
+    n = write(sock,"I got your message",18);
+    if (n < 0){
+        error("ERROR writing to socket");
     }
 }
 

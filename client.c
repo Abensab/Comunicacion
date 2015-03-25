@@ -82,11 +82,15 @@ int main(int argc, char *argv[]) {
     if (n < 0){
         error("ERROR writing to socket");
     }
-
+    /* Send a message */
+    /******************/
     /*printf("Please enter the message: ");
     bzero(buffer, 256);
     fgets(buffer, 255, stdin);
+    */
+    /******************/
 
+    /*
     //current time stamp
     printf("Milliseconds message sent: %lld\n", current_timestamp());
 
@@ -95,15 +99,18 @@ int main(int argc, char *argv[]) {
         error("ERROR writing to socket");
     }
 */
+
+    /*Play in that instant moment the message has been recived*/
+    //playSuperWav();
+
+    /*Play with a delay of 3 seconds*/
+
     int valorBooL = 0;
     while (valorBooL != 1){
-        //printf("Time to start: %lld \n",time - current_timestamp());
-        //printf("%d \n",valorBooL);
         if( (time - current_timestamp()) <= 0 ){
             playSuperWav();
             valorBooL = 1;
         }
-        //sleep(1);
     }
 
     bzero(buffer, 256);

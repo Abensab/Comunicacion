@@ -6,19 +6,16 @@
 #include <math.h>
 #include <sys/time.h>                // for gettimeofday()
 #include <alsa/asoundlib.h>
-
+#include "spatiallib.h"
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #define POLY 10
 #define GAIN 5000.0
 #define BUFF_SIZE 4096
 #define WORD_LENGTH 50
 
-#include "spatiallib.h"
-
-
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
  
 int kbhit(void)
 {
@@ -74,15 +71,9 @@ int main (int argc, char *argv[])
   // filewav32 = (unsigned char **) malloc (4*sizeof(unsigned char *));
 	archivos_senal= (char *)calloc(4* WORD_LENGTH, sizeof(char));
 	strcpy(archivos_senal + 0*WORD_LENGTH, "./bin/FicherosPrueba/001_piano.wav");
-  strcpy(archivos_senal + 1*WORD_LENGTH, "./bin/FicherosPrueba/voz4408.wav");
+    strcpy(archivos_senal + 1*WORD_LENGTH, "./bin/FicherosPrueba/voz4408.wav");
  	strcpy(archivos_senal + 2*WORD_LENGTH, "./bin/FicherosPrueba/001_bajo.wav");
 	strcpy(archivos_senal + 3*WORD_LENGTH, "./bin/FicherosPrueba/001_bateriabuena.wav");
-
-	// for(ifor=0; ifor<4; ifor++)
-    //     muestrasleidas = readmewav(ifor, archivos_senal + ifor*WORD_LENGTH);   //cantidad de datos de entrada
-
-    // -- cogemos muestras de char en char.
-
 
 // -------------------------------------- HANDLE OF ALSA DEVICE -------------------------------------//
   
@@ -189,8 +180,6 @@ printf("  ---- period_size: %lu\n", period_size);
 
 printf("  ---- -------------------------------------------------\n");
 
-
-
  
 snd_pcm_uframes_t p_size;
 snd_pcm_uframes_t t_size;
@@ -202,19 +191,12 @@ printf("  Returned : Buffer size in frames: %lu\n", p_size);
 printf("	Returned approximate period size in frames: %lu\n", t_size);
 printf("	dir: %d\n", dir);
 
-
-
-
 snd_pcm_hw_params_get_buffer_size_min(hw_params, &p_size);
 printf("  Returned : Returned approximate minimum buffer size in frames: %lu\n", p_size);
 
 snd_pcm_hw_params_get_buffer_size_max(hw_params, &p_size);
 printf("  Returned : Returned approximate maximum buffer size in frames: %lu\n", p_size);
 
-
-// printf("   1 frame tiene %lu bytes\n",sizeof(p_size));
- 
- 
 snd_pcm_hw_params_free (hw_params);
  
 if ((err = snd_pcm_prepare (playback_handle)) < 0) {
@@ -222,10 +204,6 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
     exit (1);
 }
 
-
-
-     // unsigned char * file16rep = newWav2chNonIntervaled(archivos_senal, archivos_senal + 1*WORD_LENGTH);
-     // unsigned char * file16rep = newWav2ch(archivos_senal, archivos_senal + 1*WORD_LENGTH);
      int leido1=0;
      int leido2=0;
      
@@ -235,32 +213,10 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
      printf("leidos 1 =%d\n", leido1);
      leido2 = OpenWavConvert32(&filewav[1],archivos_senal + 1*WORD_LENGTH);
      printf("leidos 2 =%d\n", leido2);
-     // penter[0] = filewav[0];
-     // penter[1] = filewav[1];	
-     
      
      void *bufs[2] = { NULL , NULL };		// Allocate two (bufs[0],bufs[1]) but we only user lowest one for now  
      bufs[0]=(void *)filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
      bufs[1]=(void *)filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
-
-    // bufs[0]=(void *)data;							  // Set the pointer array element zero to pointer bufptr ie **data
-    // bufs[1]=(void *)data2;							// Set the pointer array element zero to pointer bufptr ie **data
-
-     printf("AQUI NO LLEGAMOS\n");
-
-/*      int pcmreturn, l1, l2;
-      short s1, s2;
-
-      for(l2 = 0; l2 < 1024; l2++) {
-        s1 = (l2 % 128) * 100 - 5000;  
-        s2 = (l2 % 256) * 100 - 5000;  
-        buf[4*l2] = (unsigned char)s1;
-        buf[4*l2+1] = s1 >> 8;
-        buf[4*l2+2] = (unsigned char)s2;
-        buf[4*l2+3] = s2 >> 8;
-      }
-
-*/
 
 
     // -- FOR REPRODUCCING ---- //
@@ -271,10 +227,6 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
     snd_pcm_uframes_t periodsize = BUFF_SIZE*sizeof(short);
     
     printf("size of buf = %lud\n", sizeof(buf));
-    
-    // printf("periodisize = %lu\n", periodsize);
-    
-    // printf("HEMOS PASADO_ TOTAL\n");
 
     data = (unsigned char *)malloc(periodsize);
     
@@ -284,25 +236,29 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
     
     struct timeval t1, t2;
     double elapsedTime;
-    
-    
+
     // start timer
     gettimeofday(&t1, NULL);
-    
-    int pasamos = 0;    
-    //for(l1 = 0; l1 < 10000; l1++) {
-    for(l1 = 0; l1 < 100; l1++) {
-/*      for(l2 = 0; l2 < 5000; l2++) {
-        s1 = (l2 % 128) * 100 - 5000;  
-        s2 = (l2 % 256) * 100 - 5000;  
-        data[4*l2] = (unsigned char)s1;
-        data[4*l2+1] = s1 >> 8;
-        data[4*l2+2] = (unsigned char)s2;
-        data[4*l2+3] = s2 >> 8;
-      }*/
-      // printf("VAMOS PARA ALLA\n");
-      // while ((pcmreturn = snd_pcm_writen(playback_handle, (void **)data, 4096)) < 0){
-      
+
+    /*Imprimir o guardar en un fichero los tiempos*/
+    /**********************************************/
+    /*
+    FILE *fp;
+    char dd[100];
+    fp = fopen("./Guarda_Muestras_Y_Tiempo.txt", "w" );
+    if (fp==NULL)
+    {
+        printf("Error al abrir el archivo \n");
+        return 0;
+    }
+    */
+    /**********************************************/
+
+    int pasamos = 0;
+
+    for(l1 = 0; l1 < 10000; l1++) {
+
+
      if(kbhit())
      {
        char c=getchar();
@@ -313,32 +269,43 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
       bufs[0]=(void *)(filewav[0] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
       bufs[1]=(void *)(filewav[1] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
 
-        /*Imprimir en un fichero los tiempos*/
-        int *aux1= (filewav[0] + l1*2048);
-        int *aux2= (filewav[1] + l1*2048);
+        /*Imprimir o guardar en un fichero los tiempos*/
+        /**********************************************/
+        /*
+        int* aux1= (int*)(filewav[0] + l1*2048);
+        int* aux2= (int*)(filewav[1] + l1*2048);
         int cont;
         for(cont = 0; cont < 2048; cont++) {
-            //Direccion de memoria del fichero en reproducción.
-            printf("\t%d\t%d\t%lld\n",cont,*(aux1 + cont),current_timestamp());
-            printf("\t%d\t%d\t%lld\n",cont,*(aux2 + cont),current_timestamp());
+            //Imprimir por pantalla
+            //printf("\tA\t%d\t%d\t%lld\n",cont,*(aux1 + cont),current_timestamp());
+            //printf("\tB\t%d\t%d\t%lld\n",cont,*(aux2 + cont),current_timestamp());
 
+            //Escribir en fichero
+            sprintf(dd,"\t%lld\t%d\t%d\n",current_timestamp(),*(aux1 + cont),*(aux2 + cont));
+            fputs(dd,fp);
         }
-        //----- EL BUENO SON 2048
+        */
+        /**********************************************/
+
         //Reproducción del sonido
-      /*while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0){
+        /************************/
+      while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0){
         printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
         // snd_pcm_prepare(playback_handle);
         fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
         break;
-      }*/
+      }
+        /************************/
 
-      //pasamos ++;
-      //sleep(1);
-      // printf("hola --\n");
-      // printf("writing: %d\n", pcmreturn);
     }
-    
-    
+
+    /*Imprimir o guardar en un fichero los tiempos*/
+    /**********************************************/
+    /*
+    fflush(fp);
+    fclose(fp);
+    */
+    /**********************************************/
     
     // stop timer
     gettimeofday(&t2, NULL);
@@ -349,66 +316,10 @@ if ((err = snd_pcm_prepare (playback_handle)) < 0) {
     
     printf(" -- PASADO %f -- \n", elapsedTime);
 
-    
-
     freeWav(filewav[0]);
     freeWav(filewav[1]);
 
-      /* Write some junk data to produce sound. */
-/*  for(tt=0; tt< 150; tt++)
-  {
-      if ((err = snd_pcm_writei (playback_handle, buf, BUFF_SIZE/2)) != BUFF_SIZE/2) {
-          fprintf (stderr, "write to audio interface failed (%s)\n", snd_strerror (err));
-          exit (1);
-      } else {
-          fprintf (stdout, "snd_pcm_writei successful\n");
-      }
-  } */
-  
+    snd_pcm_close (playback_handle);
 
-
-
-snd_pcm_close (playback_handle);
-
-
-
-
-    
-    // -- FOR REPRODUCCING ---- //
- /*   unsigned char *data;
-    int pcmreturn, l1, l2;
-    short s1, s2;
-    int frames;
-
-    printf("HEMOS PASADO_ TOTAL\n");
-
-    data = (unsigned char *)malloc(periodsize);
-    frames = periodsize >> 2;
-    for(l1 = 0; l1 < 100; l1++) {
-      for(l2 = 0; l2 < num_frames; l2++) {
-        s1 = (l2 % 128) * 100 - 5000;  
-        s2 = (l2 % 256) * 100 - 5000;  
-        data[4*l2] = (unsigned char)s1;
-        data[4*l2+1] = s1 >> 8;
-        data[4*l2+2] = (unsigned char)s2;
-        data[4*l2+3] = s2 >> 8;
-      }
-      while ((pcmreturn = snd_pcm_writei(pcm_handle, (void **)data, frames)) < 0) {
-        snd_pcm_prepare(pcm_handle);
-        fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
-      }
-    }
-  
-    
-    /* Stop PCM device after pending frames have been played  
-    snd_pcm_drain(pcm_handle);*/
-    
-    
-    
-    // - snd_pcm_close(pcm_handle);
-    // - snd_pcm_close (pcm_handle);
-    // - snd_seq_close (seq_handle);
-    
     return 0;
-
 }
