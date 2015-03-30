@@ -11,12 +11,9 @@ else
 printf "Packages installed\n"
 fi
 
-printf "\nCompilating Server\n"
-gcc server.c -o server
-
-printf "\nCompilating Client\n"
-gcc client.c -o client
+printf "\nCompilating\n"
+gcc SuperWavApp.c ./lib/connection.c -o SuperWavApp
 
 printf "\nCompilating superWav5:\n"
-cd ./bin
+cd ./lib
 sudo make

@@ -1,14 +1,4 @@
-/* A simple server in the internet domain using TCP
-   The port number is passed as an argument
-   http://www.linuxhowtos.org/C_C++/socket.htm
-   */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/types.h> 
-#include <sys/socket.h>
-#include <netinet/in.h>
+#include "./connection.h"
 
 long long current_timestamp() {
     struct timeval te;
@@ -28,8 +18,8 @@ int playSuperWav() {
     pid_t pid=fork();
     if (pid==0) {
 
-        char *args[] = {"./bin/superwav5", (char *) 0 };
-        execv("./bin/superwav5", args);
+        char *args[] = {"./lib/superwav5", (char *) 0 };
+        execv("./lib/superwav5", args);
 
         exit(-1);
     }
@@ -89,7 +79,7 @@ void dostuff (int sock)
 
     int valorBooL = 0;
     while (valorBooL != 1){
-        if( (time - current_timestamp()) <= 0 ){
+        if( (time +(-1*delay) - current_timestamp()) <= 0 ){ /*Experimental +(-1*delay)*/
             playSuperWav();
             valorBooL = 1;
         }
@@ -101,44 +91,36 @@ void dostuff (int sock)
     }
 }
 
-int main(int argc, char *argv[])
-{
-
-    int sockfd, newsockfd, portno, pid;
-    socklen_t clilen;
+int serverConnection(int portNumber){
+    int socketFileDescriptor, newSocketFileDescriptor, pid;
+    socklen_t clientLenght;
     char buffer[256];
 
+    /*Clase de socket addres*/
     struct sockaddr_in serv_addr, cli_addr;
-    int n;
 
-    if (argc < 2) {
-        fprintf(stderr,"ERROR, no port provided\n");
-        exit(1);
-    }
+    socketFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
 
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    if (sockfd < 0) {
+    if (socketFileDescriptor < 0) {
         error("ERROR opening socket");
     }
 
     bzero((char *) &serv_addr, sizeof(serv_addr));
 
-    portno = atoi(argv[1]);
-
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(portno);
+    serv_addr.sin_port = htons(portNumber);
 
-    if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+    if (bind(socketFileDescriptor, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
         error("ERROR on binding");
     }
 
-    listen(sockfd,5);
-    clilen = sizeof(cli_addr);
+    listen(socketFileDescriptor,5);
+    clientLenght = sizeof(cli_addr);
+
     while(1){
-        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
-        if (newsockfd < 0){
+        newSocketFileDescriptor = accept(socketFileDescriptor, (struct sockaddr *) &cli_addr, &clientLenght);
+        if (newSocketFileDescriptor < 0){
             error("ERROR on accept");
         }else{
             printf("Milliseconds connection made: %lld\n", current_timestamp());
@@ -153,15 +135,80 @@ int main(int argc, char *argv[])
             error("ERROR on fork");
         }
         if (pid == 0)  {
-            close(sockfd);
-            dostuff(newsockfd);
+            close(socketFileDescriptor);
+            dostuff(newSocketFileDescriptor);
             exit(0);
         }
         else {
-            close(newsockfd);
+            close(newSocketFileDescriptor);
         }
     }
-    close(newsockfd);
-    close(sockfd);
+    close(newSocketFileDescriptor);
+    close(socketFileDescriptor);
+    return 0;
+
+}
+
+int clientConnection(char *address, int portNumber) {
+    int socketFileDescriptor, n;
+    struct sockaddr_in server_addr;
+    struct hostent *server;
+    char buffer[256];
+
+    socketFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (socketFileDescriptor < 0) {
+        error("ERROR opening socket");
+    }
+
+    server = gethostbyname(address);
+    if (server == NULL) {
+        fprintf(stderr, "ERROR, no such host\n");
+        exit(1);
+    }
+
+    bzero((char *) &server_addr, sizeof(server_addr));
+    server_addr.sin_family = AF_INET;
+    bcopy((char *) server->h_addr, (char *) &server_addr.sin_addr.s_addr, server->h_length);
+    server_addr.sin_port = htons(portNumber);
+
+    if (connect(socketFileDescriptor, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
+        error("ERROR connecting");
+    }
+
+    long long int time = current_timestamp() + 3000; //time + delay (s)
+
+    char string_time[100];/*Descubrir tamaño aproximado*/
+
+    sprintf( string_time, "%lld", time );
+
+    n = write(socketFileDescriptor,&string_time,strlen(string_time));
+    if (n < 0){
+        error("ERROR writing to socket");
+    }
+
+    /*Play in that instant moment the message has been recived*/
+    //playSuperWav();
+
+    /*Play with a delay of 3 seconds*/
+
+    int valorBooL = 0;
+    while (valorBooL != 1){
+        if( (time - current_timestamp()) <= 0 ){
+            playSuperWav();
+            valorBooL = 1;
+        }
+    }
+
+    bzero(buffer, 256);
+    n = read(socketFileDescriptor, buffer, 255);
+    printf("Milliseconds message Recived: %lld\n", current_timestamp());
+    if (n < 0) {
+        error("ERROR reading from socket");
+    }
+    printf("%s\n",buffer);
+
+    close(socketFileDescriptor);
+
     return 0;
 }
