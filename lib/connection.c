@@ -1,5 +1,8 @@
 #include "./connection.h"
-
+/*  A simple server in the internet domain using TCP
+    The port number is passed as an argument
+    http://www.linuxhowtos.org/C_C++/socket.htm
+*/
 long long current_timestamp() {
     struct timeval te;
     gettimeofday(&te, NULL); // get current time
@@ -54,6 +57,7 @@ void  writeTimeDelay(long long delayTime){
 void dostuff (int sock)
 {
     int n;
+    int numberCharReaded;
     char buffer[1024];
 
     bzero(buffer,1024);
@@ -85,72 +89,81 @@ void dostuff (int sock)
         }
     }
 
-    n = write(sock,"I got your message",18);
-    if (n < 0){
+    numberCharReaded = write(sock,"I got your message",18);
+    if (numberCharReaded < 0){
         error("ERROR writing to socket");
     }
 }
 
-int serverConnection(int portNumber){
-    int socketFileDescriptor, newSocketFileDescriptor, pid;
-    socklen_t clientLenght;
-    char buffer[256];
+/* **********************************************************************
+* Returns a struct with the server configuration needed,
+* so in other parts of the code you can be able to send and recive messeges
+* *********************************************************************** */
+ServerConnection startConfigurationServer(int portNumber){
+    ServerConnection server;
 
-    /*Clase de socket addres*/
-    struct sockaddr_in serv_addr, cli_addr;
+    server.socketFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
 
-    socketFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
-
-    if (socketFileDescriptor < 0) {
+    if (server.socketFileDescriptor < 0) {
         error("ERROR opening socket");
     }
 
-    bzero((char *) &serv_addr, sizeof(serv_addr));
+    bzero((char *) &server.serv_addr, sizeof(server.serv_addr));
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(portNumber);
+    server.serv_addr.sin_family = AF_INET;
+    server.serv_addr.sin_addr.s_addr = INADDR_ANY;
+    server.serv_addr.sin_port = htons(portNumber);
 
-    if (bind(socketFileDescriptor, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+    if (bind(server.socketFileDescriptor, (struct sockaddr *) &server.serv_addr, sizeof(server.serv_addr)) < 0) {
         error("ERROR on binding");
     }
 
+    listen(server.socketFileDescriptor,5);
+    server.clientLenght = sizeof(server.cli_addr);
+
+    return server;
+}
+
+int serverConnection(int portNumber){
+    int pid;
+    ServerConnection server = startConfigurationServer(portNumber);
+/*
     listen(socketFileDescriptor,5);
     clientLenght = sizeof(cli_addr);
-
+*/
     while(1){
-        newSocketFileDescriptor = accept(socketFileDescriptor, (struct sockaddr *) &cli_addr, &clientLenght);
-        if (newSocketFileDescriptor < 0){
+        server.newSocketFileDescriptor = accept(server.socketFileDescriptor, (struct sockaddr *) &server.cli_addr, &server.clientLenght);
+        if (server.newSocketFileDescriptor < 0){
             error("ERROR on accept");
         }else{
             printf("Milliseconds connection made: %lld\n", current_timestamp());
             printf("Conection made from: %d.%d.%d.%d\n",
-                    cli_addr.sin_addr.s_addr&0xFF,
-                    (cli_addr.sin_addr.s_addr&0xFF00)>>8,
-                    (cli_addr.sin_addr.s_addr&0xFF0000)>>16,
-                    (cli_addr.sin_addr.s_addr&0xFF000000)>>24);
+                    server.cli_addr.sin_addr.s_addr&0xFF,
+                    (server.cli_addr.sin_addr.s_addr&0xFF00)>>8,
+                    (server.cli_addr.sin_addr.s_addr&0xFF0000)>>16,
+                    (server.cli_addr.sin_addr.s_addr&0xFF000000)>>24);
         }
         pid = fork();
         if (pid < 0){
             error("ERROR on fork");
         }
         if (pid == 0)  {
-            close(socketFileDescriptor);
-            dostuff(newSocketFileDescriptor);
+            close(server.socketFileDescriptor);
+            dostuff(server.newSocketFileDescriptor);
             exit(0);
         }
         else {
-            close(newSocketFileDescriptor);
+            close(server.newSocketFileDescriptor);
         }
     }
-    close(newSocketFileDescriptor);
-    close(socketFileDescriptor);
+    close(server.newSocketFileDescriptor);
+    close(server.socketFileDescriptor);
     return 0;
 
 }
 
 int clientConnection(char *address, int portNumber) {
-    int socketFileDescriptor, n;
+    int socketFileDescriptor, numberCharReaded;
     struct sockaddr_in server_addr;
     struct hostent *server;
     char buffer[256];
@@ -182,8 +195,8 @@ int clientConnection(char *address, int portNumber) {
 
     sprintf( string_time, "%lld", time );
 
-    n = write(socketFileDescriptor,&string_time,strlen(string_time));
-    if (n < 0){
+    numberCharReaded = write(socketFileDescriptor,&string_time,strlen(string_time));
+    if (numberCharReaded < 0){
         error("ERROR writing to socket");
     }
 
@@ -201,9 +214,9 @@ int clientConnection(char *address, int portNumber) {
     }
 
     bzero(buffer, 256);
-    n = read(socketFileDescriptor, buffer, 255);
+    numberCharReaded = read(socketFileDescriptor, buffer, 255);
     printf("Milliseconds message Recived: %lld\n", current_timestamp());
-    if (n < 0) {
+    if (numberCharReaded < 0) {
         error("ERROR reading from socket");
     }
     printf("%s\n",buffer);
