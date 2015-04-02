@@ -10,13 +10,12 @@ long long current_timestamp() {
     return milliseconds;
 }
 
-void error(const char *msg)
-{
+void error(const char *msg) {
     perror(msg);
     exit(1);
 }
 
-int playSuperWav() {
+int playSuperWav(){
     fprintf (stdout, "**** File Started at: %lld ****\n",current_timestamp());
     pid_t pid=fork();
     if (pid==0) {
@@ -54,8 +53,7 @@ void  writeTimeDelay(long long delayTime){
  for each connection.  It handles all communication
  once a connnection has been established.
  *****************************************/
-void dostuff (int sock)
-{
+void dostuff (int sock){
     int n;
     int numberCharReaded;
     char buffer[1024];
@@ -127,10 +125,7 @@ ServerConnection startConfigurationServer(int portNumber){
 int serverConnection(int portNumber){
     int pid;
     ServerConnection server = startConfigurationServer(portNumber);
-/*
-    listen(socketFileDescriptor,5);
-    clientLenght = sizeof(cli_addr);
-*/
+
     while(1){
         server.newSocketFileDescriptor = accept(server.socketFileDescriptor, (struct sockaddr *) &server.cli_addr, &server.clientLenght);
         if (server.newSocketFileDescriptor < 0){
@@ -161,33 +156,39 @@ int serverConnection(int portNumber){
     return 0;
 
 }
+ClientConnection startConfigurationClient(char *address, int portNumber){
 
-int clientConnection(char *address, int portNumber) {
-    int socketFileDescriptor, numberCharReaded;
-    struct sockaddr_in server_addr;
-    struct hostent *server;
-    char buffer[256];
+    ClientConnection client;
 
-    socketFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
+    client.socketFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (socketFileDescriptor < 0) {
+    if (client.socketFileDescriptor < 0) {
         error("ERROR opening socket");
     }
 
-    server = gethostbyname(address);
-    if (server == NULL) {
+    client.server = gethostbyname(address);
+    if (client.server == NULL) {
         fprintf(stderr, "ERROR, no such host\n");
         exit(1);
     }
 
-    bzero((char *) &server_addr, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    bcopy((char *) server->h_addr, (char *) &server_addr.sin_addr.s_addr, server->h_length);
-    server_addr.sin_port = htons(portNumber);
+    bzero((char *) &client.server_addr, sizeof(client.server_addr));
+    client.server_addr.sin_family = AF_INET;
+    bcopy((char *) client.server->h_addr, (char *) &client.server_addr.sin_addr.s_addr, client.server->h_length);
+    client.server_addr.sin_port = htons(portNumber);
 
-    if (connect(socketFileDescriptor, (struct sockaddr *) &server_addr, sizeof(server_addr)) < 0) {
+    if (connect(client.socketFileDescriptor, (struct sockaddr *) &client.server_addr, sizeof(client.server_addr)) < 0) {
         error("ERROR connecting");
     }
+    return client;
+}
+
+int clientConnection(char *address, int portNumber){
+    int numberCharReaded;
+
+    char buffer[256];
+
+    ClientConnection client = startConfigurationClient(address, portNumber);
 
     long long int time = current_timestamp() + 10000; //time + delay (s)
 
@@ -195,7 +196,7 @@ int clientConnection(char *address, int portNumber) {
 
     sprintf( string_time, "%lld", time );
 
-    numberCharReaded = write(socketFileDescriptor,&string_time,strlen(string_time));
+    numberCharReaded = write(client.socketFileDescriptor,&string_time,strlen(string_time));
     if (numberCharReaded < 0){
         error("ERROR writing to socket");
     }
@@ -214,14 +215,14 @@ int clientConnection(char *address, int portNumber) {
     }
 
     bzero(buffer, 256);
-    numberCharReaded = read(socketFileDescriptor, buffer, 255);
+    numberCharReaded = read(client.socketFileDescriptor, buffer, 255);
     printf("Milliseconds message Recived: %lld\n", current_timestamp());
     if (numberCharReaded < 0) {
         error("ERROR reading from socket");
     }
     printf("%s\n",buffer);
 
-    close(socketFileDescriptor);
+    close(client.socketFileDescriptor);
 
     return 0;
 }
