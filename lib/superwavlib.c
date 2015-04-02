@@ -11,8 +11,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdbool.h> /*for true and false*/
-#define POLY 10
-#define GAIN 5000.0
+#include "superwav.h"
+
 #define BUFF_SIZE 4096
 #define WORD_LENGTH 50
 
@@ -52,26 +52,6 @@ long long current_timestamp() {
     return milliseconds;
 }
 
-char * handleWAVFiles(){
-    // -------------------------------------- HANDLE OF WAV FILES -------------------------------------//
-    int muestrasleidas = 0;
-    char * archivos_senal;
-
-    /*Modificado la ruta de ./FicherosPrueba/001_piano.wav
-    * para que lea desde una carpeta inferior
-    * */
-    // filewav32 = (unsigned char **) malloc (4*sizeof(unsigned char *));
-    archivos_senal= (char *)calloc(4* WORD_LENGTH, sizeof(char));
-    strcpy(archivos_senal + 0*WORD_LENGTH, "./bin/sound/001_piano.wav");
-    strcpy(archivos_senal + 1*WORD_LENGTH, "./bin/sound/voz4408.wav");
-    strcpy(archivos_senal + 2*WORD_LENGTH, "./bin/sound/001_bajo.wav");
-    strcpy(archivos_senal + 3*WORD_LENGTH, "./bin/sound/001_bateriabuena.wav");
-
-// -------------------------------------- HANDLE OF ALSA DEVICE -------------------------------------//
-
-    return archivos_senal;
-}
-
 snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, int err){
     /* Name of the PCM device, like plughw:0,0          */
     /* The first number is the number of the soundcard, */
@@ -109,7 +89,10 @@ snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, 
     return playback_handle;
 }
 
-snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err, int rate, unsigned int exact_rate){
+snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err){
+    int rate = 44100; /* Sample rate */
+    unsigned int exact_rate; /* Sample rate returned by */
+
     /* This structure contains information about the hardware and can be used to specify the configuration to be used for */
     /* the PCM stream. */
     snd_pcm_hw_params_t *hw_params;
@@ -197,21 +180,95 @@ snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err, int rat
 
     snd_pcm_hw_params_free (hw_params);
 
+    if ((err = snd_pcm_prepare (playback_handle)) < 0) {
+        fprintf (stderr, "cannot prepare audio interface for use (%s)\n", snd_strerror (err));
+        exit (1);
+    }
+
     return playback_handle;
 }
+
+char * handleWAVFiles(){
+    // -------------------------------------- HANDLE OF WAV FILES -------------------------------------//
+    int muestrasleidas = 0;
+    char * archivos_senal;
+
+    /*Modificado la ruta de ./FicherosPrueba/001_piano.wav
+    * para que lea desde una carpeta inferior
+    * */
+    archivos_senal= (char *)calloc(4* WORD_LENGTH, sizeof(char));
+    strcpy(archivos_senal + 0*WORD_LENGTH, "./bin/sound/001_piano.wav");
+    strcpy(archivos_senal + 1*WORD_LENGTH, "./bin/sound/voz4408.wav");
+    strcpy(archivos_senal + 2*WORD_LENGTH, "./bin/sound/001_bajo.wav");
+    strcpy(archivos_senal + 3*WORD_LENGTH, "./bin/sound/001_bateriabuena.wav");
+
+// -------------------------------------- HANDLE OF ALSA DEVICE -------------------------------------//
+
+    return archivos_senal;
+}
+
+SuperWAV loadFile(){
+    SuperWAV filewav;
+
+    filewav.filewav = (unsigned char **) malloc (2*sizeof(unsigned char *));
+
+    char * archivos_senal = handleWAVFiles();
+
+    filewav.leido1 = OpenWavConvert32(&filewav.filewav[0],archivos_senal);
+    printf("leidos 1 =%d\n", filewav.leido1);
+    filewav.leido2 = OpenWavConvert32(&filewav.filewav[1],archivos_senal + 1*WORD_LENGTH);
+    printf("leidos 2 =%d\n", filewav.leido2);
+    return filewav;
+}
+
+typedef struct FileHandelTag{
+    FILE *fp;
+    char dd[100];
+} FileHandel;
+
+FileHandel createWriteFile(){
+    /*Imprimir o guardar en un fichero los tiempos*/
+    /**********************************************/
+    FileHandel file;
+
+    file.fp = fopen("./Guarda_Muestras_Y_Tiempo.txt", "w" );
+    if (file.fp==NULL)
+    {
+        printf("Error al abrir el archivo \n");
+        exit(1);
+    }
+
+    /**********************************************/
+    return file;
+}
+
+void writeFile(FileHandel file,unsigned char **filewav, int l1){
+    /*Imprimir o guardar en un fichero los tiempos*/
+    /**********************************************/
+
+    int* aux1= (int*)(filewav[0] + l1*2048);
+    int* aux2= (int*)(filewav[1] + l1*2048);
+    int cont;
+    for(cont = 0; cont < 2048; cont++) {
+        //Imprimir por pantalla
+        //printf("\tA\t%d\t%d\t%lld\n",cont,*(aux1 + cont),current_timestamp());
+        //printf("\tB\t%d\t%d\t%lld\n",cont,*(aux2 + cont),current_timestamp());
+
+        //Escribir en fichero
+        sprintf(file.dd,"\t%lld\t%d\t%d\n",current_timestamp(),*(aux1 + cont),*(aux2 + cont));
+        fputs(file.dd,file.fp);
+    }
+    /**********************************************/
+}
+
 
 int main (int argc, char *argv[])
 {
     /* This holds the error code returned */
     int err;
-
-    int tt=0;
     short buf[BUFF_SIZE];
-    int rate = 44100; /* Sample rate */
-    unsigned int exact_rate; /* Sample rate returned by */
 
-
-    char * archivos_senal = handleWAVFiles();
+    SuperWAV fileWAV = loadFile();
 
     /* Handle for the PCM device */
     snd_pcm_t *playback_handle;
@@ -221,25 +278,13 @@ int main (int argc, char *argv[])
 
     playback_handle = assignPCMName(playback_handle,stream,err);
 
-    playback_handle = configurePlayBack_handle(playback_handle,err,rate, exact_rate);
+    playback_handle = configurePlayBack_handle(playback_handle,err);
 
-    if ((err = snd_pcm_prepare (playback_handle)) < 0) {
-        fprintf (stderr, "cannot prepare audio interface for use (%s)\n", snd_strerror (err));
-        exit (1);
-    }
-
-    int leido1=0;
-    int leido2=0;
-
-    unsigned char **filewav = (unsigned char **) malloc (2*sizeof(unsigned char *));
-    leido1 = OpenWavConvert32(&filewav[0],archivos_senal);
-    printf("leidos 1 =%d\n", leido1);
-    leido2 = OpenWavConvert32(&filewav[1],archivos_senal + 1*WORD_LENGTH);
-    printf("leidos 2 =%d\n", leido2);
-
+    /*Declarar los buffers con datos*/
     void *bufs[2] = { NULL , NULL };		// Allocate two (bufs[0],bufs[1]) but we only user lowest one for now
-    bufs[0]=(void *)filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
-    bufs[1]=(void *)filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
+    bufs[0]=(void *)fileWAV.filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
+    bufs[1]=(void *)fileWAV.filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
+    /*============================================*/
 
     /*Declarar vector de 0 para tiempo en silencio*/
     void *bufsVoid[2] = { NULL , NULL };
@@ -250,19 +295,10 @@ int main (int argc, char *argv[])
     /*============================================*/
 
     // -- FOR REPRODUCCING ---- //
-    unsigned char *data;
-    int pcmreturn, l1, l2;
-    short s1, s2;
-    int frames;
-    snd_pcm_uframes_t periodsize = BUFF_SIZE*sizeof(short);
-
+    int pcmreturn;
+    int l1;
     printf("size of buf = %lud\n", sizeof(buf));
-
-    data = (unsigned char *)malloc(periodsize);
-
     printf("size of data = %lud\n", sizeof(buf));
-
-    frames = periodsize >> 2;
 
     struct timeval t1, t2;
     double elapsedTime;
@@ -273,18 +309,9 @@ int main (int argc, char *argv[])
     /*Imprimir o guardar en un fichero los tiempos*/
     /**********************************************/
     /*
-    FILE *fp;
-    char dd[100];
-    fp = fopen("./Guarda_Muestras_Y_Tiempo.txt", "w" );
-    if (fp==NULL)
-    {
-        printf("Error al abrir el archivo \n");
-        return 0;
-    }
+    FileHandel file = createWriteFile();
     */
     /**********************************************/
-
-    int pasamos = 0;
 
     bool flag = true;
 
@@ -296,24 +323,13 @@ int main (int argc, char *argv[])
 
         /*2048bits /4 bits/byte = 512bytes*/
         /*Para avanzar 512 byts necesarios en el buffs*/
-        bufs[0]=(void *)(filewav[0] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
-        bufs[1]=(void *)(filewav[1] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
+        bufs[0]=(void *)(fileWAV.filewav[0] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
+        bufs[1]=(void *)(fileWAV.filewav[1] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
 
         /*Imprimir o guardar en un fichero los tiempos*/
         /**********************************************/
         /*
-        int* aux1= (int*)(filewav[0] + l1*2048);
-        int* aux2= (int*)(filewav[1] + l1*2048);
-        int cont;
-        for(cont = 0; cont < 2048; cont++) {
-            //Imprimir por pantalla
-            //printf("\tA\t%d\t%d\t%lld\n",cont,*(aux1 + cont),current_timestamp());
-            //printf("\tB\t%d\t%d\t%lld\n",cont,*(aux2 + cont),current_timestamp());
-
-            //Escribir en fichero
-            sprintf(dd,"\t%lld\t%d\t%d\n",current_timestamp(),*(aux1 + cont),*(aux2 + cont));
-            fputs(dd,fp);
-        }
+        writeFile(file,fileWAV.filewav, l1);
         */
         /**********************************************/
 
@@ -342,7 +358,7 @@ int main (int argc, char *argv[])
             /************************/
         }
 
-       if(l1 == 1000){
+        if(l1 == 1000){
             flag = false;
         }
 
@@ -354,8 +370,8 @@ int main (int argc, char *argv[])
     /*Imprimir o guardar en un fichero los tiempos*/
     /**********************************************/
     /*
-    fflush(fp);
-    fclose(fp);
+    fflush(file.fp);
+    fclose(file.fp);
     */
     /**********************************************/
 
@@ -368,8 +384,8 @@ int main (int argc, char *argv[])
 
     printf(" -- PASADO %f -- \n", elapsedTime);
 
-    freeWav(filewav[0]);
-    freeWav(filewav[1]);
+    freeWav(fileWAV.filewav[0]);
+    freeWav(fileWAV.filewav[1]);
 
     snd_pcm_close (playback_handle);
 

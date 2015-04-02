@@ -14,6 +14,6 @@ fi
 printf "\nCompilating\n"
 gcc SuperWavApp.c ./lib/connection.c -o SuperWavApp
 
-printf "\nCompilating superWav5:\n"
+printf "\nCompilating superWav5...\n"
 cd ./lib
-sudo make
+sudo gcc superwavlib.c spatiallib.c -o superwav5 -lasound -lm

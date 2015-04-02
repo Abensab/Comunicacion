@@ -66,7 +66,7 @@ void dostuff (int sock){
     printf("Milliseconds message recived: %lld\n", current_timestamp());
 
     long long time = atoll(buffer);
-    long long delay = (time-10000) - current_timestamp();
+    long long delay = (time-3000) - current_timestamp();
 
     printf("Moment to start: %lld\n",atoll(buffer));
     printf("Delay: %lld\n",delay);
@@ -190,7 +190,7 @@ int clientConnection(char *address, int portNumber){
 
     ClientConnection client = startConfigurationClient(address, portNumber);
 
-    long long int time = current_timestamp() + 10000; //time + delay (s)
+    long long int time = current_timestamp() + 3000; //time + delay (s)
 
     char string_time[100];/*Descubrir tamaño aproximado*/
 
