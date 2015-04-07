@@ -79,13 +79,13 @@ void dostuff (int sock){
 
     /*Play with a delay of 3 seconds*/
 
-    int valorBooL = 0;
-    while (valorBooL != 1){
-        if( (time +(-1*delay) - current_timestamp()) <= 0 ){ /*Experimental +(-1*delay)*/
-            playSuperWav();
-            valorBooL = 1;
-        }
-    }
+//    int valorBooL = 0;
+//    while (valorBooL != 1){
+//        if( (time +(-1*delay) - current_timestamp()) <= 0 ){ /*Experimental +(-1*delay)*/
+//            playSuperWav();
+ //           valorBooL = 1;
+ //       }
+ //   }
 
     numberCharReaded = write(sock,"I got your message",18);
     if (numberCharReaded < 0){
@@ -144,7 +144,7 @@ int startServerConnection(int portNumber){
         }
         if (pid == 0)  {
             close(server.socketFileDescriptor);
-            //dostuff(server.newSocketFileDescriptor);
+            dostuff(server.newSocketFileDescriptor);
             exit(0);
         }
         else {
@@ -183,7 +183,7 @@ ClientConnection startConfigurationClient(char *address, int portNumber){
     return client;
 }
 
-int clientConnection(char *address, int portNumber){
+int startClientConnection(char *address, int portNumber){
     int numberCharReaded;
 
     char buffer[256];

@@ -82,9 +82,9 @@ typedef struct ClientConnectionTag{
     void  writeTimeDelay(long long delayTime);
     void dostuff (int sock);
 
-    int serverConnection(int portNumber);
+    int startServerConnection(int portNumber);
     ServerConnection startConfigurationServer(int portNumber);
 
-    int clientConnection(char *address, int portNumber);
+    int startClientConnection(char *address, int portNumber);
     ClientConnection startConfigurationClient(char *address, int portNumber);
 #endif

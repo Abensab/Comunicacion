@@ -11,9 +11,9 @@ else
 printf "Packages installed\n"
 fi
 
-printf "\nCompilating\n"
+printf "\nCompilating lib...\n"
 gcc SuperWavApp.c ./lib/connection.c -o SuperWavApp
 
-printf "\nCompilating superWav5...\n"
+printf "\nCompilating SuperWav5...\n"
 cd ./lib
-sudo gcc superwavlib.c spatiallib.c -o superwav5 -lasound -lm
+sudo gcc superwavlib.c spatiallib.c connection.c -o superwav5 -lasound -lm
