@@ -11,7 +11,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdbool.h> /*for true and false*/
-#include "superwav.h"
+#include "superwavlib.h"
+#include "connection.h"
 
 #define BUFF_SIZE 4096
 #define WORD_LENGTH 50
@@ -42,14 +43,6 @@ int kbhit(void)
     }
 
     return 0;
-}
-
-long long current_timestamp() {
-    struct timeval te;
-    gettimeofday(&te, NULL); // get current time
-    long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; // caculate milliseconds
-    //printf("%lld \n",milliseconds);
-    return milliseconds;
 }
 
 snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, int err){
@@ -221,10 +214,7 @@ SuperWAV loadFile(){
     return filewav;
 }
 
-typedef struct FileHandelTag{
-    FILE *fp;
-    char dd[100];
-} FileHandel;
+
 
 FileHandel createWriteFile(){
     /*Imprimir o guardar en un fichero los tiempos*/

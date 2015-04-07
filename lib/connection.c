@@ -122,7 +122,7 @@ ServerConnection startConfigurationServer(int portNumber){
     return server;
 }
 
-int serverConnection(int portNumber){
+int startServerConnection(int portNumber){
     int pid;
     ServerConnection server = startConfigurationServer(portNumber);
 
@@ -144,7 +144,7 @@ int serverConnection(int portNumber){
         }
         if (pid == 0)  {
             close(server.socketFileDescriptor);
-            dostuff(server.newSocketFileDescriptor);
+            //dostuff(server.newSocketFileDescriptor);
             exit(0);
         }
         else {
@@ -206,6 +206,7 @@ int clientConnection(char *address, int portNumber){
 
     /*Play with a delay of 3 seconds*/
 
+    /*
     int valorBooL = 0;
     while (valorBooL != 1){
         if( (time - current_timestamp()) <= 0 ){
@@ -213,6 +214,7 @@ int clientConnection(char *address, int portNumber){
             valorBooL = 1;
         }
     }
+    */
 
     bzero(buffer, 256);
     numberCharReaded = read(client.socketFileDescriptor, buffer, 255);
