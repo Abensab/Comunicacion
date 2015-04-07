@@ -10,6 +10,12 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/wait.h>
+#include <arpa/inet.h>
+
+/*Kbit arate*/
+#include "spatiallib.h"
+#include <termios.h>
+#include <fcntl.h>
 
 typedef struct ServerConnectionTag{
     /* *********************************************************************
@@ -19,7 +25,6 @@ typedef struct ServerConnectionTag{
     * and the accept system call.
     * ********************************************************************** */
     int socketFileDescriptor;
-    int newSocketFileDescriptor;
 
     /***********************************************************************
     * portNumber stores the port number on which the server accepts connections.
@@ -42,6 +47,7 @@ typedef struct ServerConnectionTag{
     struct sockaddr_in serv_addr;
     struct sockaddr_in cli_addr;
 
+
 } ServerConnection;
 /*
 * To bee able to use ServerConnection everywhere you want to avoid adding the
@@ -59,13 +65,19 @@ typedef struct ClientConnectionTag{
     int socketFileDescriptor;
 
     /***********************************************************************
+    * portNumber stores the port number on which the server accepts connections.
+    * ********************************************************************** */
+    int portNumber;
+
+    /***********************************************************************
     * A sockaddr_in is a structure containing an internet address.
     * This structure is defined in netinet/in.h.
     *
     * The variable serv_addr will contain the address of the server, and
     * cli_addr will contain the address of the client which connects to the server.
     * ********************************************************************** */
-    struct sockaddr_in server_addr;
+    struct sockaddr_in serv_addr;
+    struct sockaddr_in cli_addr;
 
     /***********************************************************************
     * The variable server is a pointer to a structure of type hostent.
@@ -73,14 +85,17 @@ typedef struct ClientConnectionTag{
     * ********************************************************************** */
     struct hostent *server;
 
+    unsigned int length;
+
  } ClientConnection;
 
 
     long long current_timestamp();
     void error(const char *msg);
     int playSuperWav();
+    int kbhit(void);
     void  writeTimeDelay(long long delayTime);
-    void dostuff (int sock);
+    void dostuff (ServerConnection server);
 
     int startServerConnection(int portNumber);
     ServerConnection startConfigurationServer(int portNumber);

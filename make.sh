@@ -12,7 +12,7 @@ printf "Packages installed\n"
 fi
 
 printf "\nCompilating lib...\n"
-gcc SuperWavApp.c ./lib/connection.c -o SuperWavApp
+gcc SuperWavApp.c ./lib/connection.c ./lib/spatiallib.c -o SuperWavApp
 
 printf "\nCompilating SuperWav5...\n"
 cd ./lib

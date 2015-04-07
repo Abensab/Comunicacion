@@ -14,7 +14,7 @@
     } FileHandel;
 
     void *buffers(char * archivos_senal);
-    int kbhit(void);
+    //int kbhit(void);
     snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, int err);
     snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err);
     char * handleWAVFiles();

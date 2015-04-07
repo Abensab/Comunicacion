@@ -17,7 +17,7 @@
 #define BUFF_SIZE 4096
 #define WORD_LENGTH 50
 
-
+/*
 int kbhit(void)
 {
     struct termios oldt, newt;
@@ -43,7 +43,7 @@ int kbhit(void)
     }
 
     return 0;
-}
+}*/
 
 snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, int err){
     /* Name of the PCM device, like plughw:0,0          */
