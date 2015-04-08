@@ -12,38 +12,10 @@
 #include <fcntl.h>
 #include <stdbool.h> /*for true and false*/
 #include "superwavlib.h"
-#include "connection.h"
+#include "./../funcions.h"
 
 #define BUFF_SIZE 4096
 #define WORD_LENGTH 50
-
-/*
-int kbhit(void)
-{
-    struct termios oldt, newt;
-    int ch;
-    int oldf;
-
-    tcgetattr(STDIN_FILENO, &oldt);
-    newt = oldt;
-    newt.c_lflag &= ~(ICANON | ECHO);
-    tcsetattr(STDIN_FILENO, TCSANOW, &newt);
-    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-    ch = getchar();
-
-    tcsetattr(STDIN_FILENO, TCSANOW, &oldt);
-    fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-    if(ch != EOF)
-    {
-        ungetc(ch, stdin);
-        return 1;
-    }
-
-    return 0;
-}*/
 
 snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, int err){
     /* Name of the PCM device, like plughw:0,0          */

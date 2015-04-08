@@ -11,9 +11,13 @@ else
 printf "Packages installed\n"
 fi
 
+printf "Location:\n"
+route=$(pwd)
+echo $route
+
 printf "\nCompilating lib...\n"
-gcc SuperWavApp.c ./lib/connection.c ./lib/spatiallib.c -o SuperWavApp
+gcc SuperWavApp.c $route/lib/funcions.c $route/lib/connection/socketUtils.c $route/lib/connection/client.c $route/lib/connection/server.c $route/lib/sound/spatiallib.c -o SuperWavApp
 
 printf "\nCompilating SuperWav5...\n"
-cd ./lib
-sudo gcc superwavlib.c spatiallib.c connection.c -o superwav5 -lasound -lm
+cd ./lib/sound
+sudo gcc superwavlib.c spatiallib.c ./../funcions.c -o superwav5 -lasound -lm
