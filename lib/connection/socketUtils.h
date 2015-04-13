@@ -29,7 +29,7 @@
 
 int Socket (int family, int type, int protocol);
 int Bind (int sockfd, const SA *myaddr, socklen_t myaddrlen);
-void Listen (int sockfd, int backlog);
+int Listen (int sockfd, int backlog);
 int Accept (int listen_sockfd, SA *cliaddr, socklen_t *addrlenp);
 int Connect (int sockfd, const SA *srvaddr, socklen_t addrlen);
 struct hostent *GetHostByName(char *host);

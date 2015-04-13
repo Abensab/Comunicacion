@@ -9,6 +9,7 @@ ClientConnection startConfigurationClient(char *address, int portNumber){
     ClientConnection client;
 
     client.socketFileDescriptor = Socket(AF_INET, SOCK_STREAM, 0);
+    //fcntl(client.socketFileDescriptor, F_SETFL, O_NONBLOCK);
 
     client.server = GetHostByName(address);
 
@@ -23,22 +24,15 @@ ClientConnection startConfigurationClient(char *address, int portNumber){
 }
 
 int startClientConnection(char *address, int portNumber){
-    int numberCharReaded;
-
-    char buffer[256];
-
-    ClientConnection client = startConfigurationClient(address, portNumber);
-
-    long long int time = current_timestamp() + 3000; //time + delay (s)
-
-    char string_time[100];/*Descubrir tamaño aproximado*/
+    int                 bytes;
+    char                buffer[256];
+    ClientConnection    client  = startConfigurationClient(address, portNumber);
+    long long int       time    = current_timestamp() + 3000; //time + delay (s)
+    char                string_time[100];/*Descubrir tamaño aproximado*/
 
     sprintf( string_time, "%lld", time );
 
-    numberCharReaded = write(client.socketFileDescriptor,&string_time,strlen(string_time));
-    if (numberCharReaded < 0){
-        error("ERROR writing to socket");
-    }
+    bytes = Send(client.socketFileDescriptor,&string_time,strlen(string_time),0);
 
     /*Play in that instant moment the message has been recived*/
     //playSuperWav();
@@ -56,11 +50,10 @@ int startClientConnection(char *address, int portNumber){
     */
 
     bzero(buffer, 256);
-    numberCharReaded = read(client.socketFileDescriptor, buffer, 255);
+
+    bytes = Recv(client.socketFileDescriptor, buffer, 255, 0);
+
     printf("Milliseconds message Recived: %lld\n", current_timestamp());
-    if (numberCharReaded < 0) {
-        error("ERROR reading from socket");
-    }
     printf("%s\n",buffer);
 
     close(client.socketFileDescriptor);

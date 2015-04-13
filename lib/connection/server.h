@@ -12,7 +12,7 @@ typedef struct ServerConnectionTag{
     * and the accept system call.
     * ********************************************************************** */
     int socketFileDescriptor;
-    int newSocketFileDescriptor;
+    int newSocketFileDescriptor[30];
 
     /***********************************************************************
     * portNumber stores the port number on which the server accepts connections.
@@ -34,6 +34,8 @@ typedef struct ServerConnectionTag{
     * ********************************************************************** */
     struct sockaddr_in serv_addr;
     struct sockaddr_in cli_addr;
+
+    int max_clients;
 
 } ServerConnection;
 /*

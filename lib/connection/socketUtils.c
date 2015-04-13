@@ -32,7 +32,7 @@ return(tmp);
 
 
 /**LISTEN: set a socket in passive mode, in order to listen to a connection**/
-void Listen(int socket,int backlog){
+int Listen(int socket,int backlog){
 	char *ptr;
 	int tmp;
 
@@ -43,6 +43,7 @@ void Listen(int socket,int backlog){
 	if((tmp=listen(socket,backlog))<0){
         printf("**Error in Listen: %s.\n",strerror(errno));
 	}
+    return tmp;
 }
 
 
@@ -146,15 +147,15 @@ return(tmp);
 
 
 /**SEND: it tries to send data to the socket**/
-int Send(int socket,void *buffer,int len, int flags, int *epipeError){
+int Send(int socket,void *buffer,int len, int flags/*, int *epipeError*/){
     int tmp;
 
     tmp=send(socket,buffer,len,0);
-    *epipeError=0;
+    //*epipeError=0;
     if(tmp<0){
         printf("***Error in Send: %s.\n",strerror(errno));
         if(errno==EPIPE){
-            *epipeError=1;
+            //*epipeError=1;
             printf("EPIPE.\n");
         }
     }

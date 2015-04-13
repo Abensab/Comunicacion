@@ -13,6 +13,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#define TRUE   1
+#define FALSE  0
+
 long long current_timestamp();
 void error(const char *msg);
 int kbhit(void);

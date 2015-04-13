@@ -27,15 +27,12 @@ void  writeTimeDelay(long long delayTime){
  once a connnection has been established.
  *****************************************/
 void dostuff (int sock){
-    int n;
-    int numberCharReaded;
+    int bytes;
     char buffer[1024];
 
     bzero(buffer,1024);
-    n = read(sock,buffer,1024);
-    if (n < 0){
-        error("ERROR reading from socket");
-    }
+    bytes = Recv(sock,buffer,1024,0);
+
     printf("Milliseconds message recived: %lld\n", current_timestamp());
 
     long long time = atoll(buffer);
@@ -60,10 +57,7 @@ void dostuff (int sock){
     //       }
     //   }
 
-    numberCharReaded = write(sock,"I got your message",18);
-    if (numberCharReaded < 0){
-        error("ERROR writing to socket");
-    }
+    bytes = Send(sock,"I got your message",18);
 }
 
 /* **********************************************************************
@@ -71,9 +65,27 @@ void dostuff (int sock){
 * so in other parts of the code you can be able to send and recive messeges
 * *********************************************************************** */
 ServerConnection startConfigurationServer(int portNumber){
-    ServerConnection server;
+    int opt = TRUE;
 
+    ServerConnection server;
     server.socketFileDescriptor = Socket(AF_INET, SOCK_STREAM, 0);
+
+    //set master socket to allow multiple connections , this is just a good habit, it will work without this
+    if( setsockopt( server.socketFileDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0 )
+    {
+        perror("setsockopt");
+        exit(EXIT_FAILURE);
+    }
+
+    server.max_clients = 30;
+    //initialise all client_socket[] or newFileDescriptor to 0 so not checked
+    int i;
+    for (i = 0; i < server.max_clients; i++)
+    {
+        server.newSocketFileDescriptor[i] = 0;
+    }
+
+    //fcntl(server.socketFileDescriptor, F_SETFL, O_NONBLOCK);
 
     bzero((char *) &server.serv_addr, sizeof(server.serv_addr));
 
@@ -84,6 +96,7 @@ ServerConnection startConfigurationServer(int portNumber){
     Bind(server.socketFileDescriptor, (struct sockaddr *) &server.serv_addr, sizeof(server.serv_addr));
 
     Listen(server.socketFileDescriptor,5);
+    printf("Waiting for connections ...\n");
     server.clientLenght = sizeof(server.cli_addr);
 
     return server;
@@ -91,26 +104,90 @@ ServerConnection startConfigurationServer(int portNumber){
 
 int startServerConnection(int portNumber){
     int pid;
+    int sd,max_sd;
+    int cont = 0;
     ServerConnection server = startConfigurationServer(portNumber);
 
-    while(1){
-        server.newSocketFileDescriptor = Accept(server.socketFileDescriptor, (struct sockaddr *) &server.cli_addr, &server.clientLenght);
+    /* For select */
+    fd_set readfds;
+    struct timeval timeout;
+    int rv;
+    //clear the socket set
+    FD_ZERO(&readfds);
+    //add our file descriptor to the set
+    FD_SET(server.socketFileDescriptor, &readfds);
+    max_sd = server.socketFileDescriptor;
+    cont = cont+1;
 
-        pid = fork();
-        if (pid < 0){
-            error("ERROR on fork");
+    timeout.tv_sec = 3;
+    timeout.tv_usec = 0;
+    /* ************************************* */
+
+    while(1){
+
+        sd = server.newSocketFileDescriptor[cont];
+
+        //if valid socket descriptor then add to read list
+        if(sd > 0)
+            FD_SET( sd , &readfds);
+
+        //highest file descriptor number, need it for the select function
+        if(sd > max_sd)
+            max_sd = sd;
+
+        timeout.tv_sec = 20;
+        timeout.tv_usec = 0;
+
+        rv = Select(server.socketFileDescriptor+cont,&readfds,NULL,NULL,&timeout);
+
+        if(rv == -1)
+        {
+            perror("select error"); /// an error accured
+            return 1;
         }
-        if (pid == 0)  {
-            Close(server.socketFileDescriptor);
-            dostuff(server.newSocketFileDescriptor);
-            exit(0);
+        else if(rv == 0)
+        {
+            printf("timeout occurred (20 second) \n"); // a timeout occured
+            //return 1;
         }
         else {
-            close(server.newSocketFileDescriptor);
+            if (FD_ISSET(server.socketFileDescriptor, &readfds))
+            {
+                server.newSocketFileDescriptor[cont] = Accept(server.socketFileDescriptor,
+                                                              (struct sockaddr *) &server.cli_addr,
+                                                              &server.clientLenght);
+                //inform user of socket number - used in send and receive commands
+                printf("New connection , socket fd is %d , ip is : %s , port : %d \n" ,
+                       server.newSocketFileDescriptor[cont], inet_ntoa(server.cli_addr.sin_addr) , ntohs(server.cli_addr.sin_port));
+
+                char *message = "ECHO Daemon v1.0 \r\n";
+
+                if( Send(server.newSocketFileDescriptor[cont], message, strlen(message), 0) != strlen(message) )
+                {
+                    perror("send");
+                }
+
+                printf("Welcome message sent successfully.\n");
+
+                pid = fork();
+                if (pid < 0) {
+                    error("ERROR on fork");
+                }
+                if (pid == 0) {
+                    Close(server.socketFileDescriptor);
+                    dostuff(server.newSocketFileDescriptor[cont]);
+                    exit(0);
+                }
+                else {
+                    close(server.newSocketFileDescriptor[cont]);
+                }
+
+            }
+            cont +=1;
         }
     }
-    close(server.newSocketFileDescriptor);
-    close(server.socketFileDescriptor);
+    //close(server.newSocketFileDescriptor);
+    //close(server.socketFileDescriptor);
     return 0;
 
 }
