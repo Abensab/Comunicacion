@@ -119,7 +119,7 @@ int startServerConnection(int portNumber){
     max_sd = server.socketFileDescriptor;
     cont = cont+1;
 
-    timeout.tv_sec = 3;
+    timeout.tv_sec = 20;
     timeout.tv_usec = 0;
     /* ************************************* */
 
@@ -135,9 +135,19 @@ int startServerConnection(int portNumber){
         if(sd > max_sd)
             max_sd = sd;
 
-        timeout.tv_sec = 20;
+        timeout.tv_sec = 3;
         timeout.tv_usec = 0;
 
+        /*Hay que inicializar estos datos cada vez que se utiliza resetea la configuración*/
+
+        fd_set readfds;
+        //clear the socket set
+        FD_ZERO(&readfds);
+        //add our file descriptor to the set
+        FD_SET(server.socketFileDescriptor, &readfds);
+        max_sd = server.socketFileDescriptor;
+
+        /**/
         rv = Select(server.socketFileDescriptor+cont,&readfds,NULL,NULL,&timeout);
 
         if(rv == -1)
@@ -147,7 +157,7 @@ int startServerConnection(int portNumber){
         }
         else if(rv == 0)
         {
-            printf("timeout occurred (20 second) \n"); // a timeout occured
+            printf(" ************************** timeout occurred (20 second) **************************\n"); // a timeout occured
             //return 1;
         }
         else {
