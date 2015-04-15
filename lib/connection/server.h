@@ -46,6 +46,7 @@ typedef struct ServerConnectionTag{
 int playSuperWav();
 void  writeTimeDelay(long long delayTime);
 void dostuff (int server);
+void sendTimeToStart(int sock, int timeToStart);
 
 int startServerConnection(int portNumber);
 ServerConnection startConfigurationServer(int portNumber);

@@ -27,27 +27,35 @@ int startClientConnection(char *address, int portNumber){
     int                 bytes;
     char                buffer[256];
     ClientConnection    client  = startConfigurationClient(address, portNumber);
-    long long int       time    = current_timestamp() + 3000; //time + delay (s)
-    char                string_time[100];/*Descubrir tamaño aproximado*/
 
-    sprintf( string_time, "%lld", time );
+    bzero(buffer,256);
+    bytes = Recv(client.socketFileDescriptor,buffer,256,0);
 
-    bytes = Send(client.socketFileDescriptor,&string_time,strlen(string_time),0);
+    printf("Milliseconds message recived: %lld\n", current_timestamp());
+
+    long long int timer = atoll(buffer);
+    long long delay = (timer-10000) - current_timestamp();
+
+    printf("Moment to start: %lld\n",atoll(buffer));
+    printf("Delay: %lld\n",delay);
+
+    //sprintf( string_time, "%lld", time );
+
+    //bytes = Send(client.socketFileDescriptor,&string_time,strlen(string_time),0);
 
     /*Play in that instant moment the message has been recived*/
     //playSuperWav();
 
     /*Play with a delay of 3 seconds*/
 
-    /*
     int valorBooL = 0;
     while (valorBooL != 1){
-        if( (time - current_timestamp()) <= 0 ){
+        if( (timer +(-1*delay) - current_timestamp()) <= 0 ){ /*Experimental +(-1*delay)*/
             playSuperWav();
             valorBooL = 1;
         }
     }
-    */
+
 
     bzero(buffer, 256);
 

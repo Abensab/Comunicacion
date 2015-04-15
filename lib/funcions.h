@@ -19,5 +19,6 @@
 long long current_timestamp();
 void error(const char *msg);
 int kbhit(void);
+int playSuperWav();
 
 #endif

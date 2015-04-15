@@ -40,6 +40,20 @@ long long current_timestamp() {
 
     return milliseconds;
 }
+
+int playSuperWav() {
+
+    pid_t pid=fork();
+    if (pid==0) {
+        char *args[] = {"./lib/sound/superwav5", (char *) 0 };
+        execv("./lib/sound/superwav5", args);
+        exit(-1);
+    }
+    else {
+        waitpid(pid,0,0);
+    }
+    return 0;
+}
 /*
 int main(int argc, char *argv[]) {
 

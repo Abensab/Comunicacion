@@ -21,25 +21,24 @@ void  writeTimeDelay(long long delayTime){
     fclose(fp);
 }
 
-/******** DOSTUFF() *********************
+/******** sendTimeToStart() *********************
  There is a separate instance of this function
  for each connection.  It handles all communication
- once a connnection has been established.
+ once a connnection has been established and sends
+ the time that the superwav player has to start.
  *****************************************/
-void dostuff (int sock){
-    int bytes;
-    char buffer[1024];
+void sendTimeToStart(int sock, int timeToStart){
+    int             bytes;
+    char            buffer[256];
+    long long int   timer    = current_timestamp() + (timeToStart*1000);
 
-    bzero(buffer,1024);
-    bytes = Recv(sock,buffer,1024,0);
+    char            string_time[64];/*Descubrir tamaño aproximado*/
 
-    printf("Milliseconds message recived: %lld\n", current_timestamp());
+    sprintf( string_time, "%lld", timer );
 
-    long long time = atoll(buffer);
-    long long delay = (time-3000) - current_timestamp();
+    printf("Sending time %s, to socket %d \n",string_time, sock);
 
-    printf("Moment to start: %lld\n",atoll(buffer));
-    printf("Delay: %lld\n",delay);
+    bytes = Send(sock,&string_time,strlen(string_time),0);
 
     /*Write in a txt the delay of time*/
     //writeTimeDelay(delay);
@@ -49,15 +48,18 @@ void dostuff (int sock){
 
     /*Play with a delay of 3 seconds*/
 
-//    int valorBooL = 0;
-//    while (valorBooL != 1){
-//        if( (time +(-1*delay) - current_timestamp()) <= 0 ){ /*Experimental +(-1*delay)*/
-//            playSuperWav();
-    //           valorBooL = 1;
-    //       }
-    //   }
+    int valorBooL = 0;
+    while (valorBooL != 1){
+        if( (timer - current_timestamp()) <= 0 ){
+            playSuperWav();
+            valorBooL = 1;
+        }
+    }
 
-    bytes = Send(sock,"I got your message",18);
+    //bzero(buffer,256);
+    //bytes = Recv(sock,buffer,256,0);
+
+    //bytes = Send(sock,"I got your message",18);
 }
 
 /* **********************************************************************
@@ -119,81 +121,92 @@ int startServerConnection(int portNumber){
     max_sd = server.socketFileDescriptor;
     cont = cont+1;
 
-    timeout.tv_sec = 20;
+    timeout.tv_sec = 1;
     timeout.tv_usec = 0;
     /* ************************************* */
 
-    while(1){
+    while(1) {
+        int search = TRUE;
 
-        sd = server.newSocketFileDescriptor[cont];
+        if(search){
+            sd = server.newSocketFileDescriptor[cont];
 
-        //if valid socket descriptor then add to read list
-        if(sd > 0)
-            FD_SET( sd , &readfds);
+            //if valid socket descriptor then add to read list
+            if (sd > 0)
+                FD_SET(sd, &readfds);
 
-        //highest file descriptor number, need it for the select function
-        if(sd > max_sd)
-            max_sd = sd;
+            //highest file descriptor number, need it for the select function
+            if (sd > max_sd)
+                max_sd = sd;
 
-        timeout.tv_sec = 3;
-        timeout.tv_usec = 0;
+            rv = Select(server.socketFileDescriptor + cont, &readfds, NULL, NULL, &timeout);
 
-        /*Hay que inicializar estos datos cada vez que se utiliza resetea la configuración*/
-
-        fd_set readfds;
-        //clear the socket set
-        FD_ZERO(&readfds);
-        //add our file descriptor to the set
-        FD_SET(server.socketFileDescriptor, &readfds);
-        max_sd = server.socketFileDescriptor;
-
-        /**/
-        rv = Select(server.socketFileDescriptor+cont,&readfds,NULL,NULL,&timeout);
-
-        if(rv == -1)
-        {
-            perror("select error"); /// an error accured
-            return 1;
-        }
-        else if(rv == 0)
-        {
-            printf(" ************************** timeout occurred (20 second) **************************\n"); // a timeout occured
-            //return 1;
-        }
-        else {
-            if (FD_ISSET(server.socketFileDescriptor, &readfds))
-            {
-                server.newSocketFileDescriptor[cont] = Accept(server.socketFileDescriptor,
-                                                              (struct sockaddr *) &server.cli_addr,
-                                                              &server.clientLenght);
-                //inform user of socket number - used in send and receive commands
-                printf("New connection , socket fd is %d , ip is : %s , port : %d \n" ,
-                       server.newSocketFileDescriptor[cont], inet_ntoa(server.cli_addr.sin_addr) , ntohs(server.cli_addr.sin_port));
-
-                char *message = "ECHO Daemon v1.0 \r\n";
-
-                if( Send(server.newSocketFileDescriptor[cont], message, strlen(message), 0) != strlen(message) )
-                {
-                    perror("send");
-                }
-
-                printf("Welcome message sent successfully.\n");
-
-                pid = fork();
-                if (pid < 0) {
-                    error("ERROR on fork");
-                }
-                if (pid == 0) {
-                    Close(server.socketFileDescriptor);
-                    dostuff(server.newSocketFileDescriptor[cont]);
-                    exit(0);
-                }
-                else {
-                    close(server.newSocketFileDescriptor[cont]);
-                }
-
+            if (rv == -1) {
+                perror("select error"); /// an error accured
+                return 1;
             }
-            cont +=1;
+            else if (rv == 0) {
+                //printf(" ************************** timeout occurred (3 second) **************************\n"); // a timeout occured
+                //return 1;
+                timeout.tv_sec = 1;
+                timeout.tv_usec = 0;
+
+                /*Hay que inicializar estos datos cada vez que se utiliza resetea la configuración*/
+                //add our file descriptor to the set
+                FD_SET(server.socketFileDescriptor, &readfds);
+                /**/
+            }
+            else {
+                if (FD_ISSET(server.socketFileDescriptor, &readfds)) {
+                    server.newSocketFileDescriptor[cont] = Accept(server.socketFileDescriptor,
+                                                                  (struct sockaddr *) &server.cli_addr,
+                                                                  &server.clientLenght);
+                    //inform user of socket number - used in send and receive commands
+                    printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
+                           server.newSocketFileDescriptor[cont], inet_ntoa(server.cli_addr.sin_addr),
+                           ntohs(server.cli_addr.sin_port));
+
+                    /*char *message = "ECHO Daemon v1.0 \r\n";
+
+                    Send(server.newSocketFileDescriptor[cont], message, strlen(message), 0);
+
+                    printf("Welcome message sent successfully.\n");*/
+
+                }
+                cont += 1;
+            }
+        }
+
+        if (kbhit()) {
+            char c = getchar();
+            printf("has presionado %c\n", c);
+
+            if (c == 's') {
+                search = FALSE;
+                printf("START music in 10s!\n");
+                int i;
+                for (i = 0; i < server.max_clients; i++)
+                {
+                    if (server.newSocketFileDescriptor[i]!= 0){
+                        printf("Connection, cont = %d, %d \n",i, server.newSocketFileDescriptor[i]);
+                        pid = fork();
+                        if (pid < 0) {
+                            error("ERROR on fork");
+                        }
+                        if (pid == 0) {
+                            Close(server.socketFileDescriptor);
+                            sendTimeToStart(server.newSocketFileDescriptor[i],10);
+                            exit(0);
+                        }
+                        else {
+                            close(server.newSocketFileDescriptor[i]);
+                            server.newSocketFileDescriptor[i] = 0;
+                        }
+                    }
+                    else
+                        printf("No connection, cont = %d \n",i);
+                }
+            }
         }
     }
     //close(server.newSocketFileDescriptor);
