@@ -1,7 +1,7 @@
 #!/bin/bash
 
 printf "\nChecking for missing packages...\n"
-tmp=$(dpkg-query -W -f='${Package} ${Status} \n' libasound2-dev | grep "no package found")
+tmp=$(dpkg-query -W -f='${Package} ${Status} \n' libasound2-dev libcr-dev mpich2 mpich2-doc | grep "no package found")
 
 if [[ $tmp =~ "no package found" ]]
 then
