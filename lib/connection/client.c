@@ -23,6 +23,7 @@ ClientConnection startConfigurationClient(char *address, int portNumber){
     return client;
 }
 
+/*
 int startClientConnection(char *address, int portNumber){
     int                 bytes;
     char                buffer[256];
@@ -43,14 +44,20 @@ int startClientConnection(char *address, int portNumber){
 
     //bytes = Send(client.socketFileDescriptor,&string_time,strlen(string_time),0);
 
-    /*Play in that instant moment the message has been recived*/
+    */
+/*Play in that instant moment the message has been recived*//*
+
     //playSuperWav();
 
-    /*Play with a delay of 3 seconds*/
+    */
+/*Play with a delay of 3 seconds*//*
+
 
     int valorBooL = 0;
     while (valorBooL != 1){
-        if( (timer +(-1*delay) - current_timestamp()) <= 0 ){ /*Experimental +(-1*delay)*/
+        if( (timer +(-1*delay) - current_timestamp()) <= 0 ){ */
+/*Experimental +(-1*delay)*//*
+
             playSuperWav();
             valorBooL = 1;
         }
@@ -67,4 +74,4 @@ int startClientConnection(char *address, int portNumber){
     close(client.socketFileDescriptor);
 
     return 0;
-}
+}*/

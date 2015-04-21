@@ -38,7 +38,7 @@ typedef struct ClientConnectionTag{
 
  } ClientConnection;
 
-int startClientConnection(char *address, int portNumber);
 ClientConnection startConfigurationClient(char *address, int portNumber);
 
+/*int startClientConnection(char *address, int portNumber);*/
 #endif

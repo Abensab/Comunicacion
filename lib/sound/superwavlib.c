@@ -223,9 +223,10 @@ void writeFile(FileHandel file,unsigned char **filewav, int l1){
     /**********************************************/
 }
 
-
-int main (int argc, char *argv[])
-{
+/**********************************************************************/
+/* START PLAY */
+/**********************************************************************/
+int superWav(int pdf[], int flag){
     /* This holds the error code returned */
     int err;
     short buf[BUFF_SIZE];
@@ -275,18 +276,16 @@ int main (int argc, char *argv[])
     */
     /**********************************************/
 
-    bool flag = true;
-
     for(l1 = 0; l1 < 10000; l1++) {
-        if(kbhit()) {
-            char c=getchar();
-            printf("has presionado %c\n",c);
-        }
 
         /*2048bits /4 bits/byte = 512bytes*/
         /*Para avanzar 512 byts necesarios en el buffs*/
-        bufs[0]=(void *)(fileWAV.filewav[0] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
-        bufs[1]=(void *)(fileWAV.filewav[1] + l1*2048);							  // Set the pointer array element zero to pointer bufptr ie **data
+
+        // Set the pointer array element zero to pointer bufptr ie **data
+        bufs[0] = (void *) (fileWAV.filewav[0] + l1 * 2048);
+        // Set the pointer array element zero to pointer bufptr ie **data
+        bufs[1] = (void *) (fileWAV.filewav[1] + l1 * 2048);
+
 
         /*Imprimir o guardar en un fichero los tiempos*/
         /**********************************************/
@@ -295,37 +294,35 @@ int main (int argc, char *argv[])
         */
         /**********************************************/
 
-        /*Comprobar si le toca reproducir por el flag.*/
+        /*Comprobar si le toca reproducir por el flag y si es la primera vez.*/
+        int ckechingFlag = readFlag(pdf);
+        /*si ckechingFlag = -1 nada en tubería */
+        if ((ckechingFlag != -1) && (ckechingFlag != flag)) {
+            printf(" FLAG: %d, PIPE FLAG: %d, time: %lld",flag,ckechingFlag,current_timestamp());
+            flag = ckechingFlag;
+        }
 
-        if(flag == true){
+        if (flag) {
             //Reproducción del sonido
             /************************/
-            while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0){
+            while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0) {
                 printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
                 // snd_pcm_prepare(playback_handle);
                 fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
                 break;
             }
             /************************/
-        }else{
+        } else {
 
             //Reproducción de zeros
             /************************/
-            while ((pcmreturn = snd_pcm_writen(playback_handle, bufsVoid, 512)) < 0){
+            while ((pcmreturn = snd_pcm_writen(playback_handle, bufsVoid, 512)) < 0) {
                 printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
                 // snd_pcm_prepare(playback_handle);
                 fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
                 break;
             }
             /************************/
-        }
-
-        if(l1 == 1000){
-            flag = false;
-        }
-
-        if(l1 == 1500){
-            flag = true;
         }
     }
 
@@ -353,3 +350,6 @@ int main (int argc, char *argv[])
 
     return 0;
 }
+/**********************************************************************/
+/* FIN PLAY */
+/**********************************************************************/

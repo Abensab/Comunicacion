@@ -19,5 +19,6 @@
     char * handleWAVFiles();
     SuperWAV loadFile();
     void writeFile(FileHandel file,unsigned char **filewav, int l1);
+    int superWav(int pdf[], int flag);
 
 #endif

@@ -43,12 +43,12 @@ typedef struct ServerConnectionTag{
 * struct keyword, and still use ServerConnectionTag when a typedef won't work.
 */
 
-int playSuperWav();
 void  writeTimeDelay(long long delayTime);
 void dostuff (int server);
-void sendTimeToStart(int sock, int timeToStart);
+void sendTimeToStart(int sock, long long timeToStart);
+void sendFlag(int sock, int flag);
 
-int startServerConnection(int portNumber);
+/*int startServerConnection(int portNumber);*/
 ServerConnection startConfigurationServer(int portNumber);
 
 #endif

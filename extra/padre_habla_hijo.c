@@ -21,13 +21,10 @@ int parent_connection (int []);
 int child_superwav (int []);
 /* Prototypes. */
 
-int main(int argc, char *argv[])
-{
+int* startPipeFileDescriptor(){
     /* Pipe’s file descriptors. */
     /* Set up pipe. */
-    int pfd[2];
-    int val = 0;
-
+    static int pfd[2];
 
     if (pipe(pfd) == -1){
         fprintf(stderr, "Call to pipe failed.\n");
@@ -42,6 +39,17 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Call to fcntl failed.\n");
         exit(1);
     }
+
+    return pfd;
+}
+
+int main(int argc, char *argv[])
+{
+    /* Pipe’s file descriptors. */
+    /* Set up pipe. */
+    /*int pfd[2];*/
+    int *pfd = startPipeFileDescriptor();
+    int val = 0;
 
     /* Fork a child process. */
     switch (fork()) {

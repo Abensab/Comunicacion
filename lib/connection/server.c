@@ -27,39 +27,20 @@ void  writeTimeDelay(long long delayTime){
  once a connnection has been established and sends
  the time that the superwav player has to start.
  *****************************************/
-void sendTimeToStart(int sock, int timeToStart){
-    int             bytes;
-    char            buffer[256];
-    long long int   timer    = current_timestamp() + (timeToStart*1000);
-
+void sendTimeToStart(int sock, long long timeToStart){
+    long long int   timer       =   timeToStart;
     char            string_time[64];/*Descubrir tamaño aproximado*/
-
     sprintf( string_time, "%lld", timer );
-
     printf("Sending time %s, to socket %d \n",string_time, sock);
+    Send(sock,&string_time,strlen(string_time),0);
+}
 
-    bytes = Send(sock,&string_time,strlen(string_time),0);
+void sendFlag(int sock, int flag){
+    char    stringflag[64];
+    sprintf( stringflag, "%d", flag );
+    printf("Flag %s,sended to socket %d \n",stringflag, sock);
+    Send(sock,&stringflag,strlen(stringflag),0);
 
-    /*Write in a txt the delay of time*/
-    //writeTimeDelay(delay);
-
-    /*Play in that instant moment the message has been recived*/
-    //playSuperWav();
-
-    /*Play with a delay of 3 seconds*/
-
-    int valorBooL = 0;
-    while (valorBooL != 1){
-        if( (timer - current_timestamp()) <= 0 ){
-            playSuperWav();
-            valorBooL = 1;
-        }
-    }
-
-    //bzero(buffer,256);
-    //bytes = Recv(sock,buffer,256,0);
-
-    //bytes = Send(sock,"I got your message",18);
 }
 
 /* **********************************************************************
@@ -104,13 +85,16 @@ ServerConnection startConfigurationServer(int portNumber){
     return server;
 }
 
+/*
 int startServerConnection(int portNumber){
     int pid;
     int sd,max_sd;
     int cont = 0;
     ServerConnection server = startConfigurationServer(portNumber);
 
-    /* For select */
+    */
+/* For select *//*
+
     fd_set readfds;
     struct timeval timeout;
     int rv;
@@ -123,7 +107,9 @@ int startServerConnection(int portNumber){
 
     timeout.tv_sec = 1;
     timeout.tv_usec = 0;
-    /* ************************************* */
+    */
+/* ************************************* *//*
+
 
     while(1) {
         int search = TRUE;
@@ -151,10 +137,14 @@ int startServerConnection(int portNumber){
                 timeout.tv_sec = 1;
                 timeout.tv_usec = 0;
 
-                /*Hay que inicializar estos datos cada vez que se utiliza resetea la configuración*/
+                */
+/*Hay que inicializar estos datos cada vez que se utiliza resetea la configuración*//*
+
                 //add our file descriptor to the set
                 FD_SET(server.socketFileDescriptor, &readfds);
-                /**/
+                */
+/**//*
+
             }
             else {
                 if (FD_ISSET(server.socketFileDescriptor, &readfds)) {
@@ -166,12 +156,10 @@ int startServerConnection(int portNumber){
                            server.newSocketFileDescriptor[cont], inet_ntoa(server.cli_addr.sin_addr),
                            ntohs(server.cli_addr.sin_port));
 
-                    /*char *message = "ECHO Daemon v1.0 \r\n";
-
+                    */
+/*char *message = "ECHO Daemon v1.0 \r\n";
                     Send(server.newSocketFileDescriptor[cont], message, strlen(message), 0);
-
-                    printf("Welcome message sent successfully.\n");*/
-
+                    printf("Welcome message sent successfully.\n");*//*
                 }
                 cont += 1;
             }
@@ -213,4 +201,5 @@ int startServerConnection(int portNumber){
     //close(server.socketFileDescriptor);
     return 0;
 
-}
+
+}*/

@@ -13,12 +13,32 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+/* Tuberías */
+/*assignar no bloqueante a la tuberia*/
+#include <fcntl.h>
+/*recoger error*/
+#include <errno.h>
+
+#include <math.h>
+#include <sys/time.h>                // for gettimeofday()
+#include <alsa/asoundlib.h>
+
+#include <stdbool.h> /*for true and false*/
+
 #define TRUE   1
 #define FALSE  0
 
 long long current_timestamp();
 void error(const char *msg);
 int kbhit(void);
-int playSuperWav();
+int changeFlag(int flag);
+
+long long timeToStartInSeconds(int s);
+long long timeToStartInMilisecons(int m);
+
+/*Mejorar el codigo del envío de parametros*/
+#include <string.h>
+#include <assert.h>
+char** str_split(char* a_str, const char a_delim);
 
 #endif

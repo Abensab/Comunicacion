@@ -1,7 +1,7 @@
 #!/bin/bash
 
 printf "\nChecking for missing packages...\n"
-tmp=$(dpkg-query -W -f='${Package} ${Status} \n' libasound2-dev libcr-dev mpich2 mpich2-doc | grep "no package found")
+tmp=$(dpkg-query -W -f='${Package} ${Status} \n' libasound2-dev | grep "no package found")
 
 if [[ $tmp =~ "no package found" ]]
 then
@@ -16,8 +16,4 @@ route=$(pwd)
 echo $route
 
 printf "\nCompilating lib...\n"
-gcc SuperWavApp.c $route/lib/funcions.c $route/lib/connection/socketUtils.c $route/lib/connection/client.c $route/lib/connection/server.c $route/lib/sound/spatiallib.c -o SuperWavApp
-
-printf "\nCompilating SuperWav5...\n"
-cd ./lib/sound
-sudo gcc superwavlib.c spatiallib.c ./../funcions.c -o superwav5 -lasound -lm
+sudo gcc SuperWavApp.c $route/lib/funcions.c $route/lib/connection/socketUtils.c $route/lib/connection/client.c $route/lib/connection/server.c $route/lib/connection/pipe.c $route/lib/sound/spatiallib.c $route/lib/sound/superwavlib.c -o SuperWavApp -lasound -lm
