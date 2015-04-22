@@ -27,14 +27,6 @@ void closePipeFileDescriptor(int p[]){
     close(p[P1_WRITE]);
 }
 
-void sendingFlag (int p[], int val) {
-    /* Code for parent process. */
-    /* Send messages through the pipe. */
-    //printf("\nParrent(%d) send value: %d\n", getpid(), val);
-    write(p[P1_WRITE], &val, sizeof(val));
-
-}
-
 void closeReadingPipe(int p[]){
     // parent: writing only, so close read-descriptor.
     if (close(p[P1_READ]) == -1) { /* Failed to close read end of pipe. */
@@ -49,6 +41,14 @@ void closeWritingPipe(int p[]){
         fprintf(stderr, "Child: Couldn’t close write end of pipe.\n");
         exit(1);
     }
+}
+
+void sendingFlag (int p[], int val) {
+    /* Code for parent process. */
+    /* Send messages through the pipe. */
+    //printf("\nParrent(%d) send value: %d\n", getpid(), val);
+    write(p[P1_WRITE], &val, sizeof(val));
+
 }
 
 int readFlag (int p[]) {
@@ -72,7 +72,7 @@ int readFlag (int p[]) {
             fflush(stdout);
             exit(0);
         }else{/* Received a message from the pipe. */
-            printf("\nChild(%d) received value: %d\n", getpid(), val);
+            //printf("\nChild(%d) received value: %d\n", getpid(), val);
             fflush(stdout);
         }
     }

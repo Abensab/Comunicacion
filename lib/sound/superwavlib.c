@@ -298,7 +298,7 @@ int superWav(int pdf[], int flag){
         int ckechingFlag = readFlag(pdf);
         /*si ckechingFlag = -1 nada en tubería */
         if ((ckechingFlag != -1) && (ckechingFlag != flag)) {
-            printf(" FLAG: %d, PIPE FLAG: %d, time: %lld",flag,ckechingFlag,current_timestamp());
+            //printf(" FLAG: %d, PIPE FLAG: %d, time: %lld",flag,ckechingFlag,current_timestamp());
             flag = ckechingFlag;
         }
 
