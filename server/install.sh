@@ -15,5 +15,5 @@ printf "Location:\n"
 route=$(pwd)
 echo $route
 
-printf "\nCompilating lib...\n"
-sudo gcc SuperWavApp.c $route/lib/funcions.c $route/lib/connection/socketUtils.c $route/lib/connection/client.c $route/lib/connection/server.c $route/lib/connection/pipe.c $route/lib/sound/spatiallib.c $route/lib/sound/superwavlib.c -o SuperWavApp -lasound -lm
+#printf "\nCompilating SuperWav...\n"
+#sudo gcc SuperWavApp.c $route/lib/funcions.c $route/lib/connection/socketUtils.c $route/lib/connection/client.c $route/lib/connection/server.c $route/lib/connection/pipe.c $route/lib/sound/spatiallib.c $route/lib/sound/superwavlib.c -o SuperWavApp -lasound -lm

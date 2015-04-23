@@ -1,8 +1,9 @@
 #ifndef CONNECTION_CLIENT
 #define CONNECTION_CLIENT
 
-#include "socketUtils.h"
-#include "./../funcions.h"
+#include "./socketUtils.h"
+#include "./funcions.h"
+#include "./pipe.h"
 
 typedef struct ClientConnectionTag{
     /* *********************************************************************
@@ -39,6 +40,6 @@ typedef struct ClientConnectionTag{
  } ClientConnection;
 
 ClientConnection startConfigurationClient(char *address, int portNumber);
+int startClientConnection(char *address, int portNumber);
 
-/*int startClientConnection(char *address, int portNumber);*/
 #endif
