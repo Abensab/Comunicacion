@@ -56,9 +56,6 @@ long long timeToStartInMilisecons(int m){
     return current_timestamp() + (m);
 }
 
-#include <string.h>
-#include <assert.h>
-
 char** str_split(char* a_str, const char a_delim)
 {
     char** result    = 0;
@@ -130,8 +127,3 @@ void playSuperWav(long long timeToStart, int flag ,int pfd[]) {
         }/*else esperando*/
     }
 }
-
-/*
-int main(int argc, char *argv[]) {
-
-}*/

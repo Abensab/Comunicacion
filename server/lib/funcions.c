@@ -1,4 +1,4 @@
-#include "funcions.h"
+#include "./../include/funcions.h"
 
 int kbhit(void)
 {
@@ -56,9 +56,6 @@ long long timeToStartInMilisecons(int m){
     return current_timestamp() + (m);
 }
 
-#include <string.h>
-#include <assert.h>
-
 char** str_split(char* a_str, const char a_delim)
 {
     char** result    = 0;
@@ -106,32 +103,3 @@ char** str_split(char* a_str, const char a_delim)
 
     return result;
 }
-
-void playSuperWav(long long timeToStart, int flag ,int pfd[]) {
-
-    while (TRUE){
-        if( (timeToStart - current_timestamp()) <= 0 ){
-            /* Fork a child process. */
-            switch (fork()) {
-                case (pid_t) -1: /* Fork failed. */
-                    fprintf(stderr, "Call to fork failed.\n");
-                    exit(1);
-
-                case 0: /* Child process. */
-                    closeWritingPipe(pfd);
-                    superWav(pfd,flag);
-                    exit(0);
-
-                default: /* Parent process. */
-                    closeReadingPipe(pfd);
-                    break;
-            } /* End of switch. */
-            break;
-        }/*else esperando*/
-    }
-}
-
-/*
-int main(int argc, char *argv[]) {
-
-}*/

@@ -162,10 +162,10 @@ char * handleWAVFiles(){
     * para que lea desde una carpeta inferior
     * */
     archivos_senal= (char *)calloc(4* WORD_LENGTH, sizeof(char));
-    strcpy(archivos_senal + 0*WORD_LENGTH, "./bin/sound/001_piano.wav");
-    strcpy(archivos_senal + 1*WORD_LENGTH, "./bin/sound/voz4408.wav");
-    strcpy(archivos_senal + 2*WORD_LENGTH, "./bin/sound/001_bajo.wav");
-    strcpy(archivos_senal + 3*WORD_LENGTH, "./bin/sound/001_bateriabuena.wav");
+    strcpy(archivos_senal + 0*WORD_LENGTH, "./../bin/sound/001_piano.wav");
+    strcpy(archivos_senal + 1*WORD_LENGTH, "./../bin/sound/voz4408.wav");
+    strcpy(archivos_senal + 2*WORD_LENGTH, "./../bin/sound/001_bajo.wav");
+    strcpy(archivos_senal + 3*WORD_LENGTH, "./../bin/sound/001_bateriabuena.wav");
 
 // -------------------------------------- HANDLE OF ALSA DEVICE -------------------------------------//
 

@@ -1,8 +1,8 @@
 #ifndef CONNECTION_SERVER
 #define CONNECTION_SERVER
 
-#include "socketUtils.h"
-#include "./../funcions.h"
+#include "./funcions.h"
+#include "./socketUtils.h"
 
 typedef struct ServerConnectionTag{
     /* *********************************************************************
@@ -48,7 +48,8 @@ void dostuff (int server);
 void sendTimeToStart(int sock, long long timeToStart);
 void sendFlag(int sock, int flag);
 
-/*int startServerConnection(int portNumber);*/
 ServerConnection startConfigurationServer(int portNumber);
+int startServerConnection(int portNumber, int flag);
+void notifyClients(ServerConnection server, long long timeToStart, int flag);
 
 #endif

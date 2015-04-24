@@ -13,15 +13,8 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-/* Tuberías */
-/*assignar no bloqueante a la tuberia*/
-#include <fcntl.h>
-/*recoger error*/
-#include <errno.h>
 
-#include <math.h>
 #include <sys/time.h>                // for gettimeofday()
-#include <alsa/asoundlib.h>
 
 #include <stdbool.h> /*for true and false*/
 
@@ -40,7 +33,5 @@ long long timeToStartInMilisecons(int m);
 #include <string.h>
 #include <assert.h>
 char** str_split(char* a_str, const char a_delim);
-
-void playSuperWav(long long timeToStart, int flag ,int pfd[]);
 
 #endif
