@@ -33,16 +33,26 @@ void sendTimeToStart(int sock, long long timeToStart){
     char            string_time[64];/*Descubrir tamaño aproximado*/
     sprintf( string_time, "%lld", timer );
     //printf("Sending time %s, to socket %d \n",string_time, sock);
-    Send(sock,&string_time,strlen(string_time),0);
+    Send(sock,&string_time,strlen(string_time));
 }
 
 void sendFlag(int sock, int flag){
     char    stringflag[64];
     sprintf( stringflag, "%d", flag );
     //printf("Flag %s,sended to socket %d \n",stringflag, sock);
-    Send(sock,&stringflag,strlen(stringflag),0);
+    Send(sock,&stringflag,strlen(stringflag));
 
 }
+
+void sendInicialStart(int sock,long long timeToStart,int flag, int idCli){
+    /*inicialmente: timestamp, flag, idCli */
+
+    char string[100];
+    sprintf( string, "StartTime: %lld, Flag: %d, IDClient: %d", timeToStart, flag, idCli);
+    Send(sock,&string,strlen(string));
+
+}
+
 
 /* **********************************************************************
 * Returns a struct with the server configuration needed,
@@ -169,9 +179,12 @@ int startServerConnection(int portNumber, int flag){
                     printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
                            server.newSocketFileDescriptor[cont], inet_ntoa(server.cli_addr.sin_addr),
                            ntohs(server.cli_addr.sin_port));
-                    char *message = "ECHO Daemon v1.0 \r\n";
-                    Send(server.newSocketFileDescriptor[cont], message, strlen(message), 0);
--                    printf("Welcome message sent successfully.\n");
+
+                    char message[100];
+                    sprintf(message, "ID %d", cont);
+                    //printf("%s",message);
+
+                    Send(server.newSocketFileDescriptor[cont], message, strlen(message));
 
                 }
                 cont += 1;
@@ -210,6 +223,7 @@ int startServerConnection(int portNumber, int flag){
                     }else{
                         search = FALSE;
                         playing = TRUE;
+                        sleep(1);
                         printf("\nSTART Music in 10 seconds !\n");
                         long long timeToStart = timeToStartInSeconds(10);
                         // clients of time to start

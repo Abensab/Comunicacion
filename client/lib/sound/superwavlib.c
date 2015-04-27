@@ -221,7 +221,7 @@ void writeFile(FileHandel file,unsigned char **filewav, int l1){
 /**********************************************************************/
 /* START PLAY */
 /**********************************************************************/
-int superWav(int *flag){
+int superWav(int *flag,int *finishPlaying){
     /* This holds the error code returned */
     int err = 0;
     short buf[BUFF_SIZE];
@@ -289,7 +289,7 @@ int superWav(int *flag){
         */
         /**********************************************/
 
-        printf(" FLAG: %d, time: %lld",*flag, current_timestamp());
+        //printf(" FLAG: %d, time: %lld",*flag, current_timestamp());
 
         if (*flag) {
             //Reproducción del sonido
@@ -314,6 +314,8 @@ int superWav(int *flag){
             /************************/
         }
     }
+
+    *finishPlaying = TRUE;
 
 
     /*Imprimir o guardar en un fichero los tiempos*/

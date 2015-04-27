@@ -19,6 +19,6 @@
     char * handleWAVFiles();
     SuperWAV loadFile();
     //void writeFile(FileHandel file,unsigned char **filewav, int l1);
-    int superWav(int *flag);
+    int superWav(int *flag, int *finishPlaying);
 
 #endif

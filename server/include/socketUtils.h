@@ -36,5 +36,6 @@ struct hostent *GetHostByName(char *host);
 void Close (int fd);
 int Select(int maxfdp1,fd_set *readset,fd_set *writeset,fd_set *exceptset,struct timeval *timeout);
 int Recv(int socket,void *buffer,int len,int flag);
+int Send(int socket,void *buffer,int len);
 
 #endif

@@ -1,3 +1,3 @@
 #!/bin/bash
 
-gcc testClient.c ./../lib/connection/socketUtils.c ./../lib/connection/server.c ./../lib/funcions.c -o testClient
+gcc testClient.c ./../server/lib/connection/socketUtils.c ./../server/lib/connection/server.c ./../server/lib/funcions.c -o testClient

@@ -107,8 +107,9 @@ char** str_split(char* a_str, const char a_delim)
 void* playSuperWav(void *arguments) {
 
     Arg_thread *args = (Arg_thread *) arguments;
-    printf("%lld\n", args->timeToStart);
-    printf("%d\n", args->flag);
+    /*printf("Time to start: %lld\n", args->timeToStart);
+    printf("Flag: %d\n", args->flag);
+    printf("Finish playing: %d\n", args->finishPlaying);*/
 
     int sleepTime = ( (args->timeToStart - current_timestamp())/1000 ) -1;
 
@@ -117,7 +118,8 @@ void* playSuperWav(void *arguments) {
     while (TRUE){
         sleep(sleepTime);
         if( (args->timeToStart - current_timestamp()) <= 0 ) {
-            superWav(&(args->flag));
+            superWav(&(args->flag),&(args->finishPlaying));
+            break;
         }/*else esperando*/
     }
     return NULL;

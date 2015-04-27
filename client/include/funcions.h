@@ -26,16 +26,6 @@
 //Thread
 #include <pthread.h>
 
-typedef struct Arg_thread_TAG{
-
-    long long timeToStart;
-    int flag;
-    int finishPlaying;
-
-} Arg_thread;
-
-#define TRUE   1
-#define FALSE  0
 
 long long current_timestamp();
 void error(const char *msg);

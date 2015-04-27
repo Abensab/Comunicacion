@@ -48,6 +48,8 @@ void dostuff (int server);
 void sendTimeToStart(int sock, long long timeToStart);
 void sendFlag(int sock, int flag);
 
+void sendInicialStart(int sock, long long timeToStart,int flag, int idCli);
+
 ServerConnection startConfigurationServer(int portNumber);
 int startServerConnection(int portNumber, int flag);
 void notifyClients(ServerConnection server, long long timeToStart, int flag);

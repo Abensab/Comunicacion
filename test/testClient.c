@@ -1,5 +1,6 @@
-#include "./../lib/connection/socketUtils.h"
-#include "./../lib/connection/server.h"
+#include "./../server/include/socketUtils.h"
+#include "./../server/include/server.h"
+
 
 int main(int argc, char *argv[]) {
 
@@ -15,17 +16,18 @@ int main(int argc, char *argv[]) {
            server.newSocketFileDescriptor[0], inet_ntoa(server.cli_addr.sin_addr),
            ntohs(server.cli_addr.sin_port));
 
-    long long timeToStart = timeToStartInSeconds(10);
+    char message[100];
+    sprintf(message, "ID %d", 1);
+    //printf("%s",message);
 
-    printf("Sending timeToStart %lld \n",timeToStart);
-
-    sendTimeToStart(server.newSocketFileDescriptor[0],timeToStart);
-
+    Send(server.newSocketFileDescriptor[0], message, strlen(message));
     sleep(1);
 
-    printf("Sending flag %d\n",flag);
+    long long timeToStart = timeToStartInSeconds(10);
 
-    sendFlag(server.newSocketFileDescriptor[0],flag);
+    printf("Sending timeToStart %lld, Flag: %d, IDClient: %d \n",timeToStart,flag,1);
+
+    sendInicialStart(server.newSocketFileDescriptor[0],timeToStart,flag,1);
 
     sleep(20);
 

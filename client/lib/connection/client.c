@@ -37,6 +37,14 @@ int startClientConnection(char *address, int portNumber){
 
     Arg_thread arguments;
 
+    /*ID*/
+    bzero(buffer,256);
+    bytes = Recv(client.socketFileDescriptor,buffer,256,0);
+
+    client.clientID = atoll(buffer);
+
+    /* timestamp, funete, posIni, velocidad, posFin, idCli*/
+    /*inicialmente: timestamp, flag, idCli */
     bzero(buffer,256);
     bytes = Recv(client.socketFileDescriptor,buffer,256,0);
 
@@ -53,6 +61,7 @@ int startClientConnection(char *address, int portNumber){
     arguments.flag = atoll(buffer);
     arguments.finishPlaying = FALSE;
 
+    /*int x = 0;*/
     /* create a second thread which executes inc_x(&x) */
     if(pthread_create(&playerThread, NULL, playSuperWav, &arguments)) {
 
@@ -81,6 +90,9 @@ int startClientConnection(char *address, int portNumber){
                 printf("\nSe acabo!!\n");
                 exit(0);
             }
+        }
+        if(arguments.finishPlaying == TRUE){
+            break;
         }
     }
     pthread_mutex_destroy(&lock);
