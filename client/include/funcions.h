@@ -23,6 +23,17 @@
 #include "./../include/spatiallib.h"
 #include "./../include/superwavlib.h"
 
+//Thread
+#include <pthread.h>
+
+typedef struct Arg_thread_TAG{
+
+    long long timeToStart;
+    int flag;
+    int finishPlaying;
+
+} Arg_thread;
+
 #define TRUE   1
 #define FALSE  0
 
@@ -39,6 +50,6 @@ long long timeToStartInMilisecons(int m);
 #include <assert.h>
 char** str_split(char* a_str, const char a_delim);
 
-void playSuperWav(long long timeToStart, int flag ,int pfd[]);
+void* playSuperWav(void *arguments) ;
 
 #endif

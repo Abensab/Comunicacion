@@ -154,16 +154,11 @@ int startServerConnection(int portNumber, int flag){
                 perror("select error"); /// an error accured
                 return 1;
             }
-            else if (rv == 0) {
-                //printf(" ************************** timeout occurred (1 second) **************************\n"); // a timeout occured
-                //return 1;
+            else if (rv == 0) {//timeout occured
                 timeout.tv_sec = 1;
                 timeout.tv_usec = 0;
 
-                /*Hay que inicializar estos datos cada vez que se utiliza resetea la configuración*/
-                //add our file descriptor to the set
                 FD_SET(server.socketFileDescriptor, &readfds);
-                /**/
             }
             else {
                 if (FD_ISSET(server.socketFileDescriptor, &readfds)) {
@@ -174,6 +169,10 @@ int startServerConnection(int portNumber, int flag){
                     printf("New connection , socket fd is %d , ip is : %s , port : %d \n",
                            server.newSocketFileDescriptor[cont], inet_ntoa(server.cli_addr.sin_addr),
                            ntohs(server.cli_addr.sin_port));
+                    char *message = "ECHO Daemon v1.0 \r\n";
+                    Send(server.newSocketFileDescriptor[cont], message, strlen(message), 0);
+-                    printf("Welcome message sent successfully.\n");
+
                 }
                 cont += 1;
             }
@@ -184,7 +183,7 @@ int startServerConnection(int portNumber, int flag){
             int pID;
             switch (c) {
                 case 'a':
-                    printf("Iniciating client");
+                    printf("initiating client");
                     pID = fork();
                     if (pID == 0)                // child
                     {
@@ -219,7 +218,11 @@ int startServerConnection(int portNumber, int flag){
                     break;
 
                 case 'p':
+/*
+                    char * datos;
 
+                    snprintf(datos, sizeof datos, "%d", portNumber);
+*/
                     client_flag = changeFlag(client_flag);
                     server_flag = changeFlag(server_flag);
 

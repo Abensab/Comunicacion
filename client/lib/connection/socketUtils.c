@@ -147,7 +147,7 @@ return(tmp);
 
 
 /**SEND: it tries to send data to the socket**/
-int Send(int socket,void *buffer,int len, int flags/*, int *epipeError*/){
+int Send(int socket,void *buffer,int len/*, int flags, int *epipeError*/){
     int tmp;
 
     tmp=send(socket,buffer,len,0);

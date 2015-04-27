@@ -5,13 +5,10 @@ int OpenWav(unsigned char **pwav, char nombre[])
 {
 
   FILE *wav_fp;
-  int iReadMues=0;
   unsigned char *speechdat;			//Usada para leer los bytes del fichero
   unsigned char *header;				//Cabecera de fichero
 	//unsigned char *pInit;				//puntero al principio del array
   int iSize;							//Numero de bytes leidos del wav.
-  int numread;						//Elementos leidos
-  int j=0;
 
 	if ((wav_fp = fopen(nombre, "rb")) == NULL)
 	{
@@ -30,7 +27,7 @@ int OpenWav(unsigned char **pwav, char nombre[])
   //Reservamos memoria para las muestras musicales del archivo wav
   speechdat = (unsigned char *) calloc(iSize,1);
   //leemos muestras del fichero
-  numread = fread(speechdat, 1, iSize, wav_fp);
+  fread(speechdat, 1, iSize, wav_fp);
   
   *pwav = speechdat;
 

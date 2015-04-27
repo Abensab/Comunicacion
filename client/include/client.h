@@ -3,7 +3,9 @@
 
 #include "./socketUtils.h"
 #include "./funcions.h"
-#include "./pipe.h"
+
+#include <pthread.h>
+
 
 typedef struct ClientConnectionTag{
     /* *********************************************************************

@@ -12,7 +12,6 @@
 
 #include "./../../include/spatiallib.h"
 #include "./../../include/superwavlib.h"
-#include "./../../include/pipe.h"
 
 #define BUFF_SIZE 4096
 #define WORD_LENGTH 50
@@ -155,7 +154,6 @@ snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err){
 
 char * handleWAVFiles(){
     // -------------------------------------- HANDLE OF WAV FILES -------------------------------------//
-    int muestrasleidas = 0;
     char * archivos_senal;
 
     /*Modificado la ruta de ./FicherosPrueba/001_piano.wav
@@ -223,15 +221,15 @@ void writeFile(FileHandel file,unsigned char **filewav, int l1){
 /**********************************************************************/
 /* START PLAY */
 /**********************************************************************/
-int superWav(int pdf[], int flag){
+int superWav(int *flag){
     /* This holds the error code returned */
-    int err;
+    int err = 0;
     short buf[BUFF_SIZE];
 
     SuperWAV fileWAV = loadFile();
 
     /* Handle for the PCM device */
-    snd_pcm_t *playback_handle;
+    snd_pcm_t *playback_handle = NULL;
 
     /* Playback stream */
     snd_pcm_stream_t stream = SND_PCM_STREAM_PLAYBACK;
@@ -291,15 +289,9 @@ int superWav(int pdf[], int flag){
         */
         /**********************************************/
 
-        /*Comprobar si le toca reproducir por el flag y si es la primera vez.*/
-        int ckechingFlag = readFlag(pdf);
-        /*si ckechingFlag = -1 nada en tubería */
-        if ((ckechingFlag != -1) && (ckechingFlag != flag)) {
-            //printf(" FLAG: %d, PIPE FLAG: %d, time: %lld",flag,ckechingFlag,current_timestamp());
-            flag = ckechingFlag;
-        }
+        printf(" FLAG: %d, time: %lld",*flag, current_timestamp());
 
-        if (flag) {
+        if (*flag) {
             //Reproducción del sonido
             /************************/
             while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0) {
@@ -322,6 +314,7 @@ int superWav(int pdf[], int flag){
             /************************/
         }
     }
+
 
     /*Imprimir o guardar en un fichero los tiempos*/
     /**********************************************/

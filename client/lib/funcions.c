@@ -104,26 +104,21 @@ char** str_split(char* a_str, const char a_delim)
     return result;
 }
 
-void playSuperWav(long long timeToStart, int flag ,int pfd[]) {
+void* playSuperWav(void *arguments) {
+
+    Arg_thread *args = (Arg_thread *) arguments;
+    printf("%lld\n", args->timeToStart);
+    printf("%d\n", args->flag);
+
+    int sleepTime = ( (args->timeToStart - current_timestamp())/1000 ) -1;
+
+    printf("Sleep Time: %d\n",sleepTime);
 
     while (TRUE){
-        if( (timeToStart - current_timestamp()) <= 0 ){
-            /* Fork a child process. */
-            switch (fork()) {
-                case (pid_t) -1: /* Fork failed. */
-                    fprintf(stderr, "Call to fork failed.\n");
-                    exit(1);
-
-                case 0: /* Child process. */
-                    closeWritingPipe(pfd);
-                    superWav(pfd,flag);
-                    exit(0);
-
-                default: /* Parent process. */
-                    closeReadingPipe(pfd);
-                    break;
-            } /* End of switch. */
-            break;
+        sleep(sleepTime);
+        if( (args->timeToStart - current_timestamp()) <= 0 ) {
+            superWav(&(args->flag));
         }/*else esperando*/
     }
+    return NULL;
 }
