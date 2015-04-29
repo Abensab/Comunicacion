@@ -43,6 +43,9 @@ typedef struct ClientConnectionTag{
 
  } ClientConnection;
 
+char **strsplit(const char* str, const char* delim, size_t* numtokens);
+Arg_thread setArguments(char *str);
+
 ClientConnection startConfigurationClient(char *address, int portNumber);
 int startClientConnection(char *address, int portNumber);
 

@@ -291,6 +291,10 @@ int superWav(int *flag,int *finishPlaying){
 
         //printf(" FLAG: %d, time: %lld",*flag, current_timestamp());
 
+        if (*flag == -1){
+            break;
+        }
+
         if (*flag) {
             //Reproducción del sonido
             /************************/

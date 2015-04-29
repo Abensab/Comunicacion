@@ -44,14 +44,10 @@ typedef struct ServerConnectionTag{
 */
 
 void  writeTimeDelay(long long delayTime);
-void dostuff (int server);
-void sendTimeToStart(int sock, long long timeToStart);
-void sendFlag(int sock, int flag);
-
-void sendInicialStart(int sock, long long timeToStart,int flag, int idCli);
+void sendData(int sock, long long timeToStart, int idCli);
 
 ServerConnection startConfigurationServer(int portNumber);
-int startServerConnection(int portNumber, int flag);
-void notifyClients(ServerConnection server, long long timeToStart, int flag);
+int startServerConnection(int portNumber);
+void notifyClients(ServerConnection server, long long timeToStart, int IDCli);
 
 #endif

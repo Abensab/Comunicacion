@@ -23,6 +23,77 @@ ClientConnection startConfigurationClient(char *address, int portNumber){
     return client;
 }
 
+char **strsplit(const char* str, const char* delim, size_t* numtokens) {
+    // copy the original string so that we don't overwrite parts of it
+    // (don't do this if you don't need to keep the old line,
+    // as this is less efficient)
+    char *s = strdup(str);
+
+    // these three variables are part of a very common idiom to
+    // implement a dynamically-growing array
+    size_t tokens_alloc = 1;
+    size_t tokens_used = 0;
+    char **tokens = calloc(tokens_alloc, sizeof(char*));
+
+    char *token, *strtok_ctx;
+    for (token = strtok_r(s, delim, &strtok_ctx);
+         token != NULL;
+         token = strtok_r(NULL, delim, &strtok_ctx)) {
+        // check if we need to allocate more space for tokens
+        if (tokens_used == tokens_alloc) {
+            tokens_alloc *= 2;
+            tokens = realloc(tokens, tokens_alloc * sizeof(char*));
+        }
+        tokens[tokens_used++] = strdup(token);
+    }
+    // cleanup
+    if (tokens_used == 0) {
+        free(tokens);
+        tokens = NULL;
+    } else {
+        tokens = realloc(tokens, tokens_used * sizeof(char*));
+    }
+    *numtokens = tokens_used;
+    free(s);
+
+    return tokens;
+}
+
+Arg_thread setArguments(char *str){
+
+    Arg_thread argumets;
+    printf("%s\n",str);
+
+    char **variableAndValue;
+    size_t numvariableAndValue;
+
+    variableAndValue = strsplit(str, ",", &numvariableAndValue);
+
+    size_t i;
+    for (i = 0; i < numvariableAndValue; i++) {
+        //printf("Variable And Value: \"%s\"\n", variableAndValue[i]);
+
+        char **variableORValue;
+        size_t twoValues;
+        variableORValue = strsplit(variableAndValue[i], ":", &twoValues);
+
+        if(i == 0){
+            argumets.timeToStart = atoll(variableORValue[1]);
+        }
+
+        if(i == 1){
+            argumets.IDPlaying= atoi(variableORValue[1]);
+        }
+
+        free(variableORValue[0]);
+        free(variableORValue[1]);
+        free(variableAndValue[i]);
+    }
+
+    return argumets;
+}
+
+
 /**********************************************************************/
 /* START CLIENT */
 /**********************************************************************/
@@ -41,7 +112,8 @@ int startClientConnection(char *address, int portNumber){
     bzero(buffer,256);
     bytes = Recv(client.socketFileDescriptor,buffer,256,0);
 
-    client.clientID = atoll(buffer);
+    client.clientID = atoi(buffer);
+    printf("My ID: %d \n", client.clientID);
 
     /* timestamp, funete, posIni, velocidad, posFin, idCli*/
     /*inicialmente: timestamp, flag, idCli */
@@ -50,45 +122,52 @@ int startClientConnection(char *address, int portNumber){
 
     printf("Milliseconds message recived: %lld\n", current_timestamp());
 
-    arguments.timeToStart = atoll(buffer);
+    arguments = setArguments(buffer);
+    if(arguments.IDPlaying == client.clientID){
+        arguments.flag = TRUE;
+    }else{
+        arguments.flag = FALSE;
+    }
     long long delay = (arguments.timeToStart-10000) - current_timestamp();
 
     printf("Moment to start: %lld\n",atoll(buffer));
     printf("Delay (10s program): %lld\n",delay);
 
-    bzero(buffer,256);
-    bytes = Recv(client.socketFileDescriptor,buffer,256,0);
-    arguments.flag = atoll(buffer);
+    /*Started to play*/
     arguments.finishPlaying = FALSE;
 
     /*int x = 0;*/
     /* create a second thread which executes inc_x(&x) */
     if(pthread_create(&playerThread, NULL, playSuperWav, &arguments)) {
-
         fprintf(stderr, "Error creating player thread\n");
         return 1;
-
     }
+
+    Arg_thread newArguments;
 
     for(;;) {
         bzero(buffer, 256);
         bytes = Recv(client.socketFileDescriptor, buffer, 255, 0);
 
-        if(bytes>0){
-            int newflag = atoll(buffer);
-            if(arguments.flag >= 0){
-                if(newflag != arguments.flag){
-                    pthread_mutex_lock(&lock);
-                    arguments.flag = newflag;
-                    pthread_mutex_unlock(&lock);
-                    //sendingFlag(pfd,flag);
+        newArguments = setArguments(buffer);
 
-                    //printf("Milliseconds message Recived: %lld\n", current_timestamp());
-                }/*Mientras nada nuevo*/
+        if(bytes>0){
+
+            printf("New ID Client PLayer: %d, Client: %d", newArguments.IDPlaying, client.clientID);
+
+            if(newArguments.IDPlaying == client.clientID){
+                pthread_mutex_lock(&lock);
+                arguments.flag = TRUE;
+                pthread_mutex_unlock(&lock);
+            }else{
+                pthread_mutex_lock(&lock);
+                arguments.flag = FALSE;
+                pthread_mutex_unlock(&lock);
             }
-            if(newflag == -1){
-                printf("\nSe acabo!!\n");
-                exit(0);
+            if(newArguments.IDPlaying == -1){
+                printf("\n¡¡Se acabo!!\n");
+                arguments.flag = -1;
+                break;
             }
         }
         if(arguments.finishPlaying == TRUE){

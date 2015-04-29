@@ -26,7 +26,6 @@
 //Thread
 #include <pthread.h>
 
-
 long long current_timestamp();
 void error(const char *msg);
 int kbhit(void);
@@ -34,11 +33,6 @@ int changeFlag(int flag);
 
 long long timeToStartInSeconds(int s);
 long long timeToStartInMilisecons(int m);
-
-/*Mejorar el codigo del envío de parametros (varios parametros en un string)*/
-#include <string.h>
-#include <assert.h>
-char** str_split(char* a_str, const char a_delim);
 
 void* playSuperWav(void *arguments) ;
 

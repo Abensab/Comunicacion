@@ -5,8 +5,6 @@
 int main(int argc, char *argv[]) {
 
     int portNumber = 4444;
-    int flag = FALSE;
-
     ServerConnection server = startConfigurationServer(portNumber);
 
     server.newSocketFileDescriptor[0] = Accept(server.socketFileDescriptor,
@@ -16,8 +14,7 @@ int main(int argc, char *argv[]) {
            server.newSocketFileDescriptor[0], inet_ntoa(server.cli_addr.sin_addr),
            ntohs(server.cli_addr.sin_port));
 
-    char message[100];
-    sprintf(message, "ID %d", 1);
+    char *message = "1";
     //printf("%s",message);
 
     Send(server.newSocketFileDescriptor[0], message, strlen(message));
@@ -25,33 +22,28 @@ int main(int argc, char *argv[]) {
 
     long long timeToStart = timeToStartInSeconds(10);
 
-    printf("Sending timeToStart %lld, Flag: %d, IDClient: %d \n",timeToStart,flag,1);
+    printf("Sending timeToStart %lld, IDClient: %d \n",timeToStart,1);
 
-    sendInicialStart(server.newSocketFileDescriptor[0],timeToStart,flag,1);
-
-    sleep(20);
-
-    flag = TRUE;
-
-    printf("Changing flag %d\n",flag);
-
-    sendFlag(server.newSocketFileDescriptor[0],flag);
+    sendData(server.newSocketFileDescriptor[0],timeToStart,1);
 
     sleep(20);
 
-    flag = FALSE;
+    printf("Changing Client from 1 to 2\n");
 
-    printf("Changing flag %d\n",flag);
+    sendData(server.newSocketFileDescriptor[0],0,2);
 
-    sendFlag(server.newSocketFileDescriptor[0],flag);
 
-    sleep(20);
+    sleep(10);
 
-    flag = TRUE;
+    printf("Changing Client from 2 to 1\n");
 
-    printf("Changing flag %d\n",flag);
+    sendData(server.newSocketFileDescriptor[0],0,1);
 
-    sendFlag(server.newSocketFileDescriptor[0],flag);
+    sleep(10);
+
+    printf("Exit!\n");
+
+    sendData(server.newSocketFileDescriptor[0],0,-1);
 
     return 0;
 

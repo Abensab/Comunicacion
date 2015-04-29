@@ -28,27 +28,11 @@ void  writeTimeDelay(long long delayTime){
  once a connnection has been established and sends
  the time that the superwav player has to start.
  *****************************************/
-void sendTimeToStart(int sock, long long timeToStart){
-    long long int   timer       =   timeToStart;
-    char            string_time[64];/*Descubrir tamaño aproximado*/
-    sprintf( string_time, "%lld", timer );
-    //printf("Sending time %s, to socket %d \n",string_time, sock);
-    Send(sock,&string_time,strlen(string_time));
-}
-
-void sendFlag(int sock, int flag){
-    char    stringflag[64];
-    sprintf( stringflag, "%d", flag );
-    //printf("Flag %s,sended to socket %d \n",stringflag, sock);
-    Send(sock,&stringflag,strlen(stringflag));
-
-}
-
-void sendInicialStart(int sock,long long timeToStart,int flag, int idCli){
+void sendData(int sock,long long timeToStart, int idCli){
     /*inicialmente: timestamp, flag, idCli */
 
     char string[100];
-    sprintf( string, "StartTime: %lld, Flag: %d, IDClient: %d", timeToStart, flag, idCli);
+    sprintf( string, "StartTime: %lld,IDClient: %d", timeToStart, idCli);
     Send(sock,&string,strlen(string));
 
 }
@@ -96,21 +80,17 @@ ServerConnection startConfigurationServer(int portNumber){
     return server;
 }
 
-void notifyClients(ServerConnection server, long long timeToStart, int flag){
+void notifyClients(ServerConnection server, long long timeToStart, int IDCli){
     int i;
-    printf("Time to start: %lld\n",timeToStart);
+
+    if (timeToStart > 0){
+        printf("Time to start: %lld\n",timeToStart);
+    }
+
     for (i = 0; i < server.max_clients; i++)
     {
         if (server.newSocketFileDescriptor[i]!= 0){
-            //printf("Connection, cont = %d, %d \n",i, server.newSocketFileDescriptor[i]);
-
-            if (timeToStart > 0){
-                sendTimeToStart(server.newSocketFileDescriptor[i],timeToStart);
-            }/*else{
-                printf("\n¡¡No envío timestamp!!\n");
-            }*/
-            sleep(1);
-            sendFlag(server.newSocketFileDescriptor[i],flag);
+            sendData(server.newSocketFileDescriptor[i],timeToStart,IDCli);
         }
     }
 }
@@ -120,14 +100,14 @@ void notifyClients(ServerConnection server, long long timeToStart, int flag){
 /* START SERVER */
 /**********************************************************************/
 
-int startServerConnection(int portNumber, int flag){
+int startServerConnection(int portNumber){
     int sd,max_sd;
     int cont = 0;
-    int server_flag = flag;
-    int client_flag = changeFlag(flag);
     int playing = FALSE;
 
     ServerConnection server = startConfigurationServer(portNumber);
+
+    int IDClient;
 
     /* For select */
     fd_set readfds;
@@ -180,9 +160,8 @@ int startServerConnection(int portNumber, int flag){
                            server.newSocketFileDescriptor[cont], inet_ntoa(server.cli_addr.sin_addr),
                            ntohs(server.cli_addr.sin_port));
 
-                    char message[100];
-                    sprintf(message, "ID %d", cont);
-                    //printf("%s",message);
+                    char message[4];
+                    sprintf(message, "%d", cont);
 
                     Send(server.newSocketFileDescriptor[cont], message, strlen(message));
 
@@ -196,27 +175,30 @@ int startServerConnection(int portNumber, int flag){
             int pID;
             switch (c) {
                 case 'a':
-                    printf("initiating client");
-                    pID = fork();
-                    if (pID == 0)                // child
-                    {
-                        char stringPortNumber[sizeof(int)*3+4];
-                        snprintf(stringPortNumber, sizeof stringPortNumber, "%d", portNumber);
-                        printf("%s",stringPortNumber);
-                        //execl ("/bin/pwd", "pwd", NULL);
-                        char *aruments[4] = {"./../client/SuperWavAppClient", "localhost", stringPortNumber, NULL };
-                        execv("./../client/SuperWavAppClient", aruments);
-                        exit(-1);
-
-                    }
-                    else if (pID < 0)            // failed to fork
-                    {
-                        printf("Error fork client");
-                        exit(1);
-                    }else{
+                    if(playing){
+                        printf("\nAlready playing!\n");
                         break;
-                    }
+                    }else {
+                        pID = fork();
+                        if (pID == 0)                // child
+                        {
+                            char stringPortNumber[sizeof(int) * 3 + 4];
+                            snprintf(stringPortNumber, sizeof stringPortNumber, "%d", portNumber);
+                            printf("%s", stringPortNumber);
+                            //execl ("/bin/pwd", "pwd", NULL);
+                            char *aruments[4] = {"./../client/SuperWavAppClient", "localhost", stringPortNumber, NULL};
+                            execv("./../client/SuperWavAppClient", aruments);
+                            exit(-1);
 
+                        }
+                        else if (pID < 0)            // failed to fork
+                        {
+                            printf("Error fork client");
+                            exit(1);
+                        } else {
+                            break;
+                        }
+                    }
                 case 's':
                     if(playing){
                         printf("\nAlready playing!\n");
@@ -227,23 +209,17 @@ int startServerConnection(int portNumber, int flag){
                         printf("\nSTART Music in 10 seconds !\n");
                         long long timeToStart = timeToStartInSeconds(10);
                         // clients of time to start
-                        notifyClients(server, timeToStart,client_flag);
+                        notifyClients(server, timeToStart,1);
                     }
                     break;
 
                 case 'p':
-/*
-                    char * datos;
-
-                    snprintf(datos, sizeof datos, "%d", portNumber);
-*/
-                    client_flag = changeFlag(client_flag);
-                    server_flag = changeFlag(server_flag);
-
-                    notifyClients(server,0,client_flag);
-
+                    printf("ID Client to sing: \n");
+                    scanf ("%d",&IDClient);
+                    notifyClients(server,0,IDClient);
                     break;
                 case 'e':
+                    fflush(stdout);
                     notifyClients(server,0,-1);
                     exit(0);
                 default:

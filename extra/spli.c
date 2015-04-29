@@ -48,41 +48,62 @@ long long current_timestamp() {
     return milliseconds;
 }
 
-/*
-int main(void) {
-    char *line = NULL;
-    size_t linelen;
+typedef struct Arg_thread_TAG{
 
-    char **tokens;
-    size_t numtokens;
+    long long timeToStart;
+    int flag;
+    int finishPlaying;
+    int IDPlaying;
 
-    line ="1,patata,616981681";
-    linelen= strlen(line);
+} Arg_thread;
 
-    tokens = strsplit(line, ", \t\n", &numtokens);
-    size_t i;
-    for (i = 0; i < numtokens; i++) {
-        printf("    token: \"%s\"\n", tokens[i]);
-        free(tokens[i]);
-    }
-    if (tokens != NULL)
-        free(tokens);
+Arg_thread setArguments(char *str){
+    Arg_thread argumets;
 
-//    if (line != NULL) free(line);
-
-    return EXIT_SUCCESS;
-
-}*/
-
-int main(void) {
-
-    long long time = current_timestamp();
-    char str[100];
-    sprintf(str, "%lld", time);
+    size_t linelen= strlen(str);
     printf("%s\n",str);
 
-    char *ptr = strcat(str, ",id 100");
-    printf("%s\n",ptr);
+    char **variableAndValue;
+    size_t numvariableAndValue;
+
+    variableAndValue = strsplit(str, ",", &numvariableAndValue);
+
+    size_t i;
+    for (i = 0; i < numvariableAndValue; i++) {
+        //printf("Variable And Value: \"%s\"\n", variableAndValue[i]);
+
+        char **variableORValue;
+        size_t twoValues;
+        variableORValue = strsplit(variableAndValue[i], ":", &twoValues);
+        size_t j;
+
+        if(i == 0){
+            argumets.timeToStart = atoll(variableORValue[1]);
+        }
+
+        if(i == 1){
+            argumets.flag= atoi(variableORValue[1]);
+        }
+
+        if(i == 2){
+            argumets.IDPlaying= atoi(variableORValue[1]);
+        }
+
+        free(variableORValue[0]);
+        free(variableORValue[1]);
+        free(variableAndValue[i]);
+    }
+
+    return argumets;
+}
+
+int main(void) {
+
+    char str[250] = "StartTime: 1430298639579,Flag: 0,IDClient: 1";
+
+    Arg_thread argumets = setArguments(str);
+
+    printf("TimeToStart %lld, Flag: %d, IDClient: %d \n",argumets.timeToStart,argumets.flag,argumets.IDPlaying);
 
     return 0;
 
