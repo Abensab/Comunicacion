@@ -156,7 +156,7 @@ int Send(int socket,void *buffer,int len){
         printf("***Error in Send: %s.\n",strerror(errno));
         if(errno==EPIPE){
             //*epipeError=1;
-            printf("EPIPE.\n");
+            fprintf(stderr,"EPIPE.\n");
         }
     }
 

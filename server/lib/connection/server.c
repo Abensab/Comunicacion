@@ -22,22 +22,6 @@ void  writeTimeDelay(long long delayTime){
     fclose(fp);
 }
 
-/******** sendTimeToStart() *********************
- There is a separate instance of this function
- for each connection.  It handles all communication
- once a connnection has been established and sends
- the time that the superwav player has to start.
- *****************************************/
-void sendData(int sock,long long timeToStart, int idCli){
-    /*inicialmente: timestamp, flag, idCli */
-
-    char string[100];
-    sprintf( string, "StartTime: %lld,IDClient: %d", timeToStart, idCli);
-    Send(sock,&string,strlen(string));
-
-}
-
-
 /* **********************************************************************
 * Returns a struct with the server configuration needed,
 * so in other parts of the code you can be able to send and recive messeges
@@ -93,6 +77,21 @@ void notifyClients(ServerConnection server, long long timeToStart, int IDCli){
             sendData(server.newSocketFileDescriptor[i],timeToStart,IDCli);
         }
     }
+}
+
+/******** sendTimeToStart() *********************
+ There is a separate instance of this function
+ for each connection.  It handles all communication
+ once a connnection has been established and sends
+ the time that the superwav player has to start.
+ *****************************************/
+void sendData(int sock,long long timeToStart, int idCli){
+    /*inicialmente: timestamp, flag, idCli */
+
+    char string[100];
+    sprintf( string, "StartTime: %lld,IDClient: %d", timeToStart, idCli);
+    Send(sock,&string,strlen(string));
+
 }
 
 
