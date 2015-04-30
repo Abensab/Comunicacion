@@ -116,7 +116,7 @@ int startClientConnection(char *address, int portNumber){
     printf("My ID: %d \n", client.clientID);
 
     /* timestamp, funete, posIni, velocidad, posFin, idCli*/
-    /*inicialmente: timestamp, flag, idCli */
+    /*inicialmente: timestamp, idCli */
     bzero(buffer,256);
     bytes = Recv(client.socketFileDescriptor,buffer,256,0);
 
@@ -158,10 +158,12 @@ int startClientConnection(char *address, int portNumber){
             if(newArguments.IDPlaying == client.clientID){
                 pthread_mutex_lock(&lock);
                 arguments.flag = TRUE;
+                printf("Son iguales\n");
                 pthread_mutex_unlock(&lock);
             }else{
                 pthread_mutex_lock(&lock);
                 arguments.flag = FALSE;
+                printf("NO son iguales\n");
                 pthread_mutex_unlock(&lock);
             }
             if(newArguments.IDPlaying == -1){

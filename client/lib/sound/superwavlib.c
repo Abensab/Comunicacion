@@ -271,6 +271,8 @@ int superWav(int *flag,int *finishPlaying){
     */
     /**********************************************/
 
+    int oldFalg = *flag;
+
     for(l1 = 0; l1 < 10000; l1++) {
 
         /*2048bits /4 bits/byte = 512bytes*/
@@ -289,9 +291,12 @@ int superWav(int *flag,int *finishPlaying){
         */
         /**********************************************/
 
-        //printf(" FLAG: %d, time: %lld",*flag, current_timestamp());
+        if(oldFalg != *flag){
+            printf("\n FLAG: %d\n",*flag);
+            oldFalg = *flag;
+        }
 
-        if (*flag == -1){
+        if (*flag == -1) {
             break;
         }
 

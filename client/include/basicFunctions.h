@@ -1,6 +1,8 @@
 #ifndef BASIC_FUNCTIONS
 #define BASIC_FUNCTIONS
 
+#include <pthread.h>
+
 typedef struct Arg_thread_TAG{
 
     long long timeToStart;
