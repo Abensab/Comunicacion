@@ -138,8 +138,6 @@ int startClientConnection(char *address, int portNumber){
     pthread_mutex_init(&arguments.lock, &shared);
 
     long long delay = (arguments.timeToStart-10000) - current_timestamp();
-
-    printf("Moment to start: %lld\n",atoll(buffer));
     printf("Delay (10s program): %lld\n",delay);
 
     /*int x = 0;*/
