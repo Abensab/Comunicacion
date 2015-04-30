@@ -1,6 +1,9 @@
 #ifndef SUPERWAV
 #define SUPERWAV
 
+#include "basicFunctions.h"
+#include <pthread.h>
+
     typedef struct SuperWAVTag{
         int leido1;
         int leido2;
@@ -19,6 +22,6 @@
     char * handleWAVFiles();
     SuperWAV loadFile();
     //void writeFile(FileHandel file,unsigned char **filewav, int l1);
-    int superWav(int *flag, int *finishPlaying);
+    int superWav(Arg_thread *arguments);
 
 #endif

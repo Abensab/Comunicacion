@@ -9,6 +9,7 @@ typedef struct Arg_thread_TAG{
     int flag;
     int finishPlaying;
     int IDPlaying;
+    pthread_mutex_t lock;
 
 } Arg_thread;
 

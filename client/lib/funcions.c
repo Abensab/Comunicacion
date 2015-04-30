@@ -59,10 +59,10 @@ long long timeToStartInMilisecons(int m){
 void* playSuperWav(void *arguments) {
 
     Arg_thread *args = (Arg_thread *) arguments;
-    printf("Time to start: %lld\n", args->timeToStart);
+    /*printf("Time to start: %lld\n", args->timeToStart);
     printf("Flag: %d\n", args->flag);
     printf("Finish playing: %d\n", args->finishPlaying);
-
+*/
     int sleepTime = ( (args->timeToStart - current_timestamp())/1000 ) - 1;
 
     printf("Sleep Time: %d\n",sleepTime);
@@ -70,7 +70,7 @@ void* playSuperWav(void *arguments) {
     while (TRUE){
         sleep(sleepTime);
         if( (args->timeToStart - current_timestamp()) <= 0 ) {
-            superWav(&(args->flag),&(args->finishPlaying));
+            superWav(args);
             break;
         }/*else esperando*/
     }

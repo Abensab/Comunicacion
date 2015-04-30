@@ -104,7 +104,6 @@ int startClientConnection(char *address, int portNumber){
     ClientConnection    client  = startConfigurationClient(address, portNumber);
 
     pthread_t           playerThread;
-    pthread_mutex_t     lock;
 
     Arg_thread arguments;
 
@@ -128,13 +127,15 @@ int startClientConnection(char *address, int portNumber){
     }else{
         arguments.flag = FALSE;
     }
+    /*Started to play*/
+    arguments.finishPlaying = FALSE;
+
+    pthread_mutex_init(&arguments.lock, NULL);
+
     long long delay = (arguments.timeToStart-10000) - current_timestamp();
 
     printf("Moment to start: %lld\n",atoll(buffer));
     printf("Delay (10s program): %lld\n",delay);
-
-    /*Started to play*/
-    arguments.finishPlaying = FALSE;
 
     /*int x = 0;*/
     /* create a second thread which executes inc_x(&x) */
@@ -154,20 +155,23 @@ int startClientConnection(char *address, int portNumber){
         if(bytes>0){
 
             printf("New ID Client PLayer: %d, Client: %d\n", newArguments.IDPlaying, client.clientID);
-
+            fflush(stdout);
             if(newArguments.IDPlaying == client.clientID){
-                pthread_mutex_lock(&lock);
+                pthread_mutex_lock(&arguments.lock);
                 arguments.flag = TRUE;
                 printf("Son iguales\n");
-                pthread_mutex_unlock(&lock);
+                fflush(stdout);
+                pthread_mutex_unlock(&arguments.lock);
             }else{
-                pthread_mutex_lock(&lock);
+                pthread_mutex_lock(&arguments.lock);
                 arguments.flag = FALSE;
                 printf("NO son iguales\n");
-                pthread_mutex_unlock(&lock);
+                fflush(stdout);
+                pthread_mutex_unlock(&arguments.lock);
             }
             if(newArguments.IDPlaying == -1){
                 printf("\n¡¡Se acabo!!\n");
+                fflush(stdout);
                 arguments.flag = -1;
                 break;
             }
@@ -176,7 +180,7 @@ int startClientConnection(char *address, int portNumber){
             break;
         }
     }
-    pthread_mutex_destroy(&lock);
+    pthread_mutex_destroy(&arguments.lock);
     pthread_exit(NULL);
     close(client.socketFileDescriptor);
 

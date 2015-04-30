@@ -221,7 +221,10 @@ void writeFile(FileHandel file,unsigned char **filewav, int l1){
 /**********************************************************************/
 /* START PLAY */
 /**********************************************************************/
-int superWav(int *flag,int *finishPlaying){
+int superWav(Arg_thread *arguments){
+
+    //int *flag,int *finishPlaying
+
     /* This holds the error code returned */
     int err = 0;
     short buf[BUFF_SIZE];
@@ -271,7 +274,9 @@ int superWav(int *flag,int *finishPlaying){
     */
     /**********************************************/
 
-    int oldFalg = *flag;
+    pthread_mutex_lock(&(arguments->lock));
+    int oldFalg = arguments->flag;
+    pthread_mutex_unlock(&(arguments->lock));
 
     for(l1 = 0; l1 < 10000; l1++) {
 
@@ -291,16 +296,19 @@ int superWav(int *flag,int *finishPlaying){
         */
         /**********************************************/
 
-        if(oldFalg != *flag){
-            printf("\n FLAG: %d\n",*flag);
-            oldFalg = *flag;
+        pthread_mutex_lock(&(arguments->lock));
+
+        if(oldFalg != arguments->flag){
+            printf("\n FLAG: %d\n",arguments->flag);
+            oldFalg = arguments->flag;
+            pthread_mutex_unlock(&(arguments->lock));
         }
 
-        if (*flag == -1) {
+        if (oldFalg == -1) {
             break;
         }
 
-        if (*flag) {
+        if (oldFalg) {
             //Reproducción del sonido
             /************************/
             while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0) {
@@ -323,8 +331,9 @@ int superWav(int *flag,int *finishPlaying){
             /************************/
         }
     }
-
-    *finishPlaying = TRUE;
+    pthread_mutex_lock(&(arguments->lock));
+    arguments->finishPlaying = TRUE;
+    pthread_mutex_unlock(&(arguments->lock));
 
 
     /*Imprimir o guardar en un fichero los tiempos*/
