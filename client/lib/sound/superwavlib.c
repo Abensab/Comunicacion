@@ -274,9 +274,9 @@ int superWav(Arg_thread *arguments){
     */
     /**********************************************/
 
-    pthread_mutex_lock(&(arguments->lock));
+    pthread_mutex_lock(&arguments->lock);
     int oldFalg = arguments->flag;
-    pthread_mutex_unlock(&(arguments->lock));
+    pthread_mutex_unlock(&arguments->lock);
 
     for(l1 = 0; l1 < 10000; l1++) {
 
@@ -296,13 +296,12 @@ int superWav(Arg_thread *arguments){
         */
         /**********************************************/
 
-        pthread_mutex_lock(&(arguments->lock));
-
+        pthread_mutex_lock(&arguments->lock);
         if(oldFalg != arguments->flag){
             printf("\n FLAG: %d\n",arguments->flag);
             oldFalg = arguments->flag;
-            pthread_mutex_unlock(&(arguments->lock));
         }
+        pthread_mutex_unlock(&arguments->lock);
 
         if (oldFalg == -1) {
             break;
@@ -331,9 +330,9 @@ int superWav(Arg_thread *arguments){
             /************************/
         }
     }
-    pthread_mutex_lock(&(arguments->lock));
+    pthread_mutex_lock(&arguments->lock);
     arguments->finishPlaying = TRUE;
-    pthread_mutex_unlock(&(arguments->lock));
+    pthread_mutex_unlock(&arguments->lock);
 
 
     /*Imprimir o guardar en un fichero los tiempos*/

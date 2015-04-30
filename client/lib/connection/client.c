@@ -130,7 +130,12 @@ int startClientConnection(char *address, int portNumber){
     /*Started to play*/
     arguments.finishPlaying = FALSE;
 
-    pthread_mutex_init(&arguments.lock, NULL);
+    // Make sure it can be shared across processes
+    pthread_mutexattr_t shared;
+    pthread_mutexattr_init(&shared);
+    pthread_mutexattr_setpshared(&shared, PTHREAD_PROCESS_SHARED);
+
+    pthread_mutex_init(&arguments.lock, &shared);
 
     long long delay = (arguments.timeToStart-10000) - current_timestamp();
 
