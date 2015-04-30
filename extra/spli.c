@@ -1,109 +1,60 @@
+#include <pthread.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
-char **strsplit(const char* str, const char* delim, size_t* numtokens) {
-    // copy the original string so that we don't overwrite parts of it
-    // (don't do this if you don't need to keep the old line,
-    // as this is less efficient)
-    char *s = strdup(str);
+/* this function is run by the second thread */
+void *inc_x(void *x_void_ptr)
+{
 
-    // these three variables are part of a very common idiom to
-    // implement a dynamically-growing array
-    size_t tokens_alloc = 1;
-    size_t tokens_used = 0;
-    char **tokens = calloc(tokens_alloc, sizeof(char*));
+/* increment x to 100 */
+    int *x_ptr = (int *)x_void_ptr;
+    while((*x_ptr) < 100){
+        *x_ptr += 1;
+        printf("-X: %d\n",*x_ptr);
+    };
 
-    char *token, *strtok_ctx;
-    for (token = strtok_r(s, delim, &strtok_ctx);
-         token != NULL;
-         token = strtok_r(NULL, delim, &strtok_ctx)) {
-        // check if we need to allocate more space for tokens
-        if (tokens_used == tokens_alloc) {
-            tokens_alloc *= 2;
-            tokens = realloc(tokens, tokens_alloc * sizeof(char*));
-        }
-        tokens[tokens_used++] = strdup(token);
-    }
-    // cleanup
-    if (tokens_used == 0) {
-        free(tokens);
-        tokens = NULL;
-    } else {
-        tokens = realloc(tokens, tokens_used * sizeof(char*));
-    }
-    *numtokens = tokens_used;
-    free(s);
+    printf("x increment finished\n");
 
-    return tokens;
+/* the function must return something - NULL will do */
+    return NULL;
+
 }
 
-long long current_timestamp() {
-    struct      timeval te;
-    long long   milliseconds;
+int main()
+{
 
-    gettimeofday(&te, NULL); // get current time
-    milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; // caculate milliseconds
+    int x = 0, y = 0;
 
-    return milliseconds;
-}
+/* show the initial values of x and y */
+    printf("x: %d, y: %d\n", x, y);
 
-typedef struct Arg_thread_TAG{
+/* this variable is our reference to the second thread */
+    pthread_t inc_x_thread;
 
-    long long timeToStart;
-    int flag;
-    int finishPlaying;
-    int IDPlaying;
+/* create a second thread which executes inc_x(&x) */
+    if(pthread_create(&inc_x_thread, NULL, inc_x, &x)) {
 
-} Arg_thread;
+        fprintf(stderr, "Error creating thread\n");
+        return 1;
 
-Arg_thread setArguments(char *str){
-    Arg_thread argumets;
-
-    size_t linelen= strlen(str);
-    printf("%s\n",str);
-
-    char **variableAndValue;
-    size_t numvariableAndValue;
-
-    variableAndValue = strsplit(str, ",", &numvariableAndValue);
-
-    size_t i;
-    for (i = 0; i < numvariableAndValue; i++) {
-        //printf("Variable And Value: \"%s\"\n", variableAndValue[i]);
-
-        char **variableORValue;
-        size_t twoValues;
-        variableORValue = strsplit(variableAndValue[i], ":", &twoValues);
-        size_t j;
-
-        if(i == 0){
-            argumets.timeToStart = atoll(variableORValue[1]);
-        }
-
-        if(i == 1){
-            argumets.flag= atoi(variableORValue[1]);
-        }
-
-        if(i == 2){
-            argumets.IDPlaying= atoi(variableORValue[1]);
-        }
-
-        free(variableORValue[0]);
-        free(variableORValue[1]);
-        free(variableAndValue[i]);
+    }
+/* increment y to 100 in the first thread */
+    while(y < 100){
+        y +=1;
+        printf("+Y: %d\n",y);
     }
 
-    return argumets;
-}
+    printf("y increment finished\n");
 
-int main(void) {
+/* wait for the second thread to finish */
+    if(pthread_join(inc_x_thread, NULL)) {
 
-    char str[250] = "StartTime: 1430298639579,Flag: 0,IDClient: 1";
+        fprintf(stderr, "Error joining thread\n");
+        return 2;
 
-    Arg_thread argumets = setArguments(str);
+    }
 
-    printf("TimeToStart %lld, Flag: %d, IDClient: %d \n",argumets.timeToStart,argumets.flag,argumets.IDPlaying);
+/* show the results - x is now 100 thanks to the second thread */
+    printf("x: %d, y: %d\n", x, y);
 
     return 0;
 

@@ -34,6 +34,6 @@ int changeFlag(int flag);
 long long timeToStartInSeconds(int s);
 long long timeToStartInMilisecons(int m);
 
-void* playSuperWav(void *arguments) ;
+void* playSuperWav(void *arguments);
 
 #endif

@@ -153,7 +153,7 @@ int startClientConnection(char *address, int portNumber){
 
         if(bytes>0){
 
-            printf("New ID Client PLayer: %d, Client: %d", newArguments.IDPlaying, client.clientID);
+            printf("New ID Client PLayer: %d, Client: %d\n", newArguments.IDPlaying, client.clientID);
 
             if(newArguments.IDPlaying == client.clientID){
                 pthread_mutex_lock(&lock);
