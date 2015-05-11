@@ -3,15 +3,17 @@
 
 #include <pthread.h>
 
-typedef struct Arg_thread_TAG{
+typedef struct Player_TAG{
 
     long long timeToStart;
     int flag;
     int finishPlaying;
     int IDPlaying;
     pthread_mutex_t lock;
+    int l; //pointer
+    void **bufs;
 
-} Arg_thread;
+} Player;
 
 #define TRUE   1
 #define FALSE  0

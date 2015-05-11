@@ -10,11 +10,8 @@
 
 /* Librerías locales */
 
-#include "./../../include/spatiallib.h"
+//#include "./../../include/spatiallib.h"
 #include "./../../include/superwavlib.h"
-
-#define BUFF_SIZE 4096
-#define WORD_LENGTH 50
 
 snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, int err){
     /* Name of the PCM device, like plughw:0,0          */
@@ -97,7 +94,7 @@ snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err){
         exit (1);
     }
 
-    if (rate != exact_rate) {
+    if (rate != (int) exact_rate) {
         fprintf(stderr, "The rate %d Hz is not supported by your hardware.\n ==> Using %d Hz instead.\n", rate, exact_rate);
     }
 
@@ -152,39 +149,6 @@ snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err){
     return playback_handle;
 }
 
-char * handleWAVFiles(){
-    // -------------------------------------- HANDLE OF WAV FILES -------------------------------------//
-    char * archivos_senal;
-
-    /*Modificado la ruta de ./FicherosPrueba/001_piano.wav
-    * para que lea desde una carpeta inferior
-    * */
-    archivos_senal= (char *)calloc(4* WORD_LENGTH, sizeof(char));
-    strcpy(archivos_senal + 0*WORD_LENGTH, "./../bin/sound/001_piano.wav");
-    strcpy(archivos_senal + 1*WORD_LENGTH, "./../bin/sound/voz4408.wav");
-    strcpy(archivos_senal + 2*WORD_LENGTH, "./../bin/sound/001_bajo.wav");
-    strcpy(archivos_senal + 3*WORD_LENGTH, "./../bin/sound/001_bateriabuena.wav");
-
-// -------------------------------------- HANDLE OF ALSA DEVICE -------------------------------------//
-
-    return archivos_senal;
-}
-
-SuperWAV loadFile(){
-    SuperWAV filewav;
-
-    filewav.filewav = (unsigned char **) malloc (2*sizeof(unsigned char *));
-
-    char * archivos_senal = handleWAVFiles();
-
-    filewav.leido1 = OpenWavConvert32(&filewav.filewav[0],archivos_senal);
-    printf("leidos 1 =%d\n", filewav.leido1);
-    filewav.leido2 = OpenWavConvert32(&filewav.filewav[1],archivos_senal + 1*WORD_LENGTH);
-    printf("leidos 2 =%d\n", filewav.leido2);
-    return filewav;
-}
-
-
 /*
 FileHandel createWriteFile(){
     //Imprimir o guardar en un fichero los tiempos
@@ -221,15 +185,13 @@ void writeFile(FileHandel file,unsigned char **filewav, int l1){
 /**********************************************************************/
 /* START PLAY */
 /**********************************************************************/
-int superWav(Arg_thread *arguments){
+int superWav(Player *arguments){
 
     //int *flag,int *finishPlaying
 
     /* This holds the error code returned */
     int err = 0;
-    short buf[BUFF_SIZE];
 
-    SuperWAV fileWAV = loadFile();
 
     /* Handle for the PCM device */
     snd_pcm_t *playback_handle = NULL;
@@ -242,9 +204,9 @@ int superWav(Arg_thread *arguments){
     playback_handle = configurePlayBack_handle(playback_handle,err);
 
     /*Declarar los buffers con datos*/
-    void *bufs[2] = { NULL , NULL };		// Allocate two (bufs[0],bufs[1]) but we only user lowest one for now
-    bufs[0]=(void *)fileWAV.filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
-    bufs[1]=(void *)fileWAV.filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
+    //void *bufs[2] = { NULL , NULL };		// Allocate two (bufs[0],bufs[1]) but we only user lowest one for now
+    //bufs[0]=(void *)fileWAV.filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
+    //bufs[1]=(void *)fileWAV.filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
     /*============================================*/
 
     /*Declarar vector de 0 para tiempo en silencio*/
@@ -255,17 +217,10 @@ int superWav(Arg_thread *arguments){
     bufsVoid[1]=(void *)voidVector;
     /*============================================*/
 
+
     // -- FOR REPRODUCCING ---- //
     int pcmreturn;
     int l1;
-    printf("size of buf = %lud\n", sizeof(buf));
-    printf("size of data = %lud\n", sizeof(buf));
-
-    struct timeval t1, t2;
-    double elapsedTime;
-
-    // start timer
-    gettimeofday(&t1, NULL);
 
     /*Imprimir o guardar en un fichero los tiempos*/
     /**********************************************/
@@ -284,9 +239,9 @@ int superWav(Arg_thread *arguments){
         /*Para avanzar 512 byts necesarios en el buffs*/
 
         // Set the pointer array element zero to pointer bufptr ie **data
-        bufs[0] = (void *) (fileWAV.filewav[0] + l1 * 2048);
+        /////////bufs[0] = (void *) (fileWAV.filewav[0] + l1 * 2048);
         // Set the pointer array element zero to pointer bufptr ie **data
-        bufs[1] = (void *) (fileWAV.filewav[1] + l1 * 2048);
+        /////////bufs[1] = (void *) (fileWAV.filewav[1] + l1 * 2048);
 
 
         /*Imprimir o guardar en un fichero los tiempos*/
@@ -343,22 +298,10 @@ int superWav(Arg_thread *arguments){
     */
     /**********************************************/
 
-    // stop timer
-    gettimeofday(&t2, NULL);
-
-    // compute and print the elapsed time in millisec
-    elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
-    elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
-
-    printf(" -- PASADO %f -- \n", elapsedTime);
-
-    freeWav(fileWAV.filewav[0]);
-    freeWav(fileWAV.filewav[1]);
+    ///////////freeWav(fileWAV.filewav[0]);
+    ///////////freeWav(fileWAV.filewav[1]);
 
     snd_pcm_close (playback_handle);
 
     return 0;
 }
-/**********************************************************************/
-/* FIN PLAY */
-/**********************************************************************/

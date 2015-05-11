@@ -20,8 +20,9 @@
 #include <stdbool.h> /*for true and false*/
 
 /*Reproducing*/
-#include "./../include/spatiallib.h"
-#include "./../include/superwavlib.h"
+//#include "./../include/spatiallib.h"
+//#include "./../include/superwavlib.h"
+#include "superwavlib.h"
 
 //Thread
 #include <pthread.h>

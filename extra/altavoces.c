@@ -10,17 +10,17 @@
 #define FS      44100
 #define land    -1 // porque está fuera del array de altavoces
 
-float comp      = 0;
+double comp      = 0;
 int ang_max     = 90*(pi/180);// rad
 int nalt        = 96; //numero de altavoces
 
-float H_1[61] ={-0.00661109583724264,-0.00650043529566125,-0.00632930310706349,-0.00617482490003971,-0.00602953993132536,-0.00598452022424796,-0.00604361199320415,-0.00630563700873370,-0.00677794258748761,-0.00755797763617839,-0.00864652310346542,-0.0101290944464563,-0.0119893471647713,-0.0142908353440042,-0.0169911140198601,-0.0201243563895989,-0.0236165930309936,-0.0274695564585432,-0.0315773165621993,-0.0359115018748141,-0.0403393430824099,-0.0448101568406542,-0.0491745430350945,-0.0533717619323007,-0.0572496004201327,-0.0607520798261281,-0.0637393605766290,-0.0661751281673016,-0.0679458772409232,-0.0690473584402903,2.29712671743954,-0.0690473584402903,-0.0679458772409232,-0.0661751281673016,-0.0637393605766290,-0.0607520798261281,-0.0572496004201327,-0.0533717619323007,-0.0491745430350945,-0.0448101568406542,-0.0403393430824099,-0.0359115018748141,-0.0315773165621993,-0.0274695564585432,-0.0236165930309936,-0.0201243563895989,-0.0169911140198601,-0.0142908353440042,-0.0119893471647713,-0.0101290944464563,-0.00864652310346542,-0.00755797763617839,-0.00677794258748761,-0.00630563700873370,-0.00604361199320415,-0.00598452022424796,-0.00602953993132536,-0.00617482490003971,-0.00632930310706349,-0.00650043529566125,-0.00661109583724264};
+double H_1[61] ={-0.00661109583724264,-0.00650043529566125,-0.00632930310706349,-0.00617482490003971,-0.00602953993132536,-0.00598452022424796,-0.00604361199320415,-0.00630563700873370,-0.00677794258748761,-0.00755797763617839,-0.00864652310346542,-0.0101290944464563,-0.0119893471647713,-0.0142908353440042,-0.0169911140198601,-0.0201243563895989,-0.0236165930309936,-0.0274695564585432,-0.0315773165621993,-0.0359115018748141,-0.0403393430824099,-0.0448101568406542,-0.0491745430350945,-0.0533717619323007,-0.0572496004201327,-0.0607520798261281,-0.0637393605766290,-0.0661751281673016,-0.0679458772409232,-0.0690473584402903,2.29712671743954,-0.0690473584402903,-0.0679458772409232,-0.0661751281673016,-0.0637393605766290,-0.0607520798261281,-0.0572496004201327,-0.0533717619323007,-0.0491745430350945,-0.0448101568406542,-0.0403393430824099,-0.0359115018748141,-0.0315773165621993,-0.0274695564585432,-0.0236165930309936,-0.0201243563895989,-0.0169911140198601,-0.0142908353440042,-0.0119893471647713,-0.0101290944464563,-0.00864652310346542,-0.00755797763617839,-0.00677794258748761,-0.00630563700873370,-0.00604361199320415,-0.00598452022424796,-0.00602953993132536,-0.00617482490003971,-0.00632930310706349,-0.00650043529566125,-0.00661109583724264};
 
 //operation -1 if rest, 1 if sum.
-void configSpeakers(float *vector, float value, float startValue, float incrementValue, float finValue, int startPos, int finPos, float angle,int operation){
+void configSpeakers(double *vector, double value, double startValue, double incrementValue, double finValue, int startPos, int finPos, double angle,int operation){
 
-    float total = startValue+value;
-    float valueToInsert = value+(operation*(startValue))*angle;
+    double total = startValue+value;
+    double valueToInsert = value+(operation*(startValue))*angle;
 
     vector[startPos] = valueToInsert;
     startPos++;
@@ -35,11 +35,11 @@ void configSpeakers(float *vector, float value, float startValue, float incremen
     }
 }
 
-float ** speekersConf(){
+double ** speekersConf(){
 
-    float ** speekers = (float **) malloc(sizeof(float *) *2);
-    speekers[0] = (float *) malloc(sizeof(float)*nalt);
-    speekers[1] = (float *) malloc(sizeof(float)*nalt);
+    double ** speekers = (double **) malloc(sizeof(double *) *2);
+    speekers[0] = (double *) malloc(sizeof(double)*nalt);
+    speekers[1] = (double *) malloc(sizeof(double)*nalt);
 
 
     configSpeakers(speekers[0],1.0182,0.09,0.18,1.35,0,8,cos(45*pi/180),-1);
@@ -70,12 +70,24 @@ float ** speekersConf(){
 }
 
 
+void WFS(double posX, double posY){
+    int i;
+    double ** speakers = speekersConf();
+
+    double fte[2]={posX,posY};
+
+
+
+}
+
+
+
 int main()
 {
-    comp =  sqrt(-1.0);
+    //comp =  sqrt(-1.0);
     int i;
 
-    float ** speakers = speekersConf();
+    double ** speakers = speekersConf();
     printf("\nSpeakers\n");
     for (i = 0; i < nalt ; ++i) {
         printf("X: %d: %f \n",i+1,speakers[0][i]);
@@ -83,7 +95,8 @@ int main()
     }
 
     double fte[2]={-1.0,0.0};
-    int nfte=1;
+
+    //int nfte=1;
 
 
 //// Amplitud
@@ -92,10 +105,8 @@ int main()
 // Tomamos como 0 º el que está arriba, sobre el eje X orientado hacia
 // valores negativos de X. Lo escribimos en radianes.
 // tecta=45*pi/180; //el array forma 45º
-    //
 
 //    tecta=[ones(1,8)*135,ones(1,24)*90,ones(1,8)*45,ones(1,8)*0,ones(1,8)*-45,ones(1,24)*-90,ones(1,8)*-135,ones(1,8)*180];
-
     double tecta[96] = {135,135,135,135,135,135,135,135,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,90,45,45,45,45,45,45,45,45,0,0,0,0,0,0,0,0,-45,-45,-45,-45,-45,-45,-45,-45,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-90,-135,-135,-135,-135,-135,-135,-135,-135,180,180,180,180,180,180,180,180};
 
     double *fuente = fte;
@@ -106,9 +117,9 @@ int main()
 
     //difX = alt(1,:)-x;
     //difY = alt(2,:)-y;
-    float difX[96];
-    float difY[96];
-
+    double difX[96];
+    double difY[96];
+    //posicion de las fuentes (diferencia de cada altavoz)
     for (i = 0; i < 96; ++i) {
         difX[i] = speakers[0][i]-x;
         difY[i] = speakers[1][i]-y;
@@ -119,8 +130,8 @@ int main()
         printf("%d: X:%f Y %f \n",i+1,difX[i],difY[i]);
     }
 
-//    alfa = atan2(difY,difX);      % Ángulo
-    double alfa[nalt];// Ángulo
+//    alfa = atan2(difY,difX);      % Ángulo corrección
+    double alfa[nalt];// Ángulo //necesito esto
     for (i = 0; i < nalt; ++i) {
         alfa[i] =atan2(difY[i],difX[i]);
     }
@@ -143,7 +154,7 @@ int main()
     int sizeOfPos = 0;
     memset(pos, -1, sizeof(int)*nalt);
     for (i = 0; i < nalt; ++i) {
-        if ( ( alfa[i] < 90 ) && ( alfa[i] > -90 ) || ( alfa[i] < 450 ) && ( alfa[i] > 270 ) ){
+        if ( ( ( alfa[i] < 90 ) && ( alfa[i] > -90 ) ) || ( ( alfa[i] < 450 ) && ( alfa[i] > 270 ) ) ){
             pos[i]=i;
             sizeOfPos++;
         } else{
@@ -173,7 +184,7 @@ int main()
 
         //r = sqrt(difX.^2 + difY.^2);                      // Distancia entre la fuente y cada altavoz
 
-    float r[nalt];// Ángulo
+    double r[nalt];// Ángulo
     for (i = 0; i < nalt; ++i) {
         r[i] = sqrt( (difX[i] * difX[i]) + (difY[i] * difY[i]) );
     }
@@ -196,20 +207,24 @@ int main()
 //r0=ones(1,nalt) *2.88 * (1/2);
 
 //        r0=ones(1,nalt) * (1.44/2+1.44*cos(45*pi/180));
-    float rr[nalt];
+    double rr[nalt];
     for (i = 0; i < nalt; ++i) {
         rr[i] = (1.44/2+1.44*cos(45*pi/180));
     }
 
-    printf("\n Aplitud \n");
+    printf("\n Rr \n");
     for (i = 0; i < nalt ; ++i) {
         printf("%d: %f \n",i+1,rr[i]);
     }
 
 //    s0=abs(r);//.*sin(alfa);
-    float s[nalt];
+    double s[nalt];
     for (i = 0; i < nalt; ++i) {
-        s[i] = abs(r[i]);
+        if(r[i]<0){
+            s[i] = r[i]*(-1);
+        }else{
+            s[i]=r[i];
+        }
     }
 
     printf("\n Aplitud Absolut\n");
@@ -218,24 +233,25 @@ int main()
     }
 
 //    A=sqrt(r0./(r0+s0));
-    float A[nalt];
+    double A[nalt];
     for (i = 0; i < nalt; ++i) {
         A[i] = sqrt(rr[i]/(rr[i]+s[i]));
     }
 
-    printf("\n Aplitud?? \n");
+    printf("\n Aplitud Inicial \n");
     for (i = 0; i < nalt ; ++i) {
         printf("%d: %f \n",i+1,A[i]);
     }
 
 //    an=A.*cos(alfa*(pi/180))./(sqrt(r));
-
-    float an[nalt];
+    double an[nalt];
     for (i = 0; i < nalt; ++i) {
+        //Amplitud para cada altavoz
         an[i] = A[i]*cos(alfa[i]*(pi/180))/(sqrt(r[i]));
     }
 
-    printf("\n An?? \n");
+
+    printf("\n Amplitud de cada altavoz \n");
     for (i = 0; i < nalt ; ++i) {
         printf("%d: %f \n",i+1,an[i]);
     }
@@ -244,14 +260,16 @@ int main()
 
 //// Retardo
         //tn=-land.*(FS*(r/c)); // delay factor, for the n-loudspeaker
-    float tn[nalt];
+    double tn[nalt];
     for (i = 0; i < nalt; ++i) {
         tn[i] =-land*(FS*(r[i]/c));
     }
 
-    printf("\n Delay \n");
+    printf("\n Delay of samply to play \n");
     for (i = 0; i < nalt ; ++i) {
         printf("%d: %f \n",i+1,tn[i]);
     }
-
+    return 0;
+    //an y tn los importantes
+    //amplitud del altavoz y el retardo
 }

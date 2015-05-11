@@ -4,6 +4,9 @@
     http://www.linuxhowtos.org/C_C++/socket.htm
 */
 
+#define WORD_LENGTH 50
+
+
 ClientConnection startConfigurationClient(char *address, int portNumber){
 
     ClientConnection client;
@@ -59,10 +62,13 @@ char **strsplit(const char* str, const char* delim, size_t* numtokens) {
     return tokens;
 }
 
-Arg_thread setArguments(char *str){
+Player setArguments(char *str){
 
-    Arg_thread argumets;
+    Player argumets;
     printf("%s\n",str);
+
+    argumets.bufs = (void **) malloc (2*sizeof(void *));
+    argumets.l = 0;
 
     char **variableAndValue;
     size_t numvariableAndValue;
@@ -93,10 +99,37 @@ Arg_thread setArguments(char *str){
     return argumets;
 }
 
+char * handleWAVFiles(){
+    // -------------------------------------- HANDLE OF WAV FILES -------------------------------------//
+    char * archivos_senal;
 
-/**********************************************************************/
-/* START CLIENT */
-/**********************************************************************/
+    /*Modificado la ruta de ./FicherosPrueba/001_piano.wav
+    * para que lea desde una carpeta inferior
+    * */
+    archivos_senal= (char *)calloc(4* WORD_LENGTH, sizeof(char));
+    strcpy(archivos_senal + 0*WORD_LENGTH, "./../bin/sound/001_piano.wav");
+    strcpy(archivos_senal + 1*WORD_LENGTH, "./../bin/sound/voz4408.wav");
+    strcpy(archivos_senal + 2*WORD_LENGTH, "./../bin/sound/001_bajo.wav");
+    strcpy(archivos_senal + 3*WORD_LENGTH, "./../bin/sound/001_bateriabuena.wav");
+
+// -------------------------------------- HANDLE OF ALSA DEVICE -------------------------------------//
+
+    return archivos_senal;
+}
+
+SuperWAV loadFile(){
+    SuperWAV filewav;
+
+    filewav.filewav = (unsigned char **) malloc (2*sizeof(unsigned char *));
+
+    char * archivos_senal = handleWAVFiles();
+
+    filewav.leido1 = OpenWavConvert32(&filewav.filewav[0],archivos_senal);
+    printf("leidos 1 =%d\n", filewav.leido1);
+    filewav.leido2 = OpenWavConvert32(&filewav.filewav[1],archivos_senal + 1*WORD_LENGTH);
+    printf("leidos 2 =%d\n", filewav.leido2);
+    return filewav;
+}
 
 int startClientConnection(char *address, int portNumber){
     int                 bytes;
@@ -105,7 +138,7 @@ int startClientConnection(char *address, int portNumber){
 
     pthread_t           playerThread;
 
-    Arg_thread arguments;
+    Player arguments;
 
     /*ID*/
     bzero(buffer,256);
@@ -122,6 +155,27 @@ int startClientConnection(char *address, int portNumber){
     printf("Milliseconds message recived: %lld\n", current_timestamp());
 
     arguments = setArguments(buffer);
+
+    /**/
+    SuperWAV fileWAV = loadFile();
+    arguments.bufs[0]=(void *)fileWAV.filewav[0];             // Set the pointer array element zero to pointer bufptr ie **data
+    arguments.bufs[1]=(void *)fileWAV.filewav[1];             // Set the pointer array element zero to pointer bufptr ie **data
+    /**/
+
+
+    /*Declarar vector de 0 para tiempo en silencio*/
+    void *bufsVoid[2] = { NULL , NULL };
+    int voidVector[512];
+    memset(voidVector,0,512*sizeof(int));
+    bufsVoid[0]=(void *)voidVector;
+    bufsVoid[1]=(void *)voidVector;
+    /*============================================*/
+
+
+
+
+
+
     if(arguments.IDPlaying == client.clientID){
         arguments.flag = TRUE;
     }else{
@@ -147,7 +201,7 @@ int startClientConnection(char *address, int portNumber){
         return 1;
     }
 
-    Arg_thread newArguments;
+    Player newArguments;
 
     for(;;) {
         bzero(buffer, 256);
@@ -162,13 +216,13 @@ int startClientConnection(char *address, int portNumber){
             if(newArguments.IDPlaying == client.clientID){
                 pthread_mutex_lock(&arguments.lock);
                 arguments.flag = TRUE;
-                printf("Son iguales\n");
+                //printf("Son iguales\n");
                 fflush(stdout);
                 pthread_mutex_unlock(&arguments.lock);
             }else{
                 pthread_mutex_lock(&arguments.lock);
                 arguments.flag = FALSE;
-                printf("NO son iguales\n");
+                //printf("NO son iguales\n");
                 fflush(stdout);
                 pthread_mutex_unlock(&arguments.lock);
             }
@@ -189,6 +243,3 @@ int startClientConnection(char *address, int portNumber){
 
     return 0;
 }
-/**********************************************************************/
-/* FIN CLIENT */
-/**********************************************************************/
