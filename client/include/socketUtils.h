@@ -6,20 +6,24 @@
 #include <arpa/inet.h>  /* for sockaddr_in and inet_ntoa() */
 #include <netdb.h>
 
-#include <stdlib.h> // getenv()
+// getenv()
+#include <stdlib.h>
 #include <sys/types.h>
-#include <sys/time.h> // timeval
+// timeval
+#include <sys/time.h>
 #include <sys/select.h>
 #include <netinet/in.h>
 #include <errno.h>
-#include <unistd.h>     /* for close() */
+/* for close() */
+#include <unistd.h>
 #include <signal.h>
 
 #include <sys/wait.h>
 
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>     /* for atoi() and exit() */
+/* for atoi() and exit() */
+#include <stdlib.h>
 
 /**CONSTANTS DEFINE**/
 #define FAILURE 1

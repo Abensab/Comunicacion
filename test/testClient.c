@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
     Send(server.newSocketFileDescriptor[0], message, strlen(message));
     sleep(1);
 
-    long long timeToStart = timeToStartInSeconds(10);
+    long long timeToStart = timeToStartInSeconds(2);
 
     printf("Sending timeToStart %lld, IDClient: %d \n",timeToStart,1);
 

@@ -1,11 +1,9 @@
 #ifndef CONNECTION_CLIENT
 #define CONNECTION_CLIENT
 
-#include "./socketUtils.h"
-#include "./funcions.h"
-
-#include <pthread.h>
-
+#include "socketUtils.h"
+#include "processSoundlib.h"
+#include "superwavlib.h"
 
 typedef struct ClientConnectionTag{
     /* *********************************************************************
@@ -44,9 +42,11 @@ typedef struct ClientConnectionTag{
  } ClientConnection;
 
 char **strsplit(const char* str, const char* delim, size_t* numtokens);
-Arg_thread setArguments(char *str);
+Player setArguments(char *str);
 
 ClientConnection startConfigurationClient(char *address, int portNumber);
 int startClientConnection(char *address, int portNumber);
+
+void* playSuperWav(void *arguments);
 
 #endif
