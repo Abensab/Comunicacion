@@ -16,7 +16,7 @@
 #include <math.h>
 // for gettimeofday()
 #include <sys/time.h>
-#include <alsa/asoundlib.h>
+//#include <alsa/asoundlib.h>
 
 //for true and false
 #include <stdbool.h>
