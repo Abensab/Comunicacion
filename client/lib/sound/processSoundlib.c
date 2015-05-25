@@ -191,37 +191,29 @@ SuperWAV loadFile(){
     return filewav;
 }
 
-
-/*
-void bufferGenerator(void ** bufferToModify ,int index,void **fileWav, double **WFS) {
-    double dellay1 = ceil(WFS[1][0]);
-    double dellay2 = ceil(WFS[1][1]);
+void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSize, double **WFS, int chanals) {
 
     int i;
-    for(i = 0; i < 2048; i++){
-        if(dellay1 > 0){
-            bufferToModify[i]
+    int j;
+
+    //int an1 = WFS[0][0];
+    //int an2 = WFS[0][1];
+
+    //int dellay1 = ceil(WFS[1][0]);
+    //int dellay2 = ceil(WFS[1][1]);
+
+    for (j = 0; j < chanals; ++j) {
+        if( NULL == bufferToModify[j] ) {
+            bufferToModify[j] = (int *) malloc (buffSize * sizeof(int));
         }
     }
 
-    // Set the pointer array element zero to pointer bufptr ie **data
-    bufs[0] = (void *) (fileWAV.filewav[0] + l1 * 2048);
-    // Set the pointer array element zero to pointer bufptr ie **data
-    bufs[1] = (void *) (fileWAV.filewav[1] + l1 * 2048);
+    for (j = 0; j < chanals; ++j) {
 
+        for (i = 0; i < buffSize; ++i) {
+            int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - (int)ceil(WFS[1][j]) )));
+            bufferToModify[j][i] = val; //por an1
+
+        }
+    }
 }
-*/
-
-/* para multiplicar la amplitud
- *
- * http://stackoverflow.com/questions/11932428/how-to-append-two-arrays-in-c-language
-    int i;
-    float data[] = {1.,2.,3.,4.,5.};
-
-    //this fails
-    data *= 5.0;
-
-    //this works
-    for(i = 0; i < 5; i++) data[i] *= 5.0;
-    */
-
