@@ -162,9 +162,11 @@ int superWav(Player *playerArguments){
     playback_handle = configurePlayBack_handle(playback_handle,err);
 
     /*Declarar los buffers con datos*/
-    void *bufs[2] = { NULL , NULL };		// Allocate two (bufs[0],bufs[1]) but we only user lowest one for now
-    bufs[0]=(void *)fileWAV.filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
-    bufs[1]=(void *)fileWAV.filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
+    //void *bufs[2] = { NULL , NULL };		// Allocate two (bufs[0],bufs[1]) but we only user lowest one for now
+    //bufs[0]=(void *)fileWAV.filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
+    //bufs[1]=(void *)fileWAV.filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
+
+    int* pruebaBuffGnerado[2] = {NULL,NULL};
     /*============================================*/
 
     /*Declarar vector de 0 para tiempo en silencio*/
@@ -174,17 +176,6 @@ int superWav(Player *playerArguments){
     bufsVoid[0]=(void *)voidVector;
     bufsVoid[1]=(void *)voidVector;
     /*============================================*/
-
-
-    /*
-     *
-     *
-     * */
-    int* pruebaBuffGnerado[2] = {NULL,NULL};
-    /*
-     *
-     *
-     * */
 
     // -- FOR REPRODUCCING ---- //
     int pcmreturn;
@@ -206,25 +197,11 @@ int superWav(Player *playerArguments){
         /*Para avanzar 512 byts necesarios en el buffs*/
 
         // Set the pointer array element zero to pointer bufptr ie **data
-        bufs[0] = (void *) ( ((int *) fileWAV.filewav[0]) + l1 * 512);
+        //bufs[0] = (void *) ( ((int *) fileWAV.filewav[0]) + l1 * 512);
         // Set the pointer array element zero to pointer bufptr ie **data
-        bufs[1] = (void *) ( ((int *) fileWAV.filewav[1] ) + l1 * 512);
-
-        /*
-         *
-         *
-         *
-         * */
-
+        //bufs[1] = (void *) ( ((int *) fileWAV.filewav[1] ) + l1 * 512);
 
         bufferGenerator(pruebaBuffGnerado,l1,fileWAV,512, resultWFS, 2);
-
-        /*
-         *
-         *
-         *
-         * */
-
 
 
         pthread_mutex_lock(&playerArguments->lock);
@@ -238,10 +215,9 @@ int superWav(Player *playerArguments){
             break;
         }
 
-        printf("\tA\t%d\t%d\n",l1,*(int*)bufs[0] + l1);
-        printf("\tAG\t%d\t%d\n",l1, *(int*)((int**)castBufferToVoid(pruebaBuffGnerado,2))[0] + l1);
-
-        printf("\tB\t%d\t%d\n",l1,*(int*)bufs[1] + l1);
+//        printf("\tA\t%d\t%d\n",l1,*(int*)bufs[0] + l1);
+//        printf("\tAG\t%d\t%d\n",l1, *(int*)((int**)castBufferToVoid(pruebaBuffGnerado,2))[0] + l1);
+//        printf("\tB\t%d\t%d\n",l1,*(int*)bufs[1] + l1);
 
         if (oldFalg) {
             //Reproducción del sonido
