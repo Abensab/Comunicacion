@@ -29,6 +29,11 @@ double **WFS(double posX, double posY);
 char * handleWAVFiles();
 SuperWAV loadFile();
 
+void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSize, double **WFS, int chanals);
+void** castBufferToVoid(int** buffer, int chanals);
+
+
+
 #endif
 
 

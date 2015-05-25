@@ -21,11 +21,21 @@ void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSi
     for (j = 0; j < chanals; ++j) {
 
         for (i = 0; i < buffSize; ++i) {
-            int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - (int)ceil(WFS[1][j]) )));
+            //int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - (int)ceil(WFS[1][j]) )));
+            int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + i ));
             bufferToModify[j][i] = val; //por an1
 
         }
     }
+}
+
+void** castBufferToVoid(int** buffer, int chanals){
+
+    int i;
+    for (i = 0; i < chanals; ++i) {
+        buffer[i] = (void *) buffer[i];
+    }
+    return (void**)buffer;
 }
 
 
@@ -57,10 +67,26 @@ int main()
         //go over all the buffer
         for (i = 0; i < sizeOfbuff; ++i) {
 
-            if (bufsFUNC[0][i] != bufsINT[0][i - (int) ( ceil(resutlWFS[1][0]) ) ] ) {
-                printf("\t%d\t%d\t%d\t%d\n ",i+(l1*sizeOfbuff), i, bufsFUNC[0][i], bufsINT[0][i] );
+            if (bufsFUNC[0][i] != bufsINT[0][i /*- (int) ( ceil(resutlWFS[1][0]) )*/ ] ) {
+                printf("\t%d\t%d\t%d\t%d\n ",i+(l1*sizeOfbuff), i, bufsFUNC[0][i], bufsINT[0][i/* - (int) ( ceil(resutlWFS[1][0]) */] );
+            }
+
+            if (bufsFUNC[0][i] != ((int*)((int**)castBufferToVoid(bufsFUNC,2))[0])[i] ) {
+                printf("\t%d\t%d\t%d\t%d\n ",i+(l1*sizeOfbuff), i, bufsFUNC[0][i], ((int*)((int**)castBufferToVoid(bufsFUNC,2))[0])[i] );
             }
 
         }
+
+        /*void ** vector = castBufferToVoid(bufsFUNC,2);
+
+        for (i = 0; i < sizeOfbuff; ++i) {
+
+            if (bufsFUNC[0][i] != ( ((int*) ((int**)vector)[0]) )[i] ) {
+                printf("\t%d\t%d\t%d\t%d\n ",i+(l1*sizeOfbuff), i, bufsFUNC[0][i], bufsINT[0][i] );
+            }
+
+        }*/
+
     }
+    return 0;
 }

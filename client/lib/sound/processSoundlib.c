@@ -211,9 +211,19 @@ void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSi
     for (j = 0; j < chanals; ++j) {
 
         for (i = 0; i < buffSize; ++i) {
-            int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - (int)ceil(WFS[1][j]) )));
+            //int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - (int)ceil(WFS[1][j]) )));
+            int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + i ));
             bufferToModify[j][i] = val; //por an1
 
         }
     }
+}
+
+void** castBufferToVoid(int** buffer, int chanals){
+
+    int i;
+    for (i = 0; i < chanals; ++i) {
+        buffer[i] = (void *) buffer[i];
+    }
+    return (void**)buffer;
 }

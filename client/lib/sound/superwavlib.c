@@ -143,7 +143,9 @@ snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err){
 int superWav(Player *playerArguments){
 
     //double **resultWFS = WFS(playerArguments->posX,playerArguments->posY);
-    
+
+    double **resultWFS = WFS(-1.0,0.0);
+
     /* This holds the error code returned */
     int err = 0;
 
@@ -174,6 +176,16 @@ int superWav(Player *playerArguments){
     /*============================================*/
 
 
+    /*
+     *
+     *
+     * */
+    int* pruebaBuffGnerado[2] = {NULL,NULL};
+    /*
+     *
+     *
+     * */
+
     // -- FOR REPRODUCCING ---- //
     int pcmreturn;
     int l1;
@@ -194,9 +206,25 @@ int superWav(Player *playerArguments){
         /*Para avanzar 512 byts necesarios en el buffs*/
 
         // Set the pointer array element zero to pointer bufptr ie **data
-        bufs[0] = (void *) (fileWAV.filewav[0] + l1 * 2048);
+        bufs[0] = (void *) ( ((int *) fileWAV.filewav[0]) + l1 * 512);
         // Set the pointer array element zero to pointer bufptr ie **data
-        bufs[1] = (void *) (fileWAV.filewav[1] + l1 * 2048);
+        bufs[1] = (void *) ( ((int *) fileWAV.filewav[1] ) + l1 * 512);
+
+        /*
+         *
+         *
+         *
+         * */
+
+
+        bufferGenerator(pruebaBuffGnerado,l1,fileWAV,512, resultWFS, 2);
+
+        /*
+         *
+         *
+         *
+         * */
+
 
 
         pthread_mutex_lock(&playerArguments->lock);
@@ -211,12 +239,14 @@ int superWav(Player *playerArguments){
         }
 
         printf("\tA\t%d\t%d\n",l1,*(int*)bufs[0] + l1);
+        printf("\tAG\t%d\t%d\n",l1, *(int*)((int**)castBufferToVoid(pruebaBuffGnerado,2))[0] + l1);
+
         printf("\tB\t%d\t%d\n",l1,*(int*)bufs[1] + l1);
 
         if (oldFalg) {
             //Reproducción del sonido
             /************************/
-            while ((pcmreturn = snd_pcm_writen(playback_handle, bufs, 512)) < 0) {
+            while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(pruebaBuffGnerado,2), 512)) < 0) {
                 printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
                 // snd_pcm_prepare(playback_handle);
                 fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
