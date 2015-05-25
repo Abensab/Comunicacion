@@ -2,6 +2,7 @@
 #define SUPERWAV
 
 #include "processSoundlib.h"
+#include <alsa/asoundlib.h>
 
     typedef struct FileHandelTag{
         FILE *fp;
