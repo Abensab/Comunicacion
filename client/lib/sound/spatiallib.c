@@ -56,7 +56,7 @@ int OpenWavConvert32(unsigned char **pwav, char nombre[])
    //Ahora leemos el wav y ponemos los bytes en el orden que toca
    for(j=0;j<iSize;j=j+2)
    {
-	     pwavTmp[2*j+2]=speechdat[j];
+       pwavTmp[2*j+2]=speechdat[j];
        pwavTmp[2*j+3]=speechdat[j+1];
    }
    
@@ -127,13 +127,13 @@ unsigned char * newWav2ch(char nombreL[], char nombreR[])
    //Ahora leemos el wav y ponemos los bytes en el orden que toca
    for(j=0;j<iSizeL;j=j+2)
    {
-	     pwavTmp[2*j+2]=speechdatL[j];
+       pwavTmp[2*j+2]=speechdatL[j];
        pwavTmp[2*j+3]=speechdatL[j+1];
    }
 
    for(j=0;j<iSizeL;j=j+2)
    {
-	     pwavTmp[2*j]=speechdatR[j];
+       pwavTmp[2*j]=speechdatR[j];
        pwavTmp[2*j+1]=speechdatR[j+1];
    }
    

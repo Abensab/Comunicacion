@@ -38,6 +38,10 @@ void configSpeakers(double *vector, double value, double startValue, double incr
         total += incrementValue;
         //printf("%f\n",valueToInsert);
     }
+    if(finValue != total){
+        finValue = total;
+    }
+
 }
 
 double ** speekersConf(){
@@ -45,7 +49,6 @@ double ** speekersConf(){
     double ** speekers = (double **) malloc(sizeof(double *) *2);
     speekers[0] = (double *) malloc(sizeof(double)*nalt);
     speekers[1] = (double *) malloc(sizeof(double)*nalt);
-
 
     configSpeakers(speekers[0],1.0182,0.09,0.18,1.35,0,8,cos(45*pi/180),-1);
     configSpeakers(speekers[1],0,0.09,0.18,1.35,0,8,cos(45*pi/180),1);

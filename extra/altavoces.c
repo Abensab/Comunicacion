@@ -1,4 +1,5 @@
 #include "../client/include/processSoundlib.h"
+#include <libconfig.h>
 
 
 void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSize, double **WFS, int chanals) {

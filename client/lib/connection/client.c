@@ -131,8 +131,6 @@ int startClientConnection(char *address, int portNumber){
 
     Player playerArguments;
 
-    //SuperWAV fileWAV = loadFile();
-
     /*ID*/
     bzero(buffer,256);
     bytes = Recv(client.socketFileDescriptor,buffer,256,0);

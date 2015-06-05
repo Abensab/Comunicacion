@@ -18,5 +18,5 @@ echo $route
 
 
 printf "\nCompilating SuperWavClient...\n"
-#sudo gcc $route/src/SuperWavAppClient.c $route/lib/funcions.c $route/lib/connection/socketUtils.c $route/lib/connection/client.c $route/lib/sound/spatiallib.c $route/lib/sound/superwavlib.c -o SuperWavAppClient -lasound -lm -lpthread
+#sudo gcc $route/src/SuperWavAppClient.c $route/lib/funcionslib.c $route/lib/connection/socketUtils.c $route/lib/connection/client.c $route/lib/sound/spatiallib.c $route/lib/sound/processSoundlib.c $route/lib/sound/superwavlib.c -o SuperWavAppClient -lasound -lm -lpthread
 sudo gcc -Wall -Wextra $route/src/SuperWavAppClient.c $route/lib/funcionslib.c $route/lib/connection/socketUtils.c $route/lib/connection/client.c $route/lib/sound/spatiallib.c $route/lib/sound/processSoundlib.c $route/lib/sound/superwavlib.c -o SuperWavAppClient -lasound -lm -lpthread
