@@ -135,7 +135,11 @@ int startClientConnection(char *address, int portNumber){
     bzero(buffer,256);
     bytes = Recv(client.socketFileDescriptor,buffer,256,0);
 
-    client.clientID = atoi(buffer);
+    if(bytes<=0){
+        return -1;
+    }
+
+        client.clientID = atoi(buffer);
     printf("My ID: %d \n", client.clientID);
 
     /* timestamp, funete, posIni, velocidad, posFin, idCli*/

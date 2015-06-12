@@ -22,6 +22,11 @@ typedef struct PlayerTAG{
 
     void **bufferToPlay;
 
+    ClientCard card;
+    ClientSound sound;
+    ClientSpeekers speekers;
+    int timeToStrartSeconds;
+
 } Player;
 
 double **WFS(double posX, double posY);

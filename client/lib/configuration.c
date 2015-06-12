@@ -16,7 +16,7 @@
    ----------------------------------------------------------------------------
 */
 
-#include "configurationlib.h"
+#include "./../include/configurationlib.h"
 
 int checkConfig(config_t* cfg, char* configFile){
 
@@ -160,19 +160,27 @@ int seerverInicialConfig(config_t* cfg){
     return clients_number;
 }
 
+int timeToStartConfig(config_t* cfg){
 
+    int time_to_start;
+    // Get the time to start.
+    if(config_lookup_int(cfg, "time_to_start", &time_to_start))
+        printf("Time to start: %d\n\n", time_to_start);
+    else
+        fprintf(stderr, "No 'time_to_start' setting in configuration file.\n");
+    return time_to_start;
+
+}
+
+/*
 int main()
 {
     config_t cfg;
-
-    printf("inicio config\n");
-
-    char* configFile= "./configFolder/default.cfg";
-
+    char* configFile= "default.cfg";
     checkConfig(&cfg,configFile);
 
     int time_to_start;
-    /* Get the time to start. */
+    // Get the time to start.
     if(config_lookup_int(&cfg, "time_to_start", &time_to_start))
         printf("Time to start: %d\n\n", time_to_start);
     else
@@ -204,5 +212,5 @@ int main()
     config_destroy(&cfg);
     return(EXIT_SUCCESS);
 }
-
+*/
 /* eof */

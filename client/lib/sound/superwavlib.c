@@ -8,7 +8,10 @@ snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, 
 
     /* Init pcm_name. Of course, later you */
     /* will make this configurable ;-)     */
-    pcm_name = strdup("plughw:1,0");
+    //pcm_name = strdup("plughw:1,0");
+
+    pcm_name = strdup("plughw:0,0");
+
 
     /* Allocate the snd_pcm_hw_params_t structure on the stack. */
     // -- snd_pcm_hw_params_alloca(&hwparams);
