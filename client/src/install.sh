@@ -11,6 +11,27 @@ else
 printf "Packages installed\n"
 fi
 
+
+printf "\nChecking for libconfig.h packages...\n"
+FILE="/usr/local/include/libconfig.h"
+if [ -f $FILE ];
+then
+   echo "File $FILE exists"
+   echo "Libconfig package installed"
+
+else
+   echo "File $FILE does not exists"
+   printf "Working\n\n"
+   tar -zxvf ./../../bin/configlib/libconfig-1.5.tar.gz -C ./../lib/
+   cd ./../lib/libconfig-1.5/
+   sudo ./configure
+   sudo make
+   sudo make check
+   sudo make install
+   sudo ldconfig -v
+fi
+
+
 printf "Location:\n"
 cd ..
 route=$(pwd)
