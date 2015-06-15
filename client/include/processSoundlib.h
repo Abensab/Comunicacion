@@ -2,11 +2,12 @@
 #define PROCESSLIB_H
 
 #include "spatiallib.h"
-//#include "superwavlib.h"
+#include "configurationlib.h"
 
 typedef struct SuperWAVTag{
-    int leido1;
-    int leido2;
+    //int leido1;
+    //int leido2;
+    int* leido;
     unsigned char **filewav;
 
 } SuperWAV;
@@ -31,8 +32,8 @@ typedef struct PlayerTAG{
 
 double **WFS(double posX, double posY);
 
-char * handleWAVFiles();
-SuperWAV loadFile();
+char * handleWAVFiles(ClientSound soundConfig);
+SuperWAV loadFile(ClientSound soundConfig, ClientSpeekers speekersConfig);
 
 void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSize, double **WFS, int chanals);
 void** castBufferToVoid(int** buffer, int chanals);

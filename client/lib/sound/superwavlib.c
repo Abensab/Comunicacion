@@ -1,6 +1,13 @@
 #include "../../include/superwavlib.h"
 
-snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, int err){
+snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, char* pcm_name_config,int err){
+
+    if ((err = snd_pcm_open (&playback_handle, pcm_name_config, stream, 0)) < 0) {
+        fprintf(stderr, "cannot open audio device default from configuration file %s (%s)\n", pcm_name_config, snd_strerror(err));
+    }else{
+        return playback_handle;
+    }
+
     /* Name of the PCM device, like plughw:0,0          */
     /* The first number is the number of the soundcard, */
     /* the second number is the number of the device.   */
@@ -8,10 +15,7 @@ snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, 
 
     /* Init pcm_name. Of course, later you */
     /* will make this configurable ;-)     */
-    //pcm_name = strdup("plughw:1,0");
-
-    pcm_name = strdup("plughw:0,0");
-
+    pcm_name = strdup("plughw:1,0");
 
     /* Allocate the snd_pcm_hw_params_t structure on the stack. */
     // -- snd_pcm_hw_params_alloca(&hwparams);
@@ -40,8 +44,8 @@ snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, 
     return playback_handle;
 }
 
-snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err){
-    int rate = 44100; /* Sample rate */
+snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle, ClientCard cardConfig,int err){
+    int rate = cardConfig.frame_Rate; /* Sample rate */
     unsigned int exact_rate; /* Sample rate returned by */
 
     /* This structure contains information about the hardware and can be used to specify the configuration to be used for */
@@ -102,8 +106,8 @@ snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle,int err){
 
     /* These values are pretty small, might be useful in
       situations where latency is a dirty word. */
-    snd_pcm_uframes_t buffer_size = 2048;
-    snd_pcm_uframes_t period_size = 256;
+    snd_pcm_uframes_t buffer_size = cardConfig.pcm_buffer_size;
+    snd_pcm_uframes_t period_size = cardConfig.pcm_period_size;
 
     snd_pcm_hw_params_set_buffer_size_near (playback_handle, hw_params, &buffer_size);
     snd_pcm_hw_params_set_period_size_near (playback_handle, hw_params, &period_size, NULL);
@@ -152,7 +156,7 @@ int superWav(Player *playerArguments){
     /* This holds the error code returned */
     int err = 0;
 
-    SuperWAV fileWAV = loadFile();
+    SuperWAV fileWAV = loadFile(playerArguments->sound,playerArguments->speekers);
 
     /* Handle for the PCM device */
     snd_pcm_t *playback_handle = NULL;
@@ -160,22 +164,27 @@ int superWav(Player *playerArguments){
     /* Playback stream */
     snd_pcm_stream_t stream = SND_PCM_STREAM_PLAYBACK;
 
-    playback_handle = assignPCMName(playback_handle,stream,err);
+    playback_handle = assignPCMName(playback_handle,stream, (char*) playerArguments->card.pcm_name,err);
 
-    playback_handle = configurePlayBack_handle(playback_handle,err);
+    playback_handle = configurePlayBack_handle(playback_handle,playerArguments->card,err);
 
     /*Declarar los buffers con datos*/
     //void *bufs[2] = { NULL , NULL };		// Allocate two (bufs[0],bufs[1]) but we only user lowest one for now
     //bufs[0]=(void *)fileWAV.filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
     //bufs[1]=(void *)fileWAV.filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
 
-    int* pruebaBuffGnerado[2] = {NULL,NULL};
+    int* pruebaBuffGnerado[playerArguments->speekers.chanels_number];
+    int j;
+    for (j = 0; j < playerArguments->speekers.chanels_number; ++j) {
+        pruebaBuffGnerado[j] = NULL;
+    }
+
     /*============================================*/
 
     /*Declarar vector de 0 para tiempo en silencio*/
     void *bufsVoid[2] = { NULL , NULL };
-    int voidVector[512];
-    memset(voidVector,0,512*sizeof(int));
+    int voidVector[playerArguments->card.buffer];
+    memset(voidVector,0,playerArguments->card.buffer*sizeof(int));
     bufsVoid[0]=(void *)voidVector;
     bufsVoid[1]=(void *)voidVector;
     /*============================================*/
@@ -204,7 +213,7 @@ int superWav(Player *playerArguments){
         // Set the pointer array element zero to pointer bufptr ie **data
         //bufs[1] = (void *) ( ((int *) fileWAV.filewav[1] ) + l1 * 512);
 
-        bufferGenerator(pruebaBuffGnerado,l1,fileWAV,512, resultWFS, 2);
+        bufferGenerator(pruebaBuffGnerado,l1,fileWAV,playerArguments->card.buffer, resultWFS, playerArguments->speekers.chanels_number);
 
 
         pthread_mutex_lock(&playerArguments->lock);
@@ -225,7 +234,7 @@ int superWav(Player *playerArguments){
         if (oldFalg) {
             //Reproducción del sonido
             /************************/
-            while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(pruebaBuffGnerado,2), 512)) < 0) {
+            while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(pruebaBuffGnerado,playerArguments->speekers.chanels_number), playerArguments->card.buffer)) < 0) {
                 printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
                 // snd_pcm_prepare(playback_handle);
                 fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
@@ -236,7 +245,7 @@ int superWav(Player *playerArguments){
 
             //Reproducción de zeros
             /************************/
-            while ((pcmreturn = snd_pcm_writen(playback_handle, bufsVoid, 512)) < 0) {
+            while ((pcmreturn = snd_pcm_writen(playback_handle, bufsVoid, playerArguments->card.buffer)) < 0) {
                 printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
                 // snd_pcm_prepare(playback_handle);
                 fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");

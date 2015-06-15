@@ -42,10 +42,10 @@ typedef struct ClientConnectionTag{
  } ClientConnection;
 
 char **strsplit(const char* str, const char* delim, size_t* numtokens);
-Player setArguments(char *str);
+int setArguments(char *str, Player* playerArguments, char* configFile);
 
 ClientConnection startConfigurationClient(char *address, int portNumber);
-int startClientConnection(char *address, int portNumber);
+int startClientConnection(char *address, int portNumber,  char* configFile);
 
 void* playSuperWav(void *arguments);
 

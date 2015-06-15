@@ -162,35 +162,47 @@ double **WFS(double posX, double posY){
     return WFS;
 }
 
-char * handleWAVFiles(){
+char * handleWAVFiles(ClientSound soundConfig){
     // -------------------------------------- HANDLE OF WAV FILES -------------------------------------//
     char * archivos_senal;
 
     /*Modificado la ruta de ./FicherosPrueba/001_piano.wav
     * para que lea desde una carpeta inferior
     * */
-    archivos_senal= (char *)calloc(4* WORD_LENGTH, sizeof(char));
-    strcpy(archivos_senal + 0*WORD_LENGTH, "./../bin/sound/001_piano.wav");
-    strcpy(archivos_senal + 1*WORD_LENGTH, "./../bin/sound/voz4408.wav");
-    strcpy(archivos_senal + 2*WORD_LENGTH, "./../bin/sound/001_bajo.wav");
-    strcpy(archivos_senal + 3*WORD_LENGTH, "./../bin/sound/001_bateriabuena.wav");
+    archivos_senal= (char *)calloc(soundConfig.sounds_number* soundConfig.word_length, sizeof(char));
+
+    int i;
+    for (i = 0; i < soundConfig.sounds_number; ++i) {
+        strcpy(archivos_senal + i*soundConfig.word_length, soundConfig.sounds_list+i*soundConfig.word_length);
+    }
+
+    //strcpy(archivos_senal + 0*WORD_LENGTH, "./../bin/sound/001_piano.wav");
+    //strcpy(archivos_senal + 1*WORD_LENGTH, "./../bin/sound/voz4408.wav");
+    //strcpy(archivos_senal + 2*WORD_LENGTH, "./../bin/sound/001_bajo.wav");
+    //strcpy(archivos_senal + 3*WORD_LENGTH, "./../bin/sound/001_bateriabuena.wav");
 
 // -------------------------------------- HANDLE OF ALSA DEVICE -------------------------------------//
 
     return archivos_senal;
 }
 
-SuperWAV loadFile(){
+SuperWAV loadFile(ClientSound soundConfig, ClientSpeekers speekersConfig){
     SuperWAV filewav;
 
-    filewav.filewav = (unsigned char **) malloc (2*sizeof(unsigned char *));
+    filewav.filewav = (unsigned char **) malloc (speekersConfig.chanels_number*sizeof(unsigned char *));
+    filewav.leido = (int*) malloc (speekersConfig.chanels_number*sizeof(int));
 
-    char * archivos_senal = handleWAVFiles();
+    char * archivos_senal = handleWAVFiles(soundConfig);
 
-    filewav.leido1 = OpenWavConvert32(&filewav.filewav[0],archivos_senal);
-    printf("leidos 1 =%d\n", filewav.leido1);
-    filewav.leido2 = OpenWavConvert32(&filewav.filewav[1],archivos_senal + 1*WORD_LENGTH);
-    printf("leidos 2 =%d\n", filewav.leido2);
+    int i;
+    for (i = 0; i < speekersConfig.chanels_number; ++i) {
+        filewav.leido[i] = OpenWavConvert32(&filewav.filewav[i],archivos_senal + i*WORD_LENGTH);
+    }
+
+//    filewav.leido1 = OpenWavConvert32(&filewav.filewav[0],archivos_senal);
+//    printf("leidos 1 =%d\n", filewav.leido1);
+//    filewav.leido2 = OpenWavConvert32(&filewav.filewav[1],archivos_senal + 1*WORD_LENGTH);
+//    printf("leidos 2 =%d\n", filewav.leido2);
     return filewav;
 }
 
