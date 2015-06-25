@@ -44,43 +44,43 @@ void configSpeakers(double *vector, double value, double startValue, double incr
 
 }
 
-double ** speekersConf(){
+double ** speakersConf(){
 
-    double ** speekers = (double **) malloc(sizeof(double *) *2);
-    speekers[0] = (double *) malloc(sizeof(double)*nalt);
-    speekers[1] = (double *) malloc(sizeof(double)*nalt);
+    double ** speakers = (double **) malloc(sizeof(double *) *2);
+    speakers[0] = (double *) malloc(sizeof(double)*nalt);
+    speakers[1] = (double *) malloc(sizeof(double)*nalt);
 
-    configSpeakers(speekers[0],1.0182,0.09,0.18,1.35,0,8,cos(45*pi/180),-1);
-    configSpeakers(speekers[1],0,0.09,0.18,1.35,0,8,cos(45*pi/180),1);
+    configSpeakers(speakers[0],1.0182,0.09,0.18,1.35,0,8,cos(45*pi/180),-1);
+    configSpeakers(speakers[1],0,0.09,0.18,1.35,0,8,cos(45*pi/180),1);
 
-    configSpeakers(speekers[0],0,0,0,0,8,32,0,1);
-    configSpeakers(speekers[1],1.0182,0.09,0.18,(2*1.44+1.35),8,32,1,1);
+    configSpeakers(speakers[0],0,0,0,0,8,32,0,1);
+    configSpeakers(speakers[1],1.0182,0.09,0.18,(2*1.44+1.35),8,32,1,1);
 
-    configSpeakers(speekers[0],0,0.09,0.18,1.35,32,40,cos(45*pi/180),1);
-    configSpeakers(speekers[1],(1.0182+(3*1.44)),0.09,0.18,1.35,32,40,cos(45*pi/180),1);
+    configSpeakers(speakers[0],0,0.09,0.18,1.35,32,40,cos(45*pi/180),1);
+    configSpeakers(speakers[1],(1.0182+(3*1.44)),0.09,0.18,1.35,32,40,cos(45*pi/180),1);
 
-    configSpeakers(speekers[0],1.0182,0.09,0.18,1.35,40,48,1,1);
-    configSpeakers(speekers[1],(2*1.0182+3*1.44),0,0,0,40,48,0,1);
+    configSpeakers(speakers[0],1.0182,0.09,0.18,1.35,40,48,1,1);
+    configSpeakers(speakers[1],(2*1.0182+3*1.44),0,0,0,40,48,0,1);
 
-    configSpeakers(speekers[0],(1.0182+1.44),0.09,0.18,1.35,48,56,cos(45*pi/180),1);
-    configSpeakers(speekers[1],(2*1.0182+3*1.44),0.09,0.18,1.35,48,56,cos(45*pi/180),-1);
+    configSpeakers(speakers[0],(1.0182+1.44),0.09,0.18,1.35,48,56,cos(45*pi/180),1);
+    configSpeakers(speakers[1],(2*1.0182+3*1.44),0.09,0.18,1.35,48,56,cos(45*pi/180),-1);
 
-    configSpeakers(speekers[0],(2*1.0182+1.44),0,0,0,56,80,0,1);
-    configSpeakers(speekers[1],1.0182,0.09,0.18,1.35+2*1.44,56,80,1,1);
+    configSpeakers(speakers[0],(2*1.0182+1.44),0,0,0,56,80,0,1);
+    configSpeakers(speakers[1],1.0182,0.09,0.18,1.35+2*1.44,56,80,1,1);
 
-    configSpeakers(speekers[0],(2*1.0182+1.44),0.09,0.18,1.35,80,88,cos(45*pi/180),-1);
-    configSpeakers(speekers[1],1.0182,0.09,0.18,1.35,80,88,cos(45*pi/180),-1);
+    configSpeakers(speakers[0],(2*1.0182+1.44),0.09,0.18,1.35,80,88,cos(45*pi/180),-1);
+    configSpeakers(speakers[1],1.0182,0.09,0.18,1.35,80,88,cos(45*pi/180),-1);
 
-    configSpeakers(speekers[0],(1.0182+1.44),0.09,0.18,1.35,88,96,1,-1);
-    configSpeakers(speekers[1],0,0,0,0,88,96,0,1);
+    configSpeakers(speakers[0],(1.0182+1.44),0.09,0.18,1.35,88,96,1,-1);
+    configSpeakers(speakers[1],0,0,0,0,88,96,0,1);
 
-    return speekers;
+    return speakers;
 }
 
 
 double **WFS(double posX, double posY){
     int i;
-    double ** speakers = speekersConf();
+    double ** speakers = speakersConf();
 
     double fte[2]={posX,posY};
 
@@ -186,16 +186,16 @@ char * handleWAVFiles(ClientSound soundConfig){
     return archivos_senal;
 }
 
-SuperWAV loadFile(ClientSound soundConfig, ClientSpeekers speekersConfig){
+SuperWAV loadFile(ClientSound soundConfig, ClientSpeakers speakersConfig){
     SuperWAV filewav;
 
-    filewav.filewav = (unsigned char **) malloc (speekersConfig.chanels_number*sizeof(unsigned char *));
-    filewav.leido = (int*) malloc (speekersConfig.chanels_number*sizeof(int));
+    filewav.filewav = (unsigned char **) malloc (speakersConfig.chanels_number*sizeof(unsigned char *));
+    filewav.leido = (int*) malloc (speakersConfig.chanels_number*sizeof(int));
 
     char * archivos_senal = handleWAVFiles(soundConfig);
 
     int i;
-    for (i = 0; i < speekersConfig.chanels_number; ++i) {
+    for (i = 0; i < speakersConfig.chanels_number; ++i) {
         filewav.leido[i] = OpenWavConvert32(&filewav.filewav[i],archivos_senal + i*WORD_LENGTH);
     }
 

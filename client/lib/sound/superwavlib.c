@@ -156,7 +156,7 @@ int superWav(Player *playerArguments){
     /* This holds the error code returned */
     int err = 0;
 
-    SuperWAV fileWAV = loadFile(playerArguments->sound,playerArguments->speekers);
+    SuperWAV fileWAV = loadFile(playerArguments->sound,playerArguments->speakers);
 
     /* Handle for the PCM device */
     snd_pcm_t *playback_handle = NULL;
@@ -173,9 +173,9 @@ int superWav(Player *playerArguments){
     //bufs[0]=(void *)fileWAV.filewav[0];							  // Set the pointer array element zero to pointer bufptr ie **data
     //bufs[1]=(void *)fileWAV.filewav[1];							// Set the pointer array element zero to pointer bufptr ie **data
 
-    int* pruebaBuffGnerado[playerArguments->speekers.chanels_number];
+    int* pruebaBuffGnerado[playerArguments->speakers.chanels_number];
     int j;
-    for (j = 0; j < playerArguments->speekers.chanels_number; ++j) {
+    for (j = 0; j < playerArguments->speakers.chanels_number; ++j) {
         pruebaBuffGnerado[j] = NULL;
     }
 
@@ -213,7 +213,7 @@ int superWav(Player *playerArguments){
         // Set the pointer array element zero to pointer bufptr ie **data
         //bufs[1] = (void *) ( ((int *) fileWAV.filewav[1] ) + l1 * 512);
 
-        bufferGenerator(pruebaBuffGnerado,l1,fileWAV,playerArguments->card.buffer, resultWFS, playerArguments->speekers.chanels_number);
+        bufferGenerator(pruebaBuffGnerado,l1,fileWAV,playerArguments->card.buffer, resultWFS, playerArguments->speakers.chanels_number);
 
 
         pthread_mutex_lock(&playerArguments->lock);
@@ -234,7 +234,7 @@ int superWav(Player *playerArguments){
         if (oldFalg) {
             //Reproducción del sonido
             /************************/
-            while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(pruebaBuffGnerado,playerArguments->speekers.chanels_number), playerArguments->card.buffer)) < 0) {
+            while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(pruebaBuffGnerado,playerArguments->speakers.chanels_number), playerArguments->card.buffer)) < 0) {
                 printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
                 // snd_pcm_prepare(playback_handle);
                 fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");

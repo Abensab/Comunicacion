@@ -118,46 +118,52 @@ ClientCard clientCardGenerator(config_t* cfg){
 
 }
 
-ClientSpeekers clientSpeekersGenerator (config_t* cfg){
+int** readSpeakerPos(config_t* cfg,ClientSpeakers speakersConfig){
 
-    struct ClientSpeekersTag speekersConfig;
+    /*crear lista de posiciones*/
+    int** speakerPosL = (int **) malloc(speakersConfig.speakers_number *sizeof(int*));
+    int j;
+    for(j=0; j<speakersConfig.speakers_number; j++){
+        speakerPosL[j] = (int*) malloc(2*sizeof(int));
+    }
 
-    /* Output speekers config. */
+    config_setting_t *speakerList = config_lookup(cfg, "client.speakers.speakers_position");
+    unsigned int count = config_setting_length(speakerList);
+    unsigned int i;
+
+    for (i = 0; i < count; ++i) {
+        config_setting_t *speakerPos = config_setting_get_elem(speakerList, i);
+
+        // Only output the record if all of the expected fields are present.
+        config_setting_lookup_int(speakerPos, "posX", &speakerPosL[i][0]);
+        config_setting_lookup_int(speakerPos, "posY", &speakerPosL[i][1]);
+    }
+
+    return speakerPosL;
+}
+
+ClientSpeakers clientSpeakersGenerator (config_t* cfg){
+
+    struct ClientSpeakersTag speakersConfig;
+
+    /* Output speakers config. */
     config_setting_t *setting = config_lookup(cfg, "client");
     if(setting != NULL) {
 
-        config_setting_t *speekers = config_lookup(cfg, "client.speekers");
-        if (speekers != NULL) {
+        config_setting_t *speakers = config_lookup(cfg, "client.speakers");
+        if (speakers != NULL) {
             /* Only output the record if all of the expected fields are present. */
-            //int speekers_number, chanels_number;
+            //int speakers_number, chanels_number;
 
-            if (!(config_setting_lookup_int(speekers, "speekers_number", &speekersConfig.speekers_number)
-                  && config_setting_lookup_int(speekers, "chanels_number", &speekersConfig.chanels_number)))
-                printf("Missing config Speekers!\n");
+            if (!(config_setting_lookup_int(speakers, "speakers_number", &speakersConfig.speakers_number)
+                  && config_setting_lookup_int(speakers, "chanels_number", &speakersConfig.chanels_number)))
+                printf("Missing config Speakers!\n");
 
-            //printf("%d  %d\n", speekersConfig.speekers_number, speekersConfig.chanels_number);
+            //printf("%d  %d\n", speakersConfig.speakers_number, speakersConfig.chanels_number);
             //putchar('\n');
         }
     }
-    return speekersConfig;
-}
-
-int seerverInicialConfig(config_t* cfg){
-
-    config_setting_t *setting = config_lookup(cfg, "server");
-    int clients_number;
-
-    if(setting != NULL)
-    {
-
-        if(!(config_setting_lookup_int(setting, "clients_number", &clients_number) ) )
-            printf("Faltan clients_number!\n");
-
-        //printf("%d\n", clients_number);
-
-        //putchar('\n');
-    }
-    return clients_number;
+    return speakersConfig;
 }
 
 int timeToStartConfig(config_t* cfg){
@@ -176,7 +182,7 @@ int timeToStartConfig(config_t* cfg){
 int main()
 {
     config_t cfg;
-    char* configFile= "default.cfg";
+    char* configFile= "./../config/default.cfg";
     checkConfig(&cfg,configFile);
 
     int time_to_start;
@@ -201,13 +207,16 @@ int main()
         printf("%s\n", sound.sounds_list+j*sound.word_length);
     }
 
-    // Read config Speekers
-    ClientSpeekers speekers = clientSpeekersGenerator(&cfg);
-    // Print config Speekers
-    printf("%d  %d\n", speekers.speekers_number, speekers.chanels_number);
+    // Read config Speakers
+    ClientSpeakers speakers = clientSpeakersGenerator(&cfg);
+    // Print config Speakers
+    printf("%d  %d\n", speakers.speakers_number, speakers.chanels_number);
 
-    // Read and print config server
-    printf("%d\n", seerverInicialConfig(&cfg));
+    int** lista = readSpeakerPos(&cfg, speakers);
+
+    for(j=0; j<speakers.speakers_number; j++){
+        printf("%d, %d\n",lista[j][0],lista[j][1]);
+    }
 
     config_destroy(&cfg);
     return(EXIT_SUCCESS);

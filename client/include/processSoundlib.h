@@ -25,7 +25,7 @@ typedef struct PlayerTAG{
 
     ClientCard card;
     ClientSound sound;
-    ClientSpeekers speekers;
+    ClientSpeakers speakers;
     int timeToStrartSeconds;
 
 } Player;
@@ -33,7 +33,7 @@ typedef struct PlayerTAG{
 double **WFS(double posX, double posY);
 
 char * handleWAVFiles(ClientSound soundConfig);
-SuperWAV loadFile(ClientSound soundConfig, ClientSpeekers speekersConfig);
+SuperWAV loadFile(ClientSound soundConfig, ClientSpeakers speakersConfig);
 
 void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSize, double **WFS, int chanals);
 void** castBufferToVoid(int** buffer, int chanals);

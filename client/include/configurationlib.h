@@ -41,17 +41,18 @@ typedef struct ClientSoundTag{
 
 } ClientSound;
 
-typedef struct ClientSpeekersTag{
+typedef struct ClientSpeakersTag{
 
-    int speekers_number, chanels_number;
+    int speakers_number, chanels_number;
+    int** list_positions_speakers;
 
-} ClientSpeekers;
+} ClientSpeakers;
 
 int checkConfig(config_t* cfg, char* configFile);
 ClientCard clientCardGenerator(config_t* cfg);
 ClientSound clientSoundGenerator(config_t* cfg);
-ClientSpeekers clientSpeekersGenerator (config_t* cfg);
-int seerverInicialConfig(config_t* cfg);
+ClientSpeakers clientSpeakersGenerator (config_t* cfg);
+int** readSpeakerPos(config_t* cfg,ClientSpeakers speakersConfig);
 int timeToStartConfig(config_t* cfg);
 
 
