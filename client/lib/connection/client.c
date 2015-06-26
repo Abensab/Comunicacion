@@ -4,45 +4,18 @@
     http://www.linuxhowtos.org/C_C++/socket.htm
 */
 
-int setArguments(char *str, Player* playerArguments, char* configFile){
+int getConfig(Player* playerArguments, char* configFile){
 
     //Config reader
     config_t            cfg;
     checkConfig(&cfg,configFile);
 
-    printf("%s\n",str);
-
-    char **variableAndValue;
-    size_t numvariableAndValue;
-
-    variableAndValue = strsplit(str, ",", &numvariableAndValue);
-
-    size_t i;
-    for (i = 0; i < numvariableAndValue; i++) {
-        //printf("Variable And Value: \"%s\"\n", variableAndValue[i]);
-
-        char **variableORValue;
-        size_t twoValues;
-        variableORValue = strsplit(variableAndValue[i], ":", &twoValues);
-
-        if(i == 0){
-            playerArguments->timeToStart= atoll(variableORValue[1]);
-        }
-
-        if(i == 1){
-            playerArguments->IDPlaying= atoi(variableORValue[1]);
-        }
-
-        free(variableORValue[0]);
-        free(variableORValue[1]);
-        free(variableAndValue[i]);
-    }
     playerArguments->card = clientCardGenerator(&cfg);
     playerArguments->sound = clientSoundGenerator(&cfg);
     playerArguments->speakers = clientSpeakersGenerator(&cfg);
-    playerArguments->speakers.list_positions_speakers = readSpeakerPos(&cfg,playerArguments->speakers);
     playerArguments->timeToStrartSeconds = timeToStartConfig(&cfg);
-
+    /*Started to play*/
+    playerArguments->finishPlaying = FALSE;
     return 0;
 }
 
@@ -71,10 +44,6 @@ ClientConnection startConfigurationClient(char *address, int portNumber){
 void* playSuperWav(void *arguments) {
 
     Player *args = (Player *) arguments;
-    /*printf("Time to start: %lld\n", args->timeToStart);
-    printf("Flag: %d\n", args->flag);
-    printf("Finish playing: %d\n", args->finishPlaying);
-*/
     int sleepTime = ( (args->timeToStart - current_timestamp())/1000 ) - 1;
 
     printf("Sleep Time: %d\n",sleepTime);
@@ -101,33 +70,66 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     pthread_t           playerThread;
     Player              playerArguments;
 
-    /*ID*/
-    bzero(buffer,256);
-    bytes = Recv(client.socketFileDescriptor,buffer,256,0);
-
-    if(bytes<=0){
-        return -1;
-    }
-
-    client.clientID = atoi(buffer);
-    printf("My ID: %d \n", client.clientID);
-
-    /* timestamp, funete, posIni, velocidad, posFin, idCli*/
-    /*inicialmente: timestamp, idCli */
-    bzero(buffer,256);
-    bytes = Recv(client.socketFileDescriptor,buffer,256,0);
-
-    printf("Milliseconds message recived: %lld\n", current_timestamp());
+    MesageVariables     configFromServer;
 
     //Config reader
     if (strcmp(configFile,"NULL") == 0 ){
         configFile    = "./config/default.cfg";
     }
+    getConfig(&playerArguments, configFile);
 
-    setArguments(buffer,&playerArguments, configFile);
 
-    //double x = -1.0;
-    //double y = 0.0;
+    // ID
+    bzero(buffer,256);
+    bytes = Recv(client.socketFileDescriptor,buffer,256,0);
+    configFromServer = processMesage(buffer);
+
+    if(bytes<=0){
+        return -1;
+    }
+
+    if (strcmp(configFromServer.action, "identification") == 0){
+        client.clientID = configFromServer.identification;
+        printf("My ID: %d \n", client.clientID);
+    }
+
+    /* timestamp, funete, posIni, velocidad, posFin, idCli*/
+    /*inicialmente: timestamp, idCli */
+    bzero(buffer,256);
+    bytes = Recv(client.socketFileDescriptor,buffer,256,0);
+    configFromServer = processMesage(buffer);
+    while( strcmp(configFromServer.action, "start") != 0  ){
+        if( strcmp(configFromServer.action, "exit") == 0){
+            close(client.socketFileDescriptor);
+            return 0;
+        }
+
+        bzero(buffer,256);
+        bytes = Recv(client.socketFileDescriptor,buffer,256,0);
+        configFromServer = processMesage(buffer);
+
+    }
+
+    printf("Action:%s ,StartTime:%llu,ClientPosX:%d,ClientPosY:%d,Song:%d,SongPosX:%d,SongPosY:%d\n",
+           configFromServer.action,
+           configFromServer.startTime,
+           configFromServer.clientPosX,
+           configFromServer.clientPosY,
+           configFromServer.song,
+           configFromServer.songPosX,
+           configFromServer.songPosY);
+
+
+    playerArguments.timeToStart = configFromServer.startTime;
+    playerArguments.client_pos={configFromServer.clientPosX,configFromServer.clientPosY};
+
+    playerArguments.songPos = (int **) malloc(speakersConfig.speakers_number *sizeof(int*));
+    int j;
+    if(configFromServer.song == -1){
+        for(j=0; j<playerArguments.sound.sounds_number; j++){
+            speakerPosL[j] = {configFromServer.songPosX,configFromServer.songPosY,};
+        }
+    }
 
     //double **resultWFS = WFS(x,y);
 
@@ -139,8 +141,6 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     }else{
         playerArguments.flag = FALSE;
     }
-    /*Started to play*/
-    playerArguments.finishPlaying = FALSE;
 
     // Make sure it can be shared across processes
     pthread_mutexattr_t shared;
@@ -161,11 +161,12 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     Player newPlayerArguments;
 
+    getConfig(&newPlayerArguments, configFile);
+
+
     for(;;) {
         bzero(buffer, 256);
         bytes = Recv(client.socketFileDescriptor, buffer, 255, 0);
-
-         setArguments(buffer, &newPlayerArguments, configFile);
 
         if(bytes>0){
 
@@ -200,7 +201,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     close(client.socketFileDescriptor);
 
     return 0;
-}
+};
 /**********************************************************************/
 /* FIN CLIENT */
 /**********************************************************************/
