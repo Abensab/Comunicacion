@@ -110,7 +110,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     }
 
-    printf("Action:%s ,StartTime:%llu,ClientPosX:%d,ClientPosY:%d,Song:%d,SongPosX:%d,SongPosY:%d\n",
+    printf("Action:%s,StartTime:%llu,ClientPosX:%d,ClientPosY:%d,Song:%d,SongPosX:%d,SongPosY:%d\n",
            configFromServer.action,
            configFromServer.startTime,
            configFromServer.clientPosX,
@@ -119,15 +119,18 @@ int startClientConnection(char *address, int portNumber, char* configFile){
            configFromServer.songPosX,
            configFromServer.songPosY);
 
-
     playerArguments.timeToStart = configFromServer.startTime;
-    playerArguments.client_pos={configFromServer.clientPosX,configFromServer.clientPosY};
+    playerArguments.client_pos[0] = configFromServer.clientPosX;
+    playerArguments.client_pos[0] = configFromServer.clientPosY;
 
-    playerArguments.songPos = (int **) malloc(speakersConfig.speakers_number *sizeof(int*));
     int j;
+    playerArguments.songPos = (int **) malloc(playerArguments.speakers.speakers_number *sizeof(int*));
     if(configFromServer.song == -1){
-        for(j=0; j<playerArguments.sound.sounds_number; j++){
-            speakerPosL[j] = {configFromServer.songPosX,configFromServer.songPosY,};
+       for(j=0; j<playerArguments.sound.sounds_number; j++){
+            playerArguments.songPos[j] = (int *) malloc(2 *sizeof(int));
+
+            playerArguments.songPos[j][0] = configFromServer.songPosX;
+            playerArguments.songPos[j][1] = configFromServer.songPosY;
         }
     }
 
@@ -136,11 +139,15 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     //buffer modified to read player
     playerArguments.bufferToPlay = (void **) malloc (playerArguments.speakers.chanels_number*sizeof(void *));
 
+    //desaparece y se cambia por el WFS
     if(playerArguments.IDPlaying == client.clientID){
         playerArguments.flag = TRUE;
     }else{
         playerArguments.flag = FALSE;
     }
+
+
+
 
     // Make sure it can be shared across processes
     pthread_mutexattr_t shared;
@@ -150,47 +157,99 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     pthread_mutex_init(&playerArguments.lock, &shared);
 
     long long delay = (playerArguments.timeToStart - (playerArguments.timeToStrartSeconds * 1000) ) - current_timestamp();
-    printf("Delay (10s program): %lld\n",delay);
+    printf("Delay (%d seconds program): %lld\n",playerArguments.timeToStrartSeconds,delay);
 
     /*int x = 0;*/
     /* create a second thread which executes inc_x(&x) */
-    if(pthread_create(&playerThread, NULL, playSuperWav, &playerArguments)) {
+/*    if(pthread_create(&playerThread, NULL, playSuperWav, &playerArguments)) {
         fprintf(stderr, "Error creating player thread\n");
         return 1;
     }
-
+*/
+    //New playaer that will listen and save all the new configurations that the server ahs sended.
     Player newPlayerArguments;
-
+    newPlayerArguments.timeToStart = playerArguments.timeToStart;
     getConfig(&newPlayerArguments, configFile);
+    newPlayerArguments.client_pos = playerArguments.client_pos;
+    newPlayerArguments.finishPlaying = playerArguments.finishPlaying;
 
+    //Copy of the player arguments for the songs pozition.
+    newPlayerArguments.songPos = (int **) malloc(newPlayerArguments.speakers.speakers_number *sizeof(int*));
+    for(j=0; j<newPlayerArguments.sound.sounds_number; j++){
+        newPlayerArguments.songPos[j] = (int *) malloc(2 *sizeof(int));
+        newPlayerArguments.songPos[j][0] = playerArguments.songPos[j][0];
+        newPlayerArguments.songPos[j][1] = playerArguments.songPos[j][1];
+    }
+
+    MesageVariables newConfigFromServer;
 
     for(;;) {
         bzero(buffer, 256);
         bytes = Recv(client.socketFileDescriptor, buffer, 255, 0);
+        fflush(stdout);
 
         if(bytes>0){
-
-            printf("New ID Client PLayer: %d, Client: %d\n", newPlayerArguments.IDPlaying, client.clientID);
             fflush(stdout);
+            newConfigFromServer = processMesage(buffer);
+
+            if( strcmp(newConfigFromServer.action, "exit") == 0){
+
+                printf("See youn soon!\n");
+                break;
+            }
+
+            if (strcmp(newConfigFromServer.action, "song") == 0){
+
+                if(newConfigFromServer.song == -1){
+
+                    for(j=0; j<newPlayerArguments.sound.sounds_number; j++){
+
+                        newPlayerArguments.songPos[j][0] = newConfigFromServer.songPosX;
+                        newPlayerArguments.songPos[j][1] = newConfigFromServer.songPosY;
+                    }
+                }else{
+
+                    if(newConfigFromServer.song < newPlayerArguments.sound.sounds_number){
+
+                        newPlayerArguments.songPos[newConfigFromServer.song][0] = newConfigFromServer.songPosX;
+                        newPlayerArguments.songPos[newConfigFromServer.song][1] = newConfigFromServer.songPosY;
+
+                    }else{
+
+                        printf("Error, Sound %d dose not exist. Maxim number of sounds: %d", newConfigFromServer.song,
+                               newPlayerArguments.sound.sounds_number);
+                    }
+                }
+                printf("Sound: %d, PosX: %d, PosY: %d \n", newConfigFromServer.song, newConfigFromServer.songPosX,
+                       newConfigFromServer.songPosY);
+
+            }
+
+            if (strcmp(newConfigFromServer.action, "client") == 0){
+                printf("Client => PosX: %d, PosY: %d \n", newConfigFromServer.clientPosX,newConfigFromServer.clientPosY);
+                printf("No disponible actualmente\n");
+            }
+
+/*
+            printf("Aplicando nuevos cambios al buffer");
+
             if(newPlayerArguments.IDPlaying == client.clientID){
                 pthread_mutex_lock(&playerArguments.lock);
                 playerArguments.flag = TRUE;
                 printf("Son iguales\n");
-                fflush(stdout);
                 pthread_mutex_unlock(&playerArguments.lock);
             }else{
                 pthread_mutex_lock(&playerArguments.lock);
                 playerArguments.flag = FALSE;
                 printf("NO son iguales\n");
-                fflush(stdout);
                 pthread_mutex_unlock(&playerArguments.lock);
             }
             if(newPlayerArguments.IDPlaying == -1){
                 printf("\n¡¡Se acabo!!\n");
-                fflush(stdout);
                 playerArguments.flag = -1;
                 break;
             }
+*/
         }
         if(playerArguments.finishPlaying == TRUE){
             break;

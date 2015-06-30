@@ -15,6 +15,10 @@ typedef struct SuperWAVTag{
 typedef struct PlayerTAG{
 
     long long timeToStart;
+    int * client_pos;
+    int ** songPos;
+
+
     int flag;
     int finishPlaying;
     int IDPlaying;

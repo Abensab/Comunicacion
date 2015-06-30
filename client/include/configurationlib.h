@@ -48,11 +48,12 @@ typedef struct ClientSpeakersTag{
 
 } ClientSpeakers;
 
+
 int checkConfig(config_t* cfg, char* configFile);
 ClientCard clientCardGenerator(config_t* cfg);
 ClientSound clientSoundGenerator(config_t* cfg);
 ClientSpeakers clientSpeakersGenerator (config_t* cfg);
-int** readSpeakerPos(config_t* cfg,ClientSpeakers speakersConfig);
+//int** readSpeakerPos(config_t* cfg,ClientSpeakers speakersConfig);
 int timeToStartConfig(config_t* cfg);
 
 

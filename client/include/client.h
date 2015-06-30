@@ -4,6 +4,7 @@
 #include "socketUtils.h"
 #include "processSoundlib.h"
 #include "superwavlib.h"
+#include "parsher.h"
 
 typedef struct ClientConnectionTag{
     /* *********************************************************************
@@ -41,7 +42,7 @@ typedef struct ClientConnectionTag{
 
  } ClientConnection;
 
-int setArguments(char *str, Player* playerArguments, char* configFile);
+int getConfig(Player* playerArguments, char* configFile);
 
 ClientConnection startConfigurationClient(char *address, int portNumber);
 int startClientConnection(char *address, int portNumber,  char* configFile);

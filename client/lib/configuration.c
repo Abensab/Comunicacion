@@ -163,6 +163,8 @@ ClientSpeakers clientSpeakersGenerator (config_t* cfg){
             //putchar('\n');
         }
     }
+    speakersConfig.list_positions_speakers = readSpeakerPos(cfg, speakersConfig);
+
     return speakersConfig;
 }
 
@@ -170,9 +172,7 @@ int timeToStartConfig(config_t* cfg){
 
     int time_to_start;
     // Get the time to start.
-    if(config_lookup_int(cfg, "time_to_start", &time_to_start))
-        printf("Time to start: %d\n\n", time_to_start);
-    else
+    if( !(config_lookup_int(cfg, "time_to_start", &time_to_start)))
         fprintf(stderr, "No 'time_to_start' setting in configuration file.\n");
     return time_to_start;
 

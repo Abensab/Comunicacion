@@ -29,6 +29,5 @@
 long long current_timestamp();
 void error(const char *msg);
 int kbhit(void);
-char **strsplit(const char* str, const char* delim, size_t* numtokens);
 
 #endif

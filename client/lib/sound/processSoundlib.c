@@ -196,7 +196,7 @@ SuperWAV loadFile(ClientSound soundConfig, ClientSpeakers speakersConfig){
 
     int i;
     for (i = 0; i < speakersConfig.chanels_number; ++i) {
-        filewav.leido[i] = OpenWavConvert32(&filewav.filewav[i],archivos_senal + i*WORD_LENGTH);
+        filewav.leido[i] = OpenWavConvert32(&filewav.filewav[i],archivos_senal + i*soundConfig.word_length);
     }
 
 //    filewav.leido1 = OpenWavConvert32(&filewav.filewav[0],archivos_senal);
