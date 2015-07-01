@@ -189,13 +189,13 @@ char * handleWAVFiles(ClientSound soundConfig){
 SuperWAV loadFile(ClientSound soundConfig, ClientSpeakers speakersConfig){
     SuperWAV filewav;
 
-    filewav.filewav = (unsigned char **) malloc (speakersConfig.chanels_number*sizeof(unsigned char *));
-    filewav.leido = (int*) malloc (speakersConfig.chanels_number*sizeof(int));
+    filewav.filewav = (unsigned char **) malloc (soundConfig.sounds_number*sizeof(unsigned char *));
+    filewav.leido = (int*) malloc (soundConfig.sounds_number*sizeof(int));
 
     char * archivos_senal = handleWAVFiles(soundConfig);
 
     int i;
-    for (i = 0; i < speakersConfig.chanels_number; ++i) {
+    for (i = 0; i < soundConfig.sounds_number; ++i) {
         filewav.leido[i] = OpenWavConvert32(&filewav.filewav[i],archivos_senal + i*soundConfig.word_length);
     }
 

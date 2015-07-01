@@ -5,8 +5,6 @@
 #include "configurationlib.h"
 
 typedef struct SuperWAVTag{
-    //int leido1;
-    //int leido2;
     int* leido;
     unsigned char **filewav;
 
