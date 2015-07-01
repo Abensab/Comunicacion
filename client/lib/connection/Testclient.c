@@ -271,3 +271,41 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 /**********************************************************************/
 /* FIN CLIENT */
 /**********************************************************************/
+
+
+int main(int argc, char *argv[]) {
+    Player              playerArguments;
+
+    playerArguments.timeToStart = 100000000;
+    playerArguments.client_pos = {6,5};
+    playerArguments.songPos={{4,9},{6,9}};
+
+    playerArguments.finishPlaying = 0;
+
+    playerArguments.card.buffer = 512;
+    playerArguments.card.frame_Rate = 44100;
+    playerArguments.card.pcm_name = "plughw:1,0";
+    playerArguments.card.pcm_period_size = 256;
+    playerArguments.card.pcm_buffer_size = 2048;
+
+    playerArguments.sound.sound_folder = "../bin/sound/";
+    playerArguments.sound.sounds_list = {"001_piano.wav", "voz4408.wav", "001_bajo.wav", "001_bateriabuena.wav"};
+    playerArguments.sound.sounds_number = 4;
+    playerArguments.sound.word_length = 50;
+
+    playerArguments.speakers.chanels_number = 2;
+    playerArguments.speakers.list_positions_speakers = {4,9},{6,9};
+    playerArguments.speakers.speakers_number = 2;
+
+    playerArguments.timeToStrartSeconds = 10;
+
+    playerArguments.bufferToPlay;
+
+    SuperWAV fileWAV = loadFile(playerArguments.sound);
+
+    MesageVariables     configFromServer;
+    double **resultWFS = WFS(-1.0,0.0);
+
+
+    return 0;
+}

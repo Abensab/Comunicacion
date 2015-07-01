@@ -2,7 +2,7 @@
 //to round supperior
 #include <tgmath.h>
 
-#include "../../include/processSoundlib.h"
+#include "../client/include/processSoundlib.h"
 
 #define WORD_LENGTH 50
 

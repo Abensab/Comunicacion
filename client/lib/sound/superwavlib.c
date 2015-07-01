@@ -156,7 +156,7 @@ int superWav(Player *playerArguments){
     /* This holds the error code returned */
     int err = 0;
 
-    SuperWAV fileWAV = loadFile(playerArguments->sound,playerArguments->speakers);
+    SuperWAV fileWAV = loadFile(playerArguments->sound);
 
     /* Handle for the PCM device */
     snd_pcm_t *playback_handle = NULL;
