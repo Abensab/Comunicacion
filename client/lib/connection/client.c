@@ -16,6 +16,8 @@ int getConfig(Player* playerArguments, char* configFile){
     playerArguments->timeToStrartSeconds = timeToStartConfig(&cfg);
     /*Started to play*/
     playerArguments->finishPlaying = FALSE;
+    playerArguments->client_pos = (int *) malloc(2 *sizeof(int));
+
     return 0;
 }
 
@@ -169,6 +171,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     getConfig(&newPlayerArguments, configFile);
     newPlayerArguments.client_pos = playerArguments.client_pos;
     newPlayerArguments.finishPlaying = playerArguments.finishPlaying;
+
 
     //Copy of the player arguments for the songs pozition.
     newPlayerArguments.songPos = (int **) malloc(newPlayerArguments.speakers.speakers_number *sizeof(int*));

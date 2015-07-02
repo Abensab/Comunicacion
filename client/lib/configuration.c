@@ -118,13 +118,15 @@ ClientCard clientCardGenerator(config_t* cfg){
 
 }
 
-int** readSpeakerPos(config_t* cfg,ClientSpeakers speakersConfig){
+void readSpeakerPos(config_t* cfg,ClientSpeakers speakersConfig){
 
     /*crear lista de posiciones*/
-    int** speakerPosL = (int **) malloc(speakersConfig.speakers_number *sizeof(int*));
+    speakersConfig.speakers_tecta =(int *) malloc(speakersConfig.speakers_number *sizeof(int));
+    
+    speakersConfig.list_positions_speakers = (int **) malloc(speakersConfig.speakers_number *sizeof(int*));
     int j;
     for(j=0; j<speakersConfig.speakers_number; j++){
-        speakerPosL[j] = (int*) malloc(2*sizeof(int));
+        speakersConfig.list_positions_speakers[j] = (int*) malloc(2*sizeof(int));
     }
 
     config_setting_t *speakerList = config_lookup(cfg, "client.speakers.speakers_position");
@@ -135,11 +137,12 @@ int** readSpeakerPos(config_t* cfg,ClientSpeakers speakersConfig){
         config_setting_t *speakerPos = config_setting_get_elem(speakerList, i);
 
         // Only output the record if all of the expected fields are present.
-        config_setting_lookup_int(speakerPos, "posX", &speakerPosL[i][0]);
-        config_setting_lookup_int(speakerPos, "posY", &speakerPosL[i][1]);
+        config_setting_lookup_int(speakerPos, "posX", &speakersConfig.list_positions_speakers[i][0]);
+        config_setting_lookup_int(speakerPos, "posY", &speakersConfig.list_positions_speakers[i][1]);
+        config_setting_lookup_int(speakerPos, "angle", &speakersConfig.speakers_tecta[i]);
     }
 
-    return speakerPosL;
+    //return speakerPosL;
 }
 
 ClientSpeakers clientSpeakersGenerator (config_t* cfg){
@@ -163,7 +166,7 @@ ClientSpeakers clientSpeakersGenerator (config_t* cfg){
             //putchar('\n');
         }
     }
-    speakersConfig.list_positions_speakers = readSpeakerPos(cfg, speakersConfig);
+    readSpeakerPos(cfg, speakersConfig);
 
     return speakersConfig;
 }

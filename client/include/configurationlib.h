@@ -45,6 +45,7 @@ typedef struct ClientSpeakersTag{
 
     int speakers_number, chanels_number;
     int** list_positions_speakers;
+    int* speakers_tecta;
 
 } ClientSpeakers;
 
