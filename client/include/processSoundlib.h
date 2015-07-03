@@ -13,8 +13,8 @@ typedef struct SuperWAVTag{
 typedef struct PlayerTAG{
 
     long long timeToStart;
-    int * client_pos;
-    int ** songPos;
+    float * client_pos;
+    float ** songPos;
 
 
     int flag;
@@ -31,6 +31,17 @@ typedef struct PlayerTAG{
     int timeToStrartSeconds;
 
 } Player;
+/*
+typedef struct WFSTag {
+
+    int * parray;
+    float* tn;
+    float* an;
+
+} WFS;
+*/
+
+//WFS waveFieldSynthesis(ClientSpeakers speakers, char* song, float soundPosX, float soundPosY );
 
 double **WFS(double posX, double posY);
 

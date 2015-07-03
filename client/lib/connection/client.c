@@ -16,7 +16,7 @@ int getConfig(Player* playerArguments, char* configFile){
     playerArguments->timeToStrartSeconds = timeToStartConfig(&cfg);
     /*Started to play*/
     playerArguments->finishPlaying = FALSE;
-    playerArguments->client_pos = (int *) malloc(2 *sizeof(int));
+    playerArguments->client_pos = (float *) malloc(2 *sizeof(float));
 
     return 0;
 }
@@ -126,10 +126,10 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     playerArguments.client_pos[0] = configFromServer.clientPosY;
 
     int j;
-    playerArguments.songPos = (int **) malloc(playerArguments.speakers.speakers_number *sizeof(int*));
+    playerArguments.songPos = (float **) malloc(playerArguments.speakers.speakers_number *sizeof(float*));
     if(configFromServer.song == -1){
        for(j=0; j<playerArguments.sound.sounds_number; j++){
-            playerArguments.songPos[j] = (int *) malloc(2 *sizeof(int));
+            playerArguments.songPos[j] = (float *) malloc(2 *sizeof(float));
 
             playerArguments.songPos[j][0] = configFromServer.songPosX;
             playerArguments.songPos[j][1] = configFromServer.songPosY;
@@ -174,9 +174,9 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
 
     //Copy of the player arguments for the songs pozition.
-    newPlayerArguments.songPos = (int **) malloc(newPlayerArguments.speakers.speakers_number *sizeof(int*));
+    newPlayerArguments.songPos = (float **) malloc(newPlayerArguments.speakers.speakers_number *sizeof(float*));
     for(j=0; j<newPlayerArguments.sound.sounds_number; j++){
-        newPlayerArguments.songPos[j] = (int *) malloc(2 *sizeof(int));
+        newPlayerArguments.songPos[j] = (float *) malloc(2 *sizeof(float));
         newPlayerArguments.songPos[j][0] = playerArguments.songPos[j][0];
         newPlayerArguments.songPos[j][1] = playerArguments.songPos[j][1];
     }

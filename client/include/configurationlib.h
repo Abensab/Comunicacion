@@ -44,8 +44,8 @@ typedef struct ClientSoundTag{
 typedef struct ClientSpeakersTag{
 
     int speakers_number, chanels_number;
-    int** list_positions_speakers;
-    int* speakers_tecta;
+    float** list_positions_speakers;
+    float* speakers_tecta;
 
 } ClientSpeakers;
 
