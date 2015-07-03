@@ -1,0 +1,131 @@
+%% Filtro H, depende sólo de las frecuencias
+c=343;
+%comp=sqrt(-1);
+%ang_max=90*(pi/180); % rad
+%ord=60;
+FS=44100;
+land=-1; % porque está fuera del array de altavoces
+
+
+%load H1.mat
+
+
+%% Altavoces y fte
+alt(1,1:4)= [2,2,4,6];
+alt(2,1:4)= [5,7,9,9];
+
+nalt=4;
+
+%FUENTE
+%fte=[3.8;3.2]; %fte 1
+%fte=[1.75;7]; %fte 2
+%fte=[2;-0.5]; %fte 3
+%fte=[-0.2;1.2]; %fte 4
+
+%fte=[0.0;11.0];
+fte=[0.0;11.0];
+
+%nfte=1;
+
+figure;plot(alt(1,:),alt(2,:),'*');
+
+hold on; plot(fte(1),fte(2),'+');
+
+
+%% Amplitud
+% Datos de los angulos de cada array (hacia donde estan orientados), tal y
+% como están definidos arriba.
+% Tomamos como 0 º el que está arriba, sobre el eje X orientado hacia
+% valores negativos de X. Lo escribimos en radianes.
+% tecta=45*pi/180; %el array forma 45º
+tecta=[90,90,0,0];
+
+
+%fuente=fte;
+x = 0.0;
+y = 11.0;
+%TIENES QUE PONER ESTO!!!!!. el tecta y el alfa lo dejamos porque son para ver quien escucha ycual no. Pero a ti te te daigual.
+%Cálculo del ángulo fte-altavoz
+difX = alt(1,:)-x;
+difY = alt(2,:)-y;
+
+alfa = atan2(difY,difX);      % Ángulo
+alfa=(alfa.*180/pi)+90-tecta;
+[parray,pos]=find(((alfa<90)&(alfa>-90))|((alfa<450)&(alfa>270)));
+parray_act=pos;
+
+%alfa(1:8) = pi/2 - tecta + alfa(1:8); % Angulos del lateral izquierdo
+%alfa(25:32) = pi/2 - tecta + alfa(25:32); % Angulos del lateral derecho % derecho --> desactivado:
+%Cálculo de la distancia fte-altavoz
+r = sqrt(difX.^2 + difY.^2);                      % Distancia entre la fuente y cada altavoz
+%alfa=difX./cos(tecta-pi/2)./r;
+%Amplitud
+% Para la distancia entre el altavoz y la línea imaginaria interior. Vamos
+% a suponer una línea interior con la misma forma que el array. Y que está
+% situada a 2/3 del array, contando desde el array hasta el punto central.
+% Se tiene que calcular para todo, pero de momento, para una fuente situada
+% a la izquierda del array, para los altavoces que están activos (2,3 y 4),
+% calculamos la distancia para el centro de la sala y sería:
+% 1.44/2+1.44*cos(45*pi/180)
+%r0=ones(1,nalt) *2.88 * (1/2);
+r0=ones(1,nalt) * (1.44/2+1.44*cos(45*pi/180));
+s0=abs(r);%.*sin(alfa);
+A=sqrt(r0./(r0+s0));
+an=A.*cos(alfa*(pi/180))./(sqrt(r));
+%%%%%AQUI NOS QUEDAMOS......................................
+
+%% Retardo
+tn=-land.*(FS*(r/c)); % delay factor, for the n-loudspeaker
+
+
+resultados:
+
+================================
+
+    A			[0.464313639232586 0.529048348552147 0.529048348552147 0.464313639232586]
+    alfa		[-71.565051177077990 -63.434948822922010 63.434948822922010 71.565051177077990]
+    alt			[2 2 4 6;5 7 9 9]
+    an			[0.058384349182880 0.111880104145946 0.111880104145946 0.058384349182880]
+    c			343
+    difX		[2 2 4 6]
+    difY		[-6 -4 -2 -2]
+    FS			44100
+    fte			[0;11]
+    land		-1
+    nalt		4
+    parray		[1 1 1 1]
+    parray_act	[1 2 3 4]
+    pos			[1 2 3 4]
+    r			[6.324555320336759 4.472135954999580 4.472135954999580 6.324555320336759]
+    r0			[1.738233764908628 1.738233764908628 1.738233764908628 1.738233764908628]
+    s0			[6.324555320336759 4.472135954999580 4.472135954999580 6.324555320336759]
+    tecta		[90 90 0 0]
+    tn			[8.131571126147262e+02 5.749889084999460e+02 5.749889084999460e+02 8.131571126147262e+02]
+    x			0
+    y			11
+
+
+================================
+
+A	        [0.681900270868409 0.616956734723610 0.484822109936597 0.440715856546505]
+alfa	    [0 45 135 1.236900675259798e+02]
+alt	        [2 2 4 6;5 7 9 9]
+an	        [0.482176305623995 0.259398353297860 -0.144138475661808 -0.091036627337339]
+c	        343
+difX	    [2 2 4 6]
+difY	    [0 2 4 4]
+FS	        44100
+fte	        [0;5]
+fuente	    [0;5]
+land	    -1
+nalt	    4
+parray	    [1 1]
+parray_act	[1 2]
+pos	        [1 2]
+r	        [2 2.828427124746190 5.656854249492381 7.211102550927978]
+r0	        [1.738233764908628 1.738233764908628 1.738233764908628 1.738233764908628]
+s0	        [2 2.828427124746190 5.656854249492381 7.211102550927978]
+tecta	    [90 90 0 0]
+tn	        [2.571428571428571e+02 3.636549160387959e+02 7.273098320775919e+02 9.271417565478829e+02]
+x	        0
+y	        5

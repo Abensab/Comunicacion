@@ -31,7 +31,7 @@ typedef struct PlayerTAG{
     int timeToStrartSeconds;
 
 } Player;
-/*
+
 typedef struct WFSTag {
 
     int * parray;
@@ -39,11 +39,11 @@ typedef struct WFSTag {
     float* an;
 
 } WFS;
-*/
 
-//WFS waveFieldSynthesis(ClientSpeakers speakers, char* song, float soundPosX, float soundPosY );
 
-double **WFS(double posX, double posY);
+WFS waveFieldSynthesis(ClientSpeakers speakers, char* song, float soundPosX, float soundPosY );
+
+double **WFS_1(double posX, double posY);
 
 char * handleWAVFiles(ClientSound soundConfig);
 SuperWAV loadFile(ClientSound soundConfig);

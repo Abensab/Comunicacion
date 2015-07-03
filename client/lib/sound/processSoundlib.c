@@ -77,26 +77,101 @@ double ** speakersConf(){
     return speakers;
 }
 
-/*
-WFS waveFieldSynthesis(ClientSpeakers speakers, char* song, float soundPosX, float soundPosY ){
+
+WFS waveFieldSynthesis(ClientSpeakers speakers, int song, float soundPosX, float soundPosY ){
 
     int i;
-    float fte[2] = {soundPosX,soundPosY};
+    float x = soundPosX;
+    float y = soundPosY;
 
     speakers.speakers_tecta;
     speakers.list_positions_speakers;
     speakers.speakers_number;
     speakers.chanels_number;
 
+    double difX[speakers.speakers_number];
+    double difY[speakers.speakers_number];
+
     for (i = 0; i < speakers.speakers_number; ++i) {
         difX[i] = speakers.list_positions_speakers[0][i]-x;
-        difY[i] = speakers[1][i]-y;
+        difY[i] = speakers.list_positions_speakers[1][i]-y;
+    }
+
+    float alfa[speakers.speakers_number];// Ángulo //necesito esto
+    for (i = 0; i < speakers.speakers_number; ++i) {
+        alfa[i] =atan2(difY[i],difX[i]);
+    }
+
+    for (i = 0; i < speakers.speakers_number; ++i) {
+        alfa[i] = (alfa[i]*180/pi)+90-speakers.speakers_tecta[i];
     }
 
 
-}*/
 
-double **WFS(double posX, double posY){
+
+
+
+
+
+    int* pos = (int *)calloc(speakers.speakers_number, sizeof(int));;
+    int sizeOfPos = 0;
+    //memset(pos, -1, sizeof(int)*speakers.speakers_number);
+    for (i = 0; i < speakers.speakers_number; ++i) {
+        if ( ( ( alfa[i] < 90 ) && ( alfa[i] > -90 ) ) || ( ( alfa[i] < 450 ) && ( alfa[i] > 270 ) ) ){
+            pos[i]=i;
+            sizeOfPos++;
+        } else{
+            pos[i]=-1;
+        }
+    }
+
+    int parray_act[sizeOfPos];
+    int j = 0;
+    for (i = 0; i < speakers.speakers_number; i++) {
+        if(pos[i] > -1){
+            parray_act[j] = pos[i];
+            j++;
+        }
+    }
+
+
+
+
+    float r[speakers.speakers_number];// Ángulo
+    float rr[speakers.speakers_number];
+    float s[speakers.speakers_number];
+    float A[speakers.speakers_number];
+    float an[speakers.speakers_number];
+    float tn[speakers.speakers_number];
+
+    for (i = 0; i < speakers.speakers_number; ++i) {
+        r[i] = sqrt( (difX[i] * difX[i]) + (difY[i] * difY[i]) );
+
+
+        rr[i] = (1.44/2+1.44*cos(45*pi/180));
+
+        if(r[i]<0){
+            s[i] = r[i]*(-1);
+        }else{
+            s[i]=r[i];
+        }
+
+        A[i] = sqrt(rr[i]/(rr[i]+s[i]));
+
+        an[i] = A[i]*cos(alfa[i]*(pi/180))/(sqrt(r[i]));
+
+        tn[i] =-land*(FS*(r[i]/c));
+    }
+
+    WFS result;
+    result.an = an;
+    result.parray = parray_act;
+    result.tn = tn;
+
+    return result;
+}
+
+double **WFS_1(double posX, double posY){
     int i;
     double ** speakers = speakersConf();
 

@@ -151,7 +151,7 @@ int superWav(Player *playerArguments){
 
     //double **resultWFS = WFS(playerArguments->posX,playerArguments->posY);
 
-    double **resultWFS = WFS(-1.0,0.0);
+    double **resultWFS = WFS_1(-1.0,0.0);
 
     /* This holds the error code returned */
     int err = 0;
