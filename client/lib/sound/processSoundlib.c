@@ -78,23 +78,22 @@ double ** speakersConf(){
 }
 
 
-WFS waveFieldSynthesis(ClientSpeakers speakers, int song, float soundPosX, float soundPosY ){
+WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
 
     int i;
-    float x = soundPosX;
-    float y = soundPosY;
 
-    speakers.speakers_tecta;
-    speakers.list_positions_speakers;
-    speakers.speakers_number;
-    speakers.chanels_number;
+    float fte[2]={posX,posY};
 
-    double difX[speakers.speakers_number];
-    double difY[speakers.speakers_number];
+    float *fuente = fte;
+    float x = fuente[0];
+    float y = fuente[1];
+
+    float difX[speakers.speakers_number];
+    float difY[speakers.speakers_number];
 
     for (i = 0; i < speakers.speakers_number; ++i) {
-        difX[i] = speakers.list_positions_speakers[0][i]-x;
-        difY[i] = speakers.list_positions_speakers[1][i]-y;
+        difX[i] = speakers.list_positions_speakers[i][0]-x;
+        difY[i] = speakers.list_positions_speakers[i][1]-y;
     }
 
     float alfa[speakers.speakers_number];// Ángulo //necesito esto
@@ -106,22 +105,18 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, int song, float soundPosX, float
         alfa[i] = (alfa[i]*180/pi)+90-speakers.speakers_tecta[i];
     }
 
-
-
-
-
-
-
-
+    int parray[4];
     int* pos = (int *)calloc(speakers.speakers_number, sizeof(int));;
     int sizeOfPos = 0;
     //memset(pos, -1, sizeof(int)*speakers.speakers_number);
     for (i = 0; i < speakers.speakers_number; ++i) {
         if ( ( ( alfa[i] < 90 ) && ( alfa[i] > -90 ) ) || ( ( alfa[i] < 450 ) && ( alfa[i] > 270 ) ) ){
             pos[i]=i;
+            parray[i] = 1;
             sizeOfPos++;
         } else{
             pos[i]=-1;
+            parray[i] = 0;
         }
     }
 
@@ -134,33 +129,24 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, int song, float soundPosX, float
         }
     }
 
-
-
-
-    float r[speakers.speakers_number];// Ángulo
-    float rr[speakers.speakers_number];
-    float s[speakers.speakers_number];
-    float A[speakers.speakers_number];
+    float r;
+    float rr;
+    float s;
+    float A;
     float an[speakers.speakers_number];
     float tn[speakers.speakers_number];
 
     for (i = 0; i < speakers.speakers_number; ++i) {
-        r[i] = sqrt( (difX[i] * difX[i]) + (difY[i] * difY[i]) );
-
-
-        rr[i] = (1.44/2+1.44*cos(45*pi/180));
-
-        if(r[i]<0){
-            s[i] = r[i]*(-1);
+        r = sqrt( (difX[i] * difX[i]) + (difY[i] * difY[i]) );
+        rr = (1.44/2+1.44*cos(45*pi/180));
+        if(r<0){
+            s = r*(-1);
         }else{
-            s[i]=r[i];
+            s=r;
         }
-
-        A[i] = sqrt(rr[i]/(rr[i]+s[i]));
-
-        an[i] = A[i]*cos(alfa[i]*(pi/180))/(sqrt(r[i]));
-
-        tn[i] =-land*(FS*(r[i]/c));
+        A = sqrt(rr/(rr+s));
+        an[i] = A*cos(alfa[i]*(pi/180))/(sqrt(r));
+        tn[i] =-land*(FS*(r/c));
     }
 
     WFS result;
