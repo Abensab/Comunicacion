@@ -3,6 +3,12 @@
 #include <string.h>
 #include <math.h>
 
+#include <sys/time.h>                // for gettimeofday()
+
+#include <limits.h>
+
+#include "../../client/include/spatiallib.h"
+
 #define c       343
 #define pi      3.141592
 #define FS      44100
@@ -10,6 +16,20 @@
 
 //double comp      = 0;
 //int ang_max     = 90*(pi/180);// rad
+
+typedef struct SuperWAVTag{
+    int* leido;
+    unsigned char **filewav;
+
+} SuperWAV;
+
+typedef struct ClientSoundTag{
+
+    const char *sound_folder;
+    int word_length, sounds_number;
+    char *sounds_list;
+
+} ClientSound;
 
 typedef struct ClientSpeakersTag{
 
@@ -85,7 +105,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
 
     float alfa[speakers.speakers_number];// Ángulo //necesito esto
     for (i = 0; i < speakers.speakers_number; ++i) {
-        alfa[i] =atan2(difY[i],difX[i]);
+        alfa[i] = atan2(difY[i],difX[i]);
     }
 
     for (i = 0; i < speakers.speakers_number; ++i) {
@@ -113,7 +133,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
         }
     }
 
-    int parray_act[sizeOfPos];
+/*    int parray_act[sizeOfPos];
     int j = 0;
     for (i = 0; i < speakers.speakers_number; i++) {
         if(pos[i] > -1){
@@ -121,7 +141,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
             j++;
         }
     }
-
+*/
     //printf("\n\n Resultados obtenidos: \n\n");
     //printf("    parray\t\t[%d %d %d %d]\n",parray[0],parray[1],parray[2],parray[3]);
     //printf("    parray_act\t\t[%d %d %d %d]\n",parray_act[0],parray_act[1],parray_act[2],parray_act[3]);
@@ -174,6 +194,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
         }else{
             s=r;
         }
+
         A = sqrt(rr/(rr+s));
         an[i] = A*cos(alfa[i]*(pi/180))/(sqrt(r));
         tn[i] =-land*(FS*(r/c));
@@ -183,7 +204,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
 
     WFS result;
     result.an = an;
-    result.parray = parray_act;
+    result.parray = pos;
     result.tn = tn;
 
 
@@ -193,7 +214,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
     //printf("    r\t\t\t[%f %f %f %f]\n",r[0],r[1],r[2],r[3]);
     //printf("    r0\t\t\t[%f %f %f %f]\n",rr[0],rr[1],rr[2],rr[3]);
     //printf("    s0\t\t\t[%f %f %f %f]\n",s[0],s[1],s[2],s[3]);
-    //printf("    tn\t\t\t[%f %f %f %f]\n",tn[0],tn[1],tn[2],tn[3]);
+    printf("    tn\t\t\t[%f %f %f %f]\n",tn[0],tn[1],tn[2],tn[3]);
 
     //printf("\n\n Resultados esperados: \n\n");
     //printf("    A\t\t\t[0.464313639232586 0.529048348552147 0.529048348552147 0.464313639232586]\n");
@@ -208,9 +229,112 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
     return result;
 }
 
+char * handleWAVFiles(ClientSound soundConfig){
+    // -------------------------------------- HANDLE OF WAV FILES -------------------------------------//
+    char * archivos_senal;
+
+    /*Modificado la ruta de ./FicherosPrueba/001_piano.wav
+    * para que lea desde una carpeta inferior
+    * */
+    archivos_senal= (char *)calloc(soundConfig.sounds_number* soundConfig.word_length, sizeof(char));
+
+    int i;
+    for (i = 0; i < soundConfig.sounds_number; ++i) {
+        strcpy(archivos_senal + i*soundConfig.word_length, soundConfig.sounds_list+i*soundConfig.word_length);
+    }
+
+// -------------------------------------- HANDLE OF ALSA DEVICE -------------------------------------//
+
+    return archivos_senal;
+}
+
+SuperWAV loadFile(ClientSound soundConfig){
+    SuperWAV filewav;
+
+    filewav.filewav = (unsigned char **) malloc (soundConfig.sounds_number*sizeof(unsigned char *));
+    filewav.leido = (int*) malloc (soundConfig.sounds_number*sizeof(int));
+
+    char * archivos_senal = handleWAVFiles(soundConfig);
+
+    int i;
+    for (i = 0; i < soundConfig.sounds_number; ++i) {
+        filewav.leido[i] = OpenWavConvert32(&filewav.filewav[i],archivos_senal + i*soundConfig.word_length);
+    }
+    return filewav;
+}
+
+void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSize, WFS values, int chanals) {
+
+    int i;
+    int j;
+
+    float an1 = values.an[0];
+    float an2 = values.an[1];
+    float an3 = values.an[2];
+    float an4 = values.an[3];
+
+    int dellay1 = ceil(values.tn[0]);
+    int dellay2 = ceil(values.tn[1]);
+    int dellay3 = ceil(values.tn[2]);
+    int dellay4 = ceil(values.tn[3]);
+
+    printf("%d, %d, %d, %d \n",fileWAV.leido[0],fileWAV.leido[1],fileWAV.leido[2],fileWAV.leido[3]);
+
+    printf("an1 %f, an2 %f, an3 %f, an4 %f, dellay1 %d, dellay2 %d, dellay3 %d, dellay4 %d \n",an1,an2,an3,an4,dellay1,dellay2,dellay3,dellay4);
+
+    for (j = 0; j < chanals; ++j) {
+        if( NULL == bufferToModify[j] ) {
+            bufferToModify[j] = (int *) malloc (buffSize * sizeof(int));
+        }
+    }
+
+    for (j = 0; j < chanals; ++j) {
+        printf("BrakPoint%d\n",j);
+        for (i = 0; i < buffSize; ++i) {
+            //printf("===> %d, j = %d\n", i - (int)ceil(values.tn[j]), j );
+
+
+            int val2 = (*((int *) fileWAV.filewav[j] + (index * buffSize) + i ));
+            //int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - (int)ceil(values.tn[j]) )));
+
+            //bufferToModify[j][i] = val; //por an1
+
+            printf("val: %d\t%d\n",val2,val2);
+
+
+            //printf("BrakPoint %d.%d\n",j,i);
+        }
+    }
+}
+
+
+void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songNumber, int buffSize, WFS values, int chanals) {
+
+    int i;
+    int j;
+
+    for (j = 0; j < chanals; ++j) {
+        if( NULL == bufferToModify[j] ) {
+            bufferToModify[j] = (int *) malloc (buffSize * sizeof(int));
+        }
+    }
+
+    for (j = 0; j < chanals; ++j) {
+        for (i = 0; i < buffSize; ++i) {
+            int val = (*((int *) fileWAV.filewav[songNumber] + (index * buffSize) + (i - (int)ceil(values.tn[j]) )));
+
+            bufferToModify[j][i] = val; //por an1
+        }
+
+    }
+
+
+}
+
+
 int main()
 {
-
+    // ==================== inicial config ====================
     float tecta[4] = {90.0,90.0,0.0,0.0};
     float listPos[4][4] = {{2.0,5.0},{2.0,7.0},{4.0,9.0},{6.0,9.0}};
 
@@ -226,7 +350,59 @@ int main()
     speakers.speakers_number = 4;
     speakers.chanels_number = 4;
 
-    waveFieldSynthesis(speakers,0.0,11.0);
+
+    ClientSound sound;
+    sound.sounds_number = 4;
+    sound.word_length = 50;
+    sound.sound_folder = "../../bin/sound/";
+    sound.sounds_list = (char *) calloc(sound.sounds_number * sound.word_length, sizeof(char));;
+
+    strcpy(sound.sounds_list + 0 * sound.word_length, "../../bin/sound/001_piano.wav");
+    strcpy(sound.sounds_list + 1 * sound.word_length, "../../bin/sound/voz4408.wav");
+    strcpy(sound.sounds_list + 2 * sound.word_length, "../../bin/sound/001_bajo.wav");
+    strcpy(sound.sounds_list + 3 * sound.word_length, "../../bin/sound/001_bateriabuena.wav");
+
+
+    SuperWAV fileWAV = loadFile(sound);
+
+    int* pruebaBuffGnerado[speakers.chanels_number];
+    int j;
+    for (j = 0; j < speakers.chanels_number; ++j) {
+        pruebaBuffGnerado[j] = NULL;
+    }
+
+    // ==================== fin inicial config ====================
+
+
+    //struct timeval t1, t2;
+    //double elapsedTime;
+
+
+    // start timer
+    //gettimeofday(&t1, NULL);
+
+    WFS resultWFS = waveFieldSynthesis(speakers,0.0,11.0);
+
+    // stop timer
+    //gettimeofday(&t2, NULL);
+
+    // compute and print the elapsed time in millisec
+    //elapsedTime = (t2.tv_sec - t1.tv_sec) * 1000.0;      // sec to ms
+    //elapsedTime += (t2.tv_usec - t1.tv_usec) / 1000.0;   // us to ms
+    //printf(" -- PASADO %f -- \n", elapsedTime);
+
+
+
+    //bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSize, double **WFS, int chanals) {
+
+    int l1;
+    for(l1 = 0; l1 < 1; l1++){
+        //bufferGenerator(pruebaBuffGnerado,l1,fileWAV,8, resultWFS, 4);
+        generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 3,8, resultWFS, 4);
+
+        }
+
+
 
     return 0;
 }

@@ -120,15 +120,6 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
         }
     }
 
-    int parray_act[sizeOfPos];
-    int j = 0;
-    for (i = 0; i < speakers.speakers_number; i++) {
-        if(pos[i] > -1){
-            parray_act[j] = pos[i];
-            j++;
-        }
-    }
-
     float r;
     float rr;
     float s;
@@ -151,7 +142,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
 
     WFS result;
     result.an = an;
-    result.parray = parray_act;
+    result.parray = pos;
     result.tn = tn;
 
     return result;
