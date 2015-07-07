@@ -258,7 +258,7 @@ SuperWAV loadFile(ClientSound soundConfig){
 
     int i;
     for (i = 0; i < soundConfig.sounds_number; ++i) {
-        filewav.leido[i] = OpenWavConvert32(&filewav.filewav[i],archivos_senal + i*soundConfig.word_length);
+        filewav.leido[i] = OpenWavConvert32(&filewav.filewav[i],archivos_senal + i * soundConfig.word_length);
     }
     return filewav;
 }
@@ -295,7 +295,7 @@ void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSi
 
 
             int val2 = (*((int *) fileWAV.filewav[j] + (index * buffSize) + i ));
-            //int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - (int)ceil(values.tn[j]) )));
+            //int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - ( (int)ceil(values.tn[j]) )));
 
             //bufferToModify[j][i] = val; //por an1
 
@@ -319,15 +319,42 @@ void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songN
         }
     }
 
+    int itn = 0;
+    int val = 0;
+    int posBuffer = index*buffSize;
+    int maxPos = 0;
+
     for (j = 0; j < chanals; ++j) {
-        for (i = 0; i < buffSize; ++i) {
-            int val = (*((int *) fileWAV.filewav[songNumber] + (index * buffSize) + (i - (int)ceil(values.tn[j]) )));
+            itn = (int)(values.tn[j]) + 1 ;
+            maxPos = itn + (fileWAV.leido[songNumber]);
+            itn = 4;
 
-            bufferToModify[j][i] = val; //por an1
+            //printf("posBuffer %d, maxPos %d, leido %d \n", posBuffer, maxPos, fileWAV.leido[songNumber]);
+
+            for (i = 0; i < buffSize; ++i) {
+
+                // printf(" values tn %f \n", values.tn[j] );
+                //int ival = ( (int)values.tn[j] ) + 1;
+                //printf("itn %d\n",itn);
+                //printf("tn tn %f \n", values.tn[j]);
+                // printf(" DelBuf %d DelChannel %d  Retardo %d \n", i,j, (int)ceil(values.tn[j]) );
+
+                //CONDICION DEL BUFFER, de manera que compruebe si es el BUFFER 1
+                //                   -> Riesgo de que me salga de rango.
+
+                if(itn <= posBuffer && posBuffer < maxPos ){
+                    //val = *(int *) (fileWAV.filewav[songNumber]  + posBuffer + i - itn ); // + (i - itn ) ) ) );
+                    val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - itn) ));
+                }
+
+                int val2 = (*((int *) fileWAV.filewav[j] + (index * buffSize) + i ));
+
+
+                printf("pos: %d,\tcanal: %d,\ti: %d,\tval: %d,\tval2: %d\n",i+index,j, i, val,val2);
+                bufferToModify[j][i] = val; //por an1
+            }
+
         }
-
-    }
-
 
 }
 
@@ -360,7 +387,8 @@ int main()
     strcpy(sound.sounds_list + 0 * sound.word_length, "../../bin/sound/001_piano.wav");
     strcpy(sound.sounds_list + 1 * sound.word_length, "../../bin/sound/voz4408.wav");
     strcpy(sound.sounds_list + 2 * sound.word_length, "../../bin/sound/001_bajo.wav");
-    strcpy(sound.sounds_list + 3 * sound.word_length, "../../bin/sound/001_bateriabuena.wav");
+    //strcpy(sound.sounds_list + 3 * sound.word_length, "../../bin/sound/001_bateriabuena.wav");
+    strcpy(sound.sounds_list + 3 * sound.word_length, "../../bin/sound/001_piano.wav");
 
 
     SuperWAV fileWAV = loadFile(sound);
@@ -392,13 +420,16 @@ int main()
     //printf(" -- PASADO %f -- \n", elapsedTime);
 
 
-
-    //bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSize, double **WFS, int chanals) {
+    printf("%d, %d",fileWAV.leido[0],fileWAV.leido[1]);
 
     int l1;
-    for(l1 = 0; l1 < 1; l1++){
+    for(l1 = 0; l1 < 10; l1++){
         //bufferGenerator(pruebaBuffGnerado,l1,fileWAV,8, resultWFS, 4);
-        generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 3,8, resultWFS, 4);
+
+        generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 3, 8, resultWFS, 1);
+
+        //generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 1, 8, resultWFS, 4);
+
 
         }
 
