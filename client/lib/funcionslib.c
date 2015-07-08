@@ -40,3 +40,26 @@ int kbhit(void)
     }
     return 0;
 }
+
+int getMaxInt(int a[], int size) {
+    int c, max;
+    max = a[0];
+    for (c = 1; c < size; c++) {
+        if (a[c] > max) {
+            max = a[c];
+        }
+    }
+    return max;
+}
+
+float getMaxFloat(float a[], int size) {
+    int c;
+    float max;
+    max = a[0];
+    for (c = 1; c < size; c++) {
+        if (a[c] > max) {
+            max = a[c];
+        }
+    }
+    return max;
+}

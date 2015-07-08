@@ -35,6 +35,7 @@ typedef struct PlayerTAG{
 typedef struct WFSTag {
 
     int * parray;
+    int * pos;
     float* tn;
     float* an;
 

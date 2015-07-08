@@ -80,73 +80,82 @@ double ** speakersConf(){
 
 WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
 
-    int i;
+       WFS result;
+       result.parray = (int *)calloc(speakers.speakers_number, sizeof(int));;
+       result.pos = (int *)calloc(speakers.speakers_number, sizeof(int));;
 
-    float fte[2]={posX,posY};
+       result.tn = (float *)malloc(speakers.speakers_number*sizeof(float));
+       result.an = (float *)malloc(speakers.speakers_number*sizeof(float));
 
-    float *fuente = fte;
-    float x = fuente[0];
-    float y = fuente[1];
+       int i;
 
-    float difX[speakers.speakers_number];
-    float difY[speakers.speakers_number];
+       float fte[2]={posX,posY};
 
-    for (i = 0; i < speakers.speakers_number; ++i) {
-        difX[i] = speakers.list_positions_speakers[i][0]-x;
-        difY[i] = speakers.list_positions_speakers[i][1]-y;
-    }
+       float *fuente = fte;
+       float x = fuente[0];
+       float y = fuente[1];
 
-    float alfa[speakers.speakers_number];// Ángulo //necesito esto
-    for (i = 0; i < speakers.speakers_number; ++i) {
-        alfa[i] =atan2(difY[i],difX[i]);
-    }
+       float difX[speakers.speakers_number];
+       float difY[speakers.speakers_number];
 
-    for (i = 0; i < speakers.speakers_number; ++i) {
-        alfa[i] = (alfa[i]*180/pi)+90-speakers.speakers_tecta[i];
-    }
+       for (i = 0; i < speakers.speakers_number; ++i) {
+           difX[i] = speakers.list_positions_speakers[i][0]-x;
+           difY[i] = speakers.list_positions_speakers[i][1]-y;
+       }
 
-    int parray[4];
-    int* pos = (int *)calloc(speakers.speakers_number, sizeof(int));;
-    int sizeOfPos = 0;
-    //memset(pos, -1, sizeof(int)*speakers.speakers_number);
-    for (i = 0; i < speakers.speakers_number; ++i) {
-        if ( ( ( alfa[i] < 90 ) && ( alfa[i] > -90 ) ) || ( ( alfa[i] < 450 ) && ( alfa[i] > 270 ) ) ){
-            pos[i]=i;
-            parray[i] = 1;
-            sizeOfPos++;
-        } else{
-            pos[i]=-1;
-            parray[i] = 0;
-        }
-    }
+       float alfa[speakers.speakers_number];// Ángulo //necesito esto
+       for (i = 0; i < speakers.speakers_number; ++i) {
+           alfa[i] = atan2(difY[i],difX[i]);
+       }
 
-    float r;
-    float rr;
-    float s;
-    float A;
-    float an[speakers.speakers_number];
-    float tn[speakers.speakers_number];
+       for (i = 0; i < speakers.speakers_number; ++i) {
+           alfa[i] = (alfa[i]*180/pi)+90-speakers.speakers_tecta[i];
+       }
 
-    for (i = 0; i < speakers.speakers_number; ++i) {
-        r = sqrt( (difX[i] * difX[i]) + (difY[i] * difY[i]) );
-        rr = (1.44/2+1.44*cos(45*pi/180));
-        if(r<0){
-            s = r*(-1);
-        }else{
-            s=r;
-        }
-        A = sqrt(rr/(rr+s));
-        an[i] = A*cos(alfa[i]*(pi/180))/(sqrt(r));
-        tn[i] =-land*(FS*(r/c));
-    }
+       int sizeOfPos = 0;
+       //memset(pos, -1, sizeof(int)*speakers.speakers_number);
+       for (i = 0; i < speakers.speakers_number; ++i) {
+           if ( ( ( alfa[i] < 90 ) && ( alfa[i] > -90 ) ) || ( ( alfa[i] < 450 ) && ( alfa[i] > 270 ) ) ){
+               result.pos[i]=i;
+               result.parray[i] = 1;
+               sizeOfPos++;
+           } else{
+               result.pos[i]=-1;
+               result.parray[i] = 0;
+           }
+       }
 
-    WFS result;
-    result.an = an;
-    result.parray = pos;
-    result.tn = tn;
+   /*    int parray_act[sizeOfPos];
+       int j = 0;
+       for (i = 0; i < speakers.speakers_number; i++) {
+           if(result.pos[i] > -1){
+               parray_act[j] = result.pos[i];
+               j++;
+           }
+       }
+   */
 
-    return result;
-}
+       float r;
+       float rr;
+       float s;
+       float A;
+
+       for (i = 0; i < speakers.speakers_number; ++i) {
+           r = sqrt( (difX[i] * difX[i]) + (difY[i] * difY[i]) );
+           rr = (1.44/2+1.44*cos(45*pi/180));
+           if(r<0){
+               s = r*(-1);
+           }else{
+               s=r;
+           }
+
+           A = sqrt(rr/(rr+s));
+           result.an[i] = A*cos(alfa[i]*(pi/180))/(sqrt(r));
+           result.tn[i] =-land*(FS*(r/c));
+       }
+
+       return result;
+   }
 
 double **WFS_1(double posX, double posY){
     int i;
@@ -290,6 +299,42 @@ void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSi
             int val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + i ));
             bufferToModify[j][i] = val; //por an1
 
+        }
+    }
+}
+
+// channels starts in 1.
+void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songNumber, int buffSize, WFS values, int chanals) {
+
+    int i;
+    int j;
+
+    for (j = 0; j < chanals; ++j) {
+        if( NULL == bufferToModify[j] ) {
+            bufferToModify[j] = (int *) malloc (buffSize * sizeof(int));
+        }
+    }
+
+    int itn = 0;
+    int val = 0;
+    int startPosBuffer = index*buffSize;
+    int maxPos = 0;
+
+    for (j = 0; j < chanals; ++j) {
+
+        itn = ceil(values.tn[j]);
+        maxPos = itn + (fileWAV.leido[songNumber]);
+
+
+        int actualPosBuff = 0;
+        for (i = 0; i < buffSize; ++i) {
+
+            actualPosBuff = i+startPosBuffer;
+
+            if(itn <= actualPosBuff && actualPosBuff < maxPos){
+                val = (*((int *) fileWAV.filewav[j] + actualPosBuff - itn ));
+            }
+            bufferToModify[j][i] = val; //por an1
         }
     }
 }

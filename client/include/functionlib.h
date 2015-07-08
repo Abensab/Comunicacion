@@ -30,4 +30,7 @@ long long current_timestamp();
 void error(const char *msg);
 int kbhit(void);
 
+int getMaxInt(int a[], int size);
+float getMaxFloat(float a[], int size);
+
 #endif

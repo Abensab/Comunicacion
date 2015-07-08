@@ -42,6 +42,7 @@ typedef struct ClientSpeakersTag{
 typedef struct WFSTag {
 
     int * parray;
+    int * pos;
     float* tn;
     float* an;
 
@@ -61,6 +62,13 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
     //printf("\n\n Resultados esperados: \n\n");
     //printf("    alt\t\t\t[2 2 4 6;5 7 9 9]\n");
 
+
+    WFS result;
+    result.parray = (int *)calloc(speakers.speakers_number, sizeof(int));;
+    result.pos = (int *)calloc(speakers.speakers_number, sizeof(int));;
+
+    result.tn = (float *)malloc(speakers.speakers_number*sizeof(float));
+    result.an = (float *)malloc(speakers.speakers_number*sizeof(float));
 
     int i;
 
@@ -118,34 +126,32 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
     //printf("    alfa\t\t[-71.565051177077990 -63.434948822922010 63.434948822922010 71.565051177077990]\n");
 
 
-    int parray[4];
-    int* pos = (int *)calloc(speakers.speakers_number, sizeof(int));;
     int sizeOfPos = 0;
     //memset(pos, -1, sizeof(int)*speakers.speakers_number);
     for (i = 0; i < speakers.speakers_number; ++i) {
         if ( ( ( alfa[i] < 90 ) && ( alfa[i] > -90 ) ) || ( ( alfa[i] < 450 ) && ( alfa[i] > 270 ) ) ){
-            pos[i]=i;
-            parray[i] = 1;
+            result.pos[i]=i;
+            result.parray[i] = 1;
             sizeOfPos++;
         } else{
-            pos[i]=-1;
-            parray[i] = 0;
+            result.pos[i]=-1;
+            result.parray[i] = 0;
         }
     }
 
 /*    int parray_act[sizeOfPos];
     int j = 0;
     for (i = 0; i < speakers.speakers_number; i++) {
-        if(pos[i] > -1){
-            parray_act[j] = pos[i];
+        if(result.pos[i] > -1){
+            parray_act[j] = result.pos[i];
             j++;
         }
     }
 */
     //printf("\n\n Resultados obtenidos: \n\n");
-    //printf("    parray\t\t[%d %d %d %d]\n",parray[0],parray[1],parray[2],parray[3]);
+    printf("    parray\t\t[%d %d %d %d]\n",result.parray[0],result.parray[1],result.parray[2],result.parray[3]);
     //printf("    parray_act\t\t[%d %d %d %d]\n",parray_act[0],parray_act[1],parray_act[2],parray_act[3]);
-    //printf("    pos\t\t\t[%d %d %d %d]\n",pos[0],pos[1],pos[2],pos[3]);
+    //printf("    pos\t\t\t[%d %d %d %d]\n",result.pos[0],result.pos[1],result.pos[2],result.pos[3]);
     //printf("\n\n Resultados esperados: \n\n");
     //printf("    parray\t\t[1 1 1 1]\n");
     //printf("    parray_act\t[1 2 3 4]\n");
@@ -183,8 +189,6 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
     float rr;
     float s;
     float A;
-    float an[speakers.speakers_number];
-    float tn[speakers.speakers_number];
 
     for (i = 0; i < speakers.speakers_number; ++i) {
         r = sqrt( (difX[i] * difX[i]) + (difY[i] * difY[i]) );
@@ -196,25 +200,18 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
         }
 
         A = sqrt(rr/(rr+s));
-        an[i] = A*cos(alfa[i]*(pi/180))/(sqrt(r));
-        tn[i] =-land*(FS*(r/c));
+        result.an[i] = A*cos(alfa[i]*(pi/180))/(sqrt(r));
+        result.tn[i] =-land*(FS*(r/c));
     }
-
-
-
-    WFS result;
-    result.an = an;
-    result.parray = pos;
-    result.tn = tn;
 
 
     //printf("\n\n Resultados obtenidos: \n\n");
     //printf("    A\t\t\t[%f %f %f %f]\n",A[0],A[1],A[2],A[3]);
-    //printf("    an\t\t\t[%f %f %f %f]\n",an[0],an[1],an[2],an[3]);
+    printf("    an\t\t\t[%f %f %f %f]\n", result.an[0], result.an[1], result.an[2], result.an[3]);
     //printf("    r\t\t\t[%f %f %f %f]\n",r[0],r[1],r[2],r[3]);
     //printf("    r0\t\t\t[%f %f %f %f]\n",rr[0],rr[1],rr[2],rr[3]);
     //printf("    s0\t\t\t[%f %f %f %f]\n",s[0],s[1],s[2],s[3]);
-    printf("    tn\t\t\t[%f %f %f %f]\n",tn[0],tn[1],tn[2],tn[3]);
+    printf("    tn\t\t\t[%f %f %f %f]\n", result.tn[0], result.tn[1], result.tn[2], result.tn[3]);
 
     //printf("\n\n Resultados esperados: \n\n");
     //printf("    A\t\t\t[0.464313639232586 0.529048348552147 0.529048348552147 0.464313639232586]\n");
@@ -268,20 +265,6 @@ void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSi
     int i;
     int j;
 
-    float an1 = values.an[0];
-    float an2 = values.an[1];
-    float an3 = values.an[2];
-    float an4 = values.an[3];
-
-    int dellay1 = ceil(values.tn[0]);
-    int dellay2 = ceil(values.tn[1]);
-    int dellay3 = ceil(values.tn[2]);
-    int dellay4 = ceil(values.tn[3]);
-
-    printf("%d, %d, %d, %d \n",fileWAV.leido[0],fileWAV.leido[1],fileWAV.leido[2],fileWAV.leido[3]);
-
-    printf("an1 %f, an2 %f, an3 %f, an4 %f, dellay1 %d, dellay2 %d, dellay3 %d, dellay4 %d \n",an1,an2,an3,an4,dellay1,dellay2,dellay3,dellay4);
-
     for (j = 0; j < chanals; ++j) {
         if( NULL == bufferToModify[j] ) {
             bufferToModify[j] = (int *) malloc (buffSize * sizeof(int));
@@ -307,7 +290,7 @@ void bufferGenerator(int** bufferToModify, int index,SuperWAV fileWAV,int buffSi
     }
 }
 
-
+// channels starts in 1.
 void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songNumber, int buffSize, WFS values, int chanals) {
 
     int i;
@@ -321,37 +304,79 @@ void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songN
 
     int itn = 0;
     int val = 0;
-    int posBuffer = index*buffSize;
+    int startPosBuffer = index*buffSize;
     int maxPos = 0;
 
     for (j = 0; j < chanals; ++j) {
-            itn = (int)(values.tn[j]) + 1 ;
-            maxPos = itn + (fileWAV.leido[songNumber]);
-            itn = 4;
+            //printf("BrakPoint channel %d\n",j);
+            //itn = values.tn[j];
+            //itn += 1 ;
+            if(values.parray[j] == 1){
+                itn = ceil(values.tn[j]);
+                maxPos = itn + (fileWAV.leido[songNumber]);
+            }
 
-            //printf("posBuffer %d, maxPos %d, leido %d \n", posBuffer, maxPos, fileWAV.leido[songNumber]);
 
+            //printf("posBuffer %d, maxPos %d, leido %d, itn %d \n", startPosBuffer, maxPos, fileWAV.leido[songNumber], itn);
+
+         /*   if(itn <= posBuffer){
+                printf("itn < posBuffer ==> %d, %d\n",itn, posBuffer);
+            }
+
+            if(posBuffer < maxPos){
+                printf("\t\tposBuffer < maxPos ==> %d, %d\n",maxPos, posBuffer+512);
+            }
+*/
+            int actualPosBuff = 0;
             for (i = 0; i < buffSize; ++i) {
 
-                // printf(" values tn %f \n", values.tn[j] );
-                //int ival = ( (int)values.tn[j] ) + 1;
-                //printf("itn %d\n",itn);
-                //printf("tn tn %f \n", values.tn[j]);
-                // printf(" DelBuf %d DelChannel %d  Retardo %d \n", i,j, (int)ceil(values.tn[j]) );
+                if(values.parray[j] == 1){
 
-                //CONDICION DEL BUFFER, de manera que compruebe si es el BUFFER 1
-                //                   -> Riesgo de que me salga de rango.
+                    actualPosBuff = i+startPosBuffer;
 
-                if(itn <= posBuffer && posBuffer < maxPos ){
-                    //val = *(int *) (fileWAV.filewav[songNumber]  + posBuffer + i - itn ); // + (i - itn ) ) ) );
-                    val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - itn) ));
+                    // printf(" values tn %f \n", values.tn[j] );
+                    //int ival = ( (int)values.tn[j] ) + 1;
+                    //printf("itn %d\n",itn);
+                    //printf("tn tn %f \n", values.tn[j]);
+                    // printf(" DelBuf %d DelChannel %d  Retardo %d \n", i,j, (int)ceil(values.tn[j]) );
+
+                    //if(itn <= actualPosBuff && actualPosBuff < maxPos ){
+                        //val = *(int *) (fileWAV.filewav[songNumber]  + posBuffer + i - itn ); // + (i - itn ) ) ) );
+                        //val = (*((int *) fileWAV.filewav[j] + (index * buffSize) + (i - itn) ));
+                    //}
+
+                    if(itn <= actualPosBuff && actualPosBuff < maxPos){
+                        val = (*((int *) fileWAV.filewav[j] + actualPosBuff - itn ));
+                    }
+
+                    //printf("value: %d\t\t an: %f\t\t value*an: %f \n",val, values.an[j] ,values.an[j]*val);
+                    //valores no exactos: value: 16252928		 an: 0.111880		 value*an: 1818380.500000
+                    //Exacto: 1818377,58464
+
+                    /*if(actualPosBuff > maxPos){
+                            printf("posBuffer > maxPos ==> %d, %d, resta = %d \n",actualPosBuff,maxPos, maxPos - actualPosBuff);
+                            break;
+                    }*/
+                    //printf("%d; %d;",actualPosBuff,val);
+
+
+
+                    /*if(actualPosBuff <= 7849800){
+                        //printf("posBuffer > maxPos ==> %d, %d, resta = %d\n",actualPosBuff,maxPos, maxPos - actualPosBuff);
+                        //printf("Final Canción, index = %d\n",index);
+                        int val2 = (*((int *) fileWAV.filewav[j] + (index * buffSize) + i ));
+                        printf("%d;\n",val2);
+                    }else{
+                        printf("-1;\n");
+                    }*/
+
+                    /*if(actualPosBuff == 7849800){
+                        printf("Final Canción, index = %d, pos = %d\n",index,actualPosBuff);
+                    }*/
                 }
 
-                int val2 = (*((int *) fileWAV.filewav[j] + (index * buffSize) + i ));
-
-
-                printf("pos: %d,\tcanal: %d,\ti: %d,\tval: %d,\tval2: %d\n",i+index,j, i, val,val2);
                 bufferToModify[j][i] = val; //por an1
+
             }
 
         }
@@ -387,8 +412,8 @@ int main()
     strcpy(sound.sounds_list + 0 * sound.word_length, "../../bin/sound/001_piano.wav");
     strcpy(sound.sounds_list + 1 * sound.word_length, "../../bin/sound/voz4408.wav");
     strcpy(sound.sounds_list + 2 * sound.word_length, "../../bin/sound/001_bajo.wav");
-    //strcpy(sound.sounds_list + 3 * sound.word_length, "../../bin/sound/001_bateriabuena.wav");
-    strcpy(sound.sounds_list + 3 * sound.word_length, "../../bin/sound/001_piano.wav");
+    strcpy(sound.sounds_list + 3 * sound.word_length, "../../bin/sound/001_bateriabuena.wav");
+    //strcpy(sound.sounds_list + 3 * sound.word_length, "../../bin/sound/001_piano.wav");
 
 
     SuperWAV fileWAV = loadFile(sound);
@@ -405,9 +430,9 @@ int main()
     //struct timeval t1, t2;
     //double elapsedTime;
 
-
-    // start timer
+    //start timer
     //gettimeofday(&t1, NULL);
+
 
     WFS resultWFS = waveFieldSynthesis(speakers,0.0,11.0);
 
@@ -420,20 +445,23 @@ int main()
     //printf(" -- PASADO %f -- \n", elapsedTime);
 
 
-    printf("%d, %d",fileWAV.leido[0],fileWAV.leido[1]);
+    //printf("%d, %d, %d, %d\n",fileWAV.leido[0],fileWAV.leido[1],fileWAV.leido[2],fileWAV.leido[3]);
+
+    //printf("%d \n",fileWAV.leido[0]);
+
+    int maxLenghFile = getMaxInt(fileWAV.leido, sound.sounds_number);
+    int maxDellay = ceil(getMaxFloat(resultWFS.tn, speakers.speakers_number));
+    //printf(" ==> %d\n",maxLenghFile+maxDellay);
+    //printf(" ==> %d\n",(maxLenghFile+maxDellay)/512);
 
     int l1;
-    for(l1 = 0; l1 < 10; l1++){
-        //bufferGenerator(pruebaBuffGnerado,l1,fileWAV,8, resultWFS, 4);
+    for(l1 = 0; l1 < (maxLenghFile+maxDellay)/512 ; l1++){
 
-        generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 3, 8, resultWFS, 1);
+        generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 0, 512, resultWFS, 4);
+        maxDellay = ceil(getMaxFloat(resultWFS.tn, speakers.speakers_number));
 
-        //generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 1, 8, resultWFS, 4);
-
-
-        }
+    }
 
 
-
-    return 0;
+    exit(0);
 }
