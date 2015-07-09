@@ -353,6 +353,9 @@ void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songN
                     //valores no exactos: value: 16252928		 an: 0.111880		 value*an: 1818380.500000
                     //Exacto: 1818377,58464
 
+                    printf("valueInt: %d\t\t valueFloat: %f\t\t an: %f\t\t value*an: %f \n",val,((double)val),(float)values.an[j] ,(double)values.an[j]*((double)val));
+
+
                     /*if(actualPosBuff > maxPos){
                             printf("posBuffer > maxPos ==> %d, %d, resta = %d \n",actualPosBuff,maxPos, maxPos - actualPosBuff);
                             break;
