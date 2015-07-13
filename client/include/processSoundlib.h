@@ -44,8 +44,6 @@ typedef struct WFSTag {
 
 WFS waveFieldSynthesis(ClientSpeakers speakers, char* song, float soundPosX, float soundPosY );
 
-double **WFS_1(double posX, double posY);
-
 char * handleWAVFiles(ClientSound soundConfig);
 SuperWAV loadFile(ClientSound soundConfig);
 

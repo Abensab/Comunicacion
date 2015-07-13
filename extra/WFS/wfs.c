@@ -113,12 +113,12 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
 
     float alfa[speakers.speakers_number];// Ángulo //necesito esto
     for (i = 0; i < speakers.speakers_number; ++i) {
-        alfa[i] = atan2(difY[i],difX[i]);
+        alfa[i] = atan2(difY[i],difX[i])*180/pi;
     }
 
-    for (i = 0; i < speakers.speakers_number; ++i) {
-        alfa[i] = (alfa[i]*180/pi)+90-speakers.speakers_tecta[i];
-    }
+//    for (i = 0; i < speakers.speakers_number; ++i) {
+//        alfa[i] = (alfa[i]*180/pi)+90-speakers.speakers_tecta[i];
+//    }
 
     //printf("\n\n Resultados obtenidos: \n\n");
     //printf("    alfa\t\t[%f %f %f %f]\n",alfa[0],alfa[1],alfa[2],alfa[3]);
@@ -129,11 +129,11 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
     int sizeOfPos = 0;
     //memset(pos, -1, sizeof(int)*speakers.speakers_number);
     for (i = 0; i < speakers.speakers_number; ++i) {
-        if ( ( ( alfa[i] < 90 ) && ( alfa[i] > -90 ) ) || ( ( alfa[i] < 450 ) && ( alfa[i] > 270 ) ) ){
+        if ( ( ( alfa[i] <= speakers.speakers_tecta[i]+90 ) && ( alfa[i] >= speakers.speakers_tecta[i]-90 ) ) ){
             result.pos[i]=i;
             result.parray[i] = 1;
             sizeOfPos++;
-        } else{
+        }else{
             result.pos[i]=-1;
             result.parray[i] = 0;
         }
@@ -186,21 +186,10 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
     }
 */
     float r;
-    float rr;
-    float s;
-    float A;
 
     for (i = 0; i < speakers.speakers_number; ++i) {
         r = sqrt( (difX[i] * difX[i]) + (difY[i] * difY[i]) );
-        rr = (1.44/2+1.44*cos(45*pi/180));
-        if(r<0){
-            s = r*(-1);
-        }else{
-            s=r;
-        }
-
-        A = sqrt(rr/(rr+s));
-        result.an[i] = A*cos(alfa[i]*(pi/180))/(sqrt(r));
+        result.an[i] = 1/(sqrt(r));
         result.tn[i] =-land*(FS*(r/c));
     }
 
@@ -390,7 +379,7 @@ void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songN
 int main()
 {
     // ==================== inicial config ====================
-    float tecta[4] = {90.0,90.0,0.0,0.0};
+    float tecta[4] = {0.0, 0.0, -90.0, -90.0};
     float listPos[4][4] = {{2.0,5.0},{2.0,7.0},{4.0,9.0},{6.0,9.0}};
 
     ClientSpeakers speakers;
@@ -460,7 +449,7 @@ int main()
     int l1;
     for(l1 = 0; l1 < (maxLenghFile+maxDellay)/512 ; l1++){
 
-        generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 0, 512, resultWFS, 4);
+        //generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 0, 512, resultWFS, 4);
         maxDellay = ceil(getMaxFloat(resultWFS.tn, speakers.speakers_number));
 
     }
