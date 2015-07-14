@@ -449,7 +449,7 @@ int main()
     int l1;
     for(l1 = 0; l1 < (maxLenghFile+maxDellay)/512 ; l1++){
 
-        //generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 0, 512, resultWFS, 4);
+        generateSongWFS(pruebaBuffGnerado,l1,fileWAV, 0, 512, resultWFS, 4);
         maxDellay = ceil(getMaxFloat(resultWFS.tn, speakers.speakers_number));
 
     }

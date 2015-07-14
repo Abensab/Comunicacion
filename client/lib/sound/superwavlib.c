@@ -143,20 +143,28 @@ snd_pcm_t * configurePlayBack_handle(snd_pcm_t *playback_handle, ClientCard card
     return playback_handle;
 }
 
+float getMaxFloatVector(WFS** a, int soundsNumber, int speakersNumber) {
+    int c;
+    float max, temporalValue;
+    max = getMaxFloat(a[0]->tn,sizeSubVector);
+    for (c = 1; c < soundsNumber; c++) {
+        temporalValue = getMaxFloat(a[c]->tn,sizeSubVector);
+        if (temporalValue > max) {
+            max = temporalValue;
+        }
+    }
+    return max;
+}
 
 /**********************************************************************/
 /* START PLAY */
 /**********************************************************************/
 int superWav(Player *playerArguments){
 
-    //double **resultWFS = WFS(playerArguments->posX,playerArguments->posY);
-
-    double **resultWFS = WFS_1(-1.0,0.0);
-
     /* This holds the error code returned */
     int err = 0;
 
-    SuperWAV fileWAV = loadFile(playerArguments->sound);
+    //SuperWAV fileWAV = loadFile(playerArguments->sound);
 
     /* Handle for the PCM device */
     snd_pcm_t *playback_handle = NULL;
@@ -182,16 +190,16 @@ int superWav(Player *playerArguments){
     /*============================================*/
 
     /*Declarar vector de 0 para tiempo en silencio*/
-    void *bufsVoid[2] = { NULL , NULL };
+  /*  void *bufsVoid[2] = { NULL , NULL };
     int voidVector[playerArguments->card.buffer];
     memset(voidVector,0,playerArguments->card.buffer*sizeof(int));
     bufsVoid[0]=(void *)voidVector;
     bufsVoid[1]=(void *)voidVector;
+    */
     /*============================================*/
 
     // -- FOR REPRODUCCING ---- //
     int pcmreturn;
-    int l1;
 
     struct timeval t1, t2;
     double elapsedTime;
@@ -199,11 +207,16 @@ int superWav(Player *playerArguments){
     // start timer
     gettimeofday(&t1, NULL);
 
-    pthread_mutex_lock(&playerArguments->lock);
-    int oldFalg = playerArguments->flag;
-    pthread_mutex_unlock(&playerArguments->lock);
+    //pthread_mutex_lock(&playerArguments->lock);
+    //int oldFalg = playerArguments->flag;
+    //pthread_mutex_unlock(&playerArguments->lock);
 
-    for(l1 = 0; l1 < 10000; l1++) {
+
+    int maxLenghFile = getMaxInt(playerArguments->fileWAV.leido, playerArguments->sound.sounds_number);
+    int maxDellay = ceil(getMaxFloatVector(playerArguments->wfsVector, playerArguments->sound.sounds_number, playerArguments->speakers.speakers_number));
+
+    //while(playerArguments->l1 < 10000) {
+    while(playerArguments->l1 < (maxLenghFile+maxDellay)/512 ){
 
         /*2048bits /4 bits/byte = 512bytes*/
         /*Para avanzar 512 byts necesarios en el buffs*/
@@ -213,25 +226,25 @@ int superWav(Player *playerArguments){
         // Set the pointer array element zero to pointer bufptr ie **data
         //bufs[1] = (void *) ( ((int *) fileWAV.filewav[1] ) + l1 * 512);
 
-        bufferGenerator(pruebaBuffGnerado,l1,fileWAV,playerArguments->card.buffer, resultWFS, playerArguments->speakers.chanels_number);
+        //bufferGenerator(pruebaBuffGnerado,l1,fileWAV,playerArguments->card.buffer, resultWFS, playerArguments->speakers.chanels_number);
 
 
-        pthread_mutex_lock(&playerArguments->lock);
-        if(oldFalg != playerArguments->flag){
-            printf("\n FLAG: %d\n",playerArguments->flag);
-            oldFalg = playerArguments->flag;
-        }
-        pthread_mutex_unlock(&playerArguments->lock);
+        //pthread_mutex_lock(&playerArguments->lock);
+        //if(oldFalg != playerArguments->flag){
+        //    printf("\n FLAG: %d\n",playerArguments->flag);
+        //    oldFalg = playerArguments->flag;
+        //}
+        //pthread_mutex_unlock(&playerArguments->lock);
 
-        if (oldFalg == -1) {
-            break;
-        }
+        //if (oldFalg == -1) {
+        //    break;
+        //}
 
 //        printf("\tA\t%d\t%d\n",l1,*(int*)bufs[0] + l1);
 //        printf("\tAG\t%d\t%d\n",l1, *(int*)((int**)castBufferToVoid(pruebaBuffGnerado,2))[0] + l1);
 //        printf("\tB\t%d\t%d\n",l1,*(int*)bufs[1] + l1);
 
-        if (oldFalg) {
+        //if (oldFalg) {
             //Reproducción del sonido
             /************************/
             while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(pruebaBuffGnerado,playerArguments->speakers.chanels_number), playerArguments->card.buffer)) < 0) {
@@ -241,18 +254,26 @@ int superWav(Player *playerArguments){
                 break;
             }
             /************************/
-        } else {
+        //} else {
 
             //Reproducción de zeros
             /************************/
-            while ((pcmreturn = snd_pcm_writen(playback_handle, bufsVoid, playerArguments->card.buffer)) < 0) {
+        /*    while ((pcmreturn = snd_pcm_writen(playback_handle, bufsVoid, playerArguments->card.buffer)) < 0) {
                 printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
                 // snd_pcm_prepare(playback_handle);
                 fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
                 break;
-            }
+            }*/
             /************************/
-        }
+        //}
+
+    pthread_mutex_lock(&playerArguments->lock);
+    playerArguments->l1++;
+
+    maxDellay = ceil(getMaxFloatVector(playerArguments->wfsVector, playerArguments->sound.sounds_number, playerArguments->speakers.speakers_number));
+
+    pthread_mutex_unlock(&playerArguments->lock);
+
     }
     pthread_mutex_lock(&playerArguments->lock);
     playerArguments->finishPlaying = TRUE;
@@ -267,8 +288,8 @@ int superWav(Player *playerArguments){
 
     printf(" -- PASADO %f -- \n", elapsedTime);
 
-    freeWav(fileWAV.filewav[0]);
-    freeWav(fileWAV.filewav[1]);
+    //freeWav(fileWAV.filewav[0]);
+    //freeWav(fileWAV.filewav[1]);
 
     snd_pcm_close (playback_handle);
 

@@ -83,3 +83,86 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
        }
        return result;
    }
+
+char * handleWAVFiles(ClientSound soundConfig){
+    // -------------------------------------- HANDLE OF WAV FILES -------------------------------------//
+    char * archivos_senal;
+
+    /*Modificado la ruta de ./FicherosPrueba/001_piano.wav
+    * para que lea desde una carpeta inferior
+    * */
+    archivos_senal= (char *)calloc(soundConfig.sounds_number* soundConfig.word_length, sizeof(char));
+
+    int i;
+    for (i = 0; i < soundConfig.sounds_number; ++i) {
+        strcpy(archivos_senal + i*soundConfig.word_length, soundConfig.sounds_list+i*soundConfig.word_length);
+    }
+
+// -------------------------------------- HANDLE OF ALSA DEVICE -------------------------------------//
+
+    return archivos_senal;
+}
+
+SuperWAV loadFile(ClientSound soundConfig){
+    SuperWAV filewav;
+
+    filewav.filewav = (unsigned char **) malloc (soundConfig.sounds_number*sizeof(unsigned char *));
+    filewav.leido = (int*) malloc (soundConfig.sounds_number*sizeof(int));
+
+    char * archivos_senal = handleWAVFiles(soundConfig);
+
+    int i;
+    for (i = 0; i < soundConfig.sounds_number; ++i) {
+        filewav.leido[i] = OpenWavConvert32(&filewav.filewav[i],archivos_senal + i*soundConfig.word_length);
+    }
+    return filewav;
+}
+
+// channels starts in 1.
+void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songNumber, int buffSize, WFS values, int chanals) {
+
+    int i;
+    int j;
+
+    for (j = 0; j < chanals; ++j) {
+        if( NULL == bufferToModify[j] ) {
+            bufferToModify[j] = (int *) malloc (buffSize * sizeof(int));
+        }
+    }
+
+    int itn = 0;
+    int val = 0;
+    int startPosBuffer = index*buffSize;
+    int maxPos = 0;
+
+    for (j = 0; j < chanals; ++j) {
+
+            if(values.parray[j] == 1){
+                itn = ceil(values.tn[j]);
+                maxPos = itn + (fileWAV.leido[songNumber]);
+            }
+
+            int actualPosBuff = 0;
+            for (i = 0; i < buffSize; ++i) {
+
+                if(values.parray[j] == 1){
+
+                    actualPosBuff = i+startPosBuffer;
+
+                    if(itn <= actualPosBuff && actualPosBuff < maxPos){
+                        val = (*((int *) fileWAV.filewav[j] + actualPosBuff - itn ));
+                    }
+                }
+                bufferToModify[j][i] = values.an[j]*val; //por an1
+            }
+        }
+
+}
+void** castBufferToVoid(int** buffer, int chanals){
+
+    int i;
+    for (i = 0; i < chanals; ++i) {
+        buffer[i] = (void *) buffer[i];
+    }
+    return (void**)buffer;
+}

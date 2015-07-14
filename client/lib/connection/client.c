@@ -60,7 +60,6 @@ void* playSuperWav(void *arguments) {
     return NULL;
 }
 
-
 /**********************************************************************/
 /* START CLIENT */
 /**********************************************************************/
@@ -126,27 +125,33 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     playerArguments.client_pos[0] = configFromServer.clientPosY;
 
     int j;
-    playerArguments.songPos = (float **) malloc(playerArguments.speakers.speakers_number *sizeof(float*));
+    playerArguments.songPos = (float **) malloc( playerArguments.speakers.speakers_number * sizeof(float*));
+    playerArguments.wfsVector = (WFS *) malloc( playerArguments.sound.sounds_number * sizeof(WFS));
     if(configFromServer.song == -1){
        for(j=0; j<playerArguments.sound.sounds_number; j++){
             playerArguments.songPos[j] = (float *) malloc(2 *sizeof(float));
 
             playerArguments.songPos[j][0] = configFromServer.songPosX;
             playerArguments.songPos[j][1] = configFromServer.songPosY;
+            playerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,configFromServer.songPosX,configFromServer.songPosY);
         }
     }
 
-    //double **resultWFS = WFS(x,y);
 
     //buffer modified to read player
-    playerArguments.bufferToPlay = (void **) malloc (playerArguments.speakers.chanels_number*sizeof(void *));
+    playerArguments.bufferToPlay = (int **) malloc (playerArguments.speakers.chanels_number*sizeof(int *));
 
     //desaparece y se cambia por el WFS
-    if(playerArguments.IDPlaying == client.clientID){
-        playerArguments.flag = TRUE;
-    }else{
-        playerArguments.flag = FALSE;
-    }
+    //inicializo contador para el numero de frames.
+    playerArguments.l1 = 0;
+
+    // load songs
+    playerArguments.fileWAV = loadFile(playerArguments.sound);
+
+
+    //generate buffer dor song 0
+    generateSongWFS(playerArguments.bufferToPlay,playerArguments.l1,playerArguments.fileWAV, 0, playerArguments.card.buffer, playerArguments.wfsVector[0], playerArguments.speakers.chanels_number);
+
 
     // Make sure it can be shared across processes
     pthread_mutexattr_t shared;
@@ -160,11 +165,11 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     /*int x = 0;*/
     /* create a second thread which executes inc_x(&x) */
-/*    if(pthread_create(&playerThread, NULL, playSuperWav, &playerArguments)) {
+    if(pthread_create(&playerThread, NULL, playSuperWav, &playerArguments)) {
         fprintf(stderr, "Error creating player thread\n");
         return 1;
     }
-*/
+
     //New playaer that will listen and save all the new configurations that the server ahs sended.
     Player newPlayerArguments;
     newPlayerArguments.timeToStart = playerArguments.timeToStart;
@@ -175,10 +180,13 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     //Copy of the player arguments for the songs pozition.
     newPlayerArguments.songPos = (float **) malloc(newPlayerArguments.speakers.speakers_number *sizeof(float*));
+    newPlayerArguments.wfsVector = (WFS *) malloc( newPlayerArguments.sound.sounds_number * sizeof(WFS));
+
     for(j=0; j<newPlayerArguments.sound.sounds_number; j++){
         newPlayerArguments.songPos[j] = (float *) malloc(2 *sizeof(float));
         newPlayerArguments.songPos[j][0] = playerArguments.songPos[j][0];
         newPlayerArguments.songPos[j][1] = playerArguments.songPos[j][1];
+        newPlayerArguments.wfsVector[j] = playerArguments.wfsVector[j];
     }
 
     MesageVariables newConfigFromServer;
@@ -211,6 +219,8 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
                         newPlayerArguments.songPos[j][0] = newConfigFromServer.songPosX;
                         newPlayerArguments.songPos[j][1] = newConfigFromServer.songPosY;
+                        newPlayerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,configFromServer.songPosX,configFromServer.songPosY);
+
                     }
                 }else{
 
@@ -265,11 +275,17 @@ int startClientConnection(char *address, int portNumber, char* configFile){
             break;
         }
     }
+
+    int i;
+    for(i = 0; i < playerArguments.sound.sounds_number;i++){
+        freeWav(playerArguments.fileWAV.filewav[i]);
+    }
+
     pthread_mutex_destroy(&playerArguments.lock);
     pthread_exit(NULL);
     close(client.socketFileDescriptor);
 
-    return 0;
+    exit(0);
 };
 /**********************************************************************/
 /* FIN CLIENT */
