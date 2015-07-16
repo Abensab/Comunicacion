@@ -13,11 +13,11 @@ typedef struct MesageVariablesTag{
     char* action;
     int identification;
     long long startTime;
-    int clientPosX;
-    int clientPosY;
+    float clientPosX;
+    float clientPosY;
     int song;
-    int songPosX;
-    int songPosY;
+    float songPosX;
+    float songPosY;
 
 } MesageVariables;
 

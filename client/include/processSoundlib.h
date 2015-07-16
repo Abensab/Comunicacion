@@ -45,13 +45,6 @@ typedef struct PlayerTAG{
 
 } Player;
 
-
-
-
-
-
-
-
 WFS waveFieldSynthesis(ClientSpeakers speakers, float soundPosX, float soundPosY );
 
 char * handleWAVFiles(ClientSound soundConfig);

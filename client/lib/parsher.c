@@ -77,11 +77,11 @@ MesageVariables processMesage(char* str){
         }
 
         if(strcmp(result[0],"ClientPosX") == 0) {
-            resultToReturn.clientPosX = atoi(result[1]);
+            resultToReturn.clientPosX = atof(result[1]);
         }
 
         if(strcmp(result[0],"ClientPosY") == 0) {
-            resultToReturn.clientPosY = atoi(result[1]);
+            resultToReturn.clientPosY = atof(result[1]);
         }
 
         if(strcmp(result[0],"Song") == 0) {
@@ -89,11 +89,11 @@ MesageVariables processMesage(char* str){
         }
 
         if(strcmp(result[0],"SongPosX") == 0) {
-            resultToReturn.songPosX = atoi(result[1]);
+            resultToReturn.songPosX = atof(result[1]);
         }
 
         if(strcmp(result[0],"SongPosY") == 0) {
-            resultToReturn.songPosY = atoi(result[1]);
+            resultToReturn.songPosY = atof(result[1]);
         }
     }
 

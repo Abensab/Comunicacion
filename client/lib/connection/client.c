@@ -75,10 +75,9 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     //Config reader
     if (strcmp(configFile,"NULL") == 0 ){
-        configFile    = "./config/default.cfg";
+        configFile    = "./config/default3.cfg";
     }
     getConfig(&playerArguments, configFile);
-
 
     // ID
     bzero(buffer,256);
@@ -111,7 +110,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     }
 
-    printf("Action:%s,StartTime:%llu,ClientPosX:%d,ClientPosY:%d,Song:%d,SongPosX:%d,SongPosY:%d\n",
+    printf("Action:%s,StartTime:%llu,ClientPosX:%f,ClientPosY:%f,Song:%d,SongPosX:%f,SongPosY:%f\n",
            configFromServer.action,
            configFromServer.startTime,
            configFromServer.clientPosX,
@@ -124,18 +123,30 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     playerArguments.client_pos[0] = configFromServer.clientPosX;
     playerArguments.client_pos[0] = configFromServer.clientPosY;
 
+
     int j;
     playerArguments.songPos = (float **) malloc( playerArguments.speakers.speakers_number * sizeof(float*));
     playerArguments.wfsVector = (WFS *) malloc( playerArguments.sound.sounds_number * sizeof(WFS));
+
+    //printf("BreakPoint 0, %lu\n",sizeof(WFS));
+
     if(configFromServer.song == -1){
        for(j=0; j<playerArguments.sound.sounds_number; j++){
             playerArguments.songPos[j] = (float *) malloc(2 *sizeof(float));
 
             playerArguments.songPos[j][0] = configFromServer.songPosX;
             playerArguments.songPos[j][1] = configFromServer.songPosY;
+
+
+            //printf("BreakPoint 1\n");
+            //printf("%d, %f, %f",playerArguments.speakers.chanels_number,configFromServer.songPosX,configFromServer.songPosY);
             playerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,configFromServer.songPosX,configFromServer.songPosY);
+            //printf("BreakPoint 2\n");
+
         }
     }
+
+    //printf("BreakPoint 2\n");
 
 
     //buffer modified to read player
@@ -148,9 +159,8 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     // load songs
     playerArguments.fileWAV = loadFile(playerArguments.sound);
 
-
     //generate buffer dor song 0
-    generateSongWFS(playerArguments.bufferToPlay,playerArguments.l1,playerArguments.fileWAV, 0, playerArguments.card.buffer, playerArguments.wfsVector[0], playerArguments.speakers.chanels_number);
+    //generateSongWFS(playerArguments.bufferToPlay,playerArguments.l1,playerArguments.fileWAV, 0, playerArguments.card.buffer, playerArguments.wfsVector[0], playerArguments.speakers.chanels_number);
 
 
     // Make sure it can be shared across processes
@@ -207,7 +217,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
             }
 
             if (strcmp(newConfigFromServer.action, "client") == 0){
-                printf("Client => PosX: %d, PosY: %d \n", newConfigFromServer.clientPosX,newConfigFromServer.clientPosY);
+                printf("Client => PosX: %f, PosY: %f \n", newConfigFromServer.clientPosX,newConfigFromServer.clientPosY);
                 printf("No disponible actualmente\n");
             }
 
@@ -235,7 +245,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
                                newPlayerArguments.sound.sounds_number);
                     }
                 }
-                printf("Sound: %d, PosX: %d, PosY: %d \n", newConfigFromServer.song, newConfigFromServer.songPosX,
+                printf("Sound: %d, PosX: %f, PosY: %f \n", newConfigFromServer.song, newConfigFromServer.songPosX,
                        newConfigFromServer.songPosY);
 
 /*
@@ -274,11 +284,6 @@ int startClientConnection(char *address, int portNumber, char* configFile){
         if(playerArguments.finishPlaying == TRUE){
             break;
         }
-    }
-
-    int i;
-    for(i = 0; i < playerArguments.sound.sounds_number;i++){
-        freeWav(playerArguments.fileWAV.filewav[i]);
     }
 
     pthread_mutex_destroy(&playerArguments.lock);

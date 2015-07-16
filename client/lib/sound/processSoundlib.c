@@ -28,6 +28,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
        result.tn = (float *)malloc(speakers.speakers_number*sizeof(float));
        result.an = (float *)malloc(speakers.speakers_number*sizeof(float));
 
+
        int i;
 
        float fte[2]={posX,posY};
@@ -36,7 +37,6 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
        float x = fuente[0];
        float y = fuente[1];
 
-
        float difX[speakers.speakers_number];
        float difY[speakers.speakers_number];
 
@@ -44,7 +44,6 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
            difX[i] = speakers.list_positions_speakers[i][0]-x;
            difY[i] = speakers.list_positions_speakers[i][1]-y;
        }
-
 
        float alfa[speakers.speakers_number];// Ángulo //necesito esto
        for (i = 0; i < speakers.speakers_number; ++i) {
@@ -81,6 +80,15 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
            result.an[i] = 1/(sqrt(r));
            result.tn[i] =-land*(FS*(r/c));
        }
+
+/*       printf("\n\n Resultados obtenidos: \n\n");
+       for (i = 0; i < speakers.speakers_number; ++i) {
+            printf("    an\t\t\t[%f]\t", result.an[i]);
+            printf("    tn\t\t\t[%f]\t", result.tn[i]);
+            printf("    pos\t\t\t[%d]\t", result.pos[i]);
+            printf("    parray\t\t\t[%d]\n", result.parray[i]);
+       }
+*/
        return result;
    }
 
@@ -153,7 +161,7 @@ void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songN
                         val = (*((int *) fileWAV.filewav[j] + actualPosBuff - itn ));
                     }
                 }
-                bufferToModify[j][i] = values.an[j]*val; //por an1
+                bufferToModify[j][i] = (int)(values.an[j]*val); //por an1
             }
         }
 

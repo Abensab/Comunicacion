@@ -4,6 +4,7 @@
     <inspection_tool class="OCUnusedGlobalDeclarationInspection" enabled="true" level="UNUSED" enabled_by_default="true" />
     <inspection_tool class="OCUnusedMacroInspection" enabled="true" level="UNUSED" enabled_by_default="true" />
     <inspection_tool class="OCUnusedStructInspection" enabled="true" level="UNUSED" enabled_by_default="true" />
+    <inspection_tool class="UnusedCppSymbol" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="UnusedExpressionResult" enabled="true" level="UNUSED" enabled_by_default="true" />
     <inspection_tool class="UnusedImportStatement" enabled="true" level="UNUSED" enabled_by_default="true" />
     <inspection_tool class="UnusedLocalVariable" enabled="true" level="UNUSED" enabled_by_default="true" />

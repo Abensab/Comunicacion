@@ -118,15 +118,15 @@ ClientCard clientCardGenerator(config_t* cfg){
 
 }
 
-void readSpeakerPos(config_t* cfg,ClientSpeakers speakersConfig){
+void readSpeakerPos(config_t* cfg,ClientSpeakers* speakersConfig){
 
     /*crear lista de posiciones*/
-    speakersConfig.speakers_tecta =(float *) malloc(speakersConfig.speakers_number *sizeof(float));
+    speakersConfig->speakers_tecta =(float *) malloc(speakersConfig->speakers_number *sizeof(float));
     
-    speakersConfig.list_positions_speakers = (float **) malloc(speakersConfig.speakers_number *sizeof(float*));
+    speakersConfig->list_positions_speakers = (float **) malloc(speakersConfig->speakers_number *sizeof(float*));
     int j;
-    for(j=0; j<speakersConfig.speakers_number; j++){
-        speakersConfig.list_positions_speakers[j] = (float*) malloc(2*sizeof(float));
+    for(j=0; j<speakersConfig->speakers_number; j++){
+        speakersConfig->list_positions_speakers[j] = (float*) malloc(2*sizeof(float));
     }
 
     config_setting_t *speakerList = config_lookup(cfg, "client.speakers.speakers_position");
@@ -146,9 +146,9 @@ void readSpeakerPos(config_t* cfg,ClientSpeakers speakersConfig){
         config_setting_lookup_float(speakerPos, "posY", &posY);
         config_setting_lookup_float(speakerPos, "angle", &tecta);
 
-        speakersConfig.list_positions_speakers[i][0] = (float) posX;
-        speakersConfig.list_positions_speakers[i][1] = (float) posY;
-        speakersConfig.speakers_tecta[i] = (float) tecta;
+        speakersConfig->list_positions_speakers[i][0] = (float) posX;
+        speakersConfig->list_positions_speakers[i][1] = (float) posY;
+        speakersConfig->speakers_tecta[i] = (float) tecta;
 
         //printf("%f, %f, %f \n",speakersConfig.list_positions_speakers[i][0],speakersConfig.list_positions_speakers[i][1],speakersConfig.speakers_tecta[i]);
 
@@ -178,7 +178,10 @@ ClientSpeakers clientSpeakersGenerator (config_t* cfg){
             //putchar('\n');
         }
     }
-    readSpeakerPos(cfg, speakersConfig);
+
+    readSpeakerPos(cfg, &speakersConfig);
+
+    //printf("%f, %f, %f \n",speakersConfig.list_positions_speakers[0][0],speakersConfig.list_positions_speakers[0][1],speakersConfig.speakers_tecta[0]);
 
     return speakersConfig;
 }
