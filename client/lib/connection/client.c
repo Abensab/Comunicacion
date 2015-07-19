@@ -123,6 +123,8 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     playerArguments.client_pos[0] = configFromServer.clientPosX;
     playerArguments.client_pos[0] = configFromServer.clientPosY;
 
+    long long delay = (playerArguments.timeToStart - (playerArguments.timeToStrartSeconds * 1000) ) - current_timestamp();
+    printf("Delay (%d seconds program): %lld\n",playerArguments.timeToStrartSeconds,delay);
 
     int j;
     playerArguments.songPos = (float **) malloc( playerArguments.speakers.speakers_number * sizeof(float*));
@@ -137,11 +139,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
             playerArguments.songPos[j][0] = configFromServer.songPosX;
             playerArguments.songPos[j][1] = configFromServer.songPosY;
 
-
-            //printf("BreakPoint 1\n");
-            //printf("%d, %f, %f",playerArguments.speakers.chanels_number,configFromServer.songPosX,configFromServer.songPosY);
             playerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,configFromServer.songPosX,configFromServer.songPosY);
-            //printf("BreakPoint 2\n");
 
         }
     }
@@ -170,8 +168,8 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     pthread_mutex_init(&playerArguments.lock, &shared);
 
-    long long delay = (playerArguments.timeToStart - (playerArguments.timeToStrartSeconds * 1000) ) - current_timestamp();
-    printf("Delay (%d seconds program): %lld\n",playerArguments.timeToStrartSeconds,delay);
+    long long delay2 = (playerArguments.timeToStart - (playerArguments.timeToStrartSeconds * 1000) ) - current_timestamp();
+    printf("Delay2 to start song (%d seconds program): %lld\n",playerArguments.timeToStrartSeconds,delay2);
 
     /*int x = 0;*/
     /* create a second thread which executes inc_x(&x) */
@@ -213,6 +211,8 @@ int startClientConnection(char *address, int portNumber, char* configFile){
             if( strcmp(newConfigFromServer.action, "exit") == 0){
 
                 printf("See youn soon!\n");
+                //playerArguments.flag = -1;
+                //avisar de que se acabó
                 break;
             }
 
@@ -238,6 +238,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
                         newPlayerArguments.songPos[newConfigFromServer.song][0] = newConfigFromServer.songPosX;
                         newPlayerArguments.songPos[newConfigFromServer.song][1] = newConfigFromServer.songPosY;
+                        newPlayerArguments.wfsVector[newConfigFromServer.song] = waveFieldSynthesis(playerArguments.speakers,configFromServer.songPosX,configFromServer.songPosY);
 
                     }else{
 
@@ -248,13 +249,10 @@ int startClientConnection(char *address, int portNumber, char* configFile){
                 printf("Sound: %d, PosX: %f, PosY: %f \n", newConfigFromServer.song, newConfigFromServer.songPosX,
                        newConfigFromServer.songPosY);
 
-/*
                 pthread_mutex_lock(&playerArguments.lock);
-
                 playerArguments.songPos = newPlayerArguments.songPos;
-
                 pthread_mutex_unlock(&playerArguments.lock);
-*/
+
             }
 
 
@@ -286,9 +284,9 @@ int startClientConnection(char *address, int portNumber, char* configFile){
         }
     }
 
+    close(client.socketFileDescriptor);
     pthread_mutex_destroy(&playerArguments.lock);
     pthread_exit(NULL);
-    close(client.socketFileDescriptor);
 
     exit(0);
 };
