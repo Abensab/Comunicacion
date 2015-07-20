@@ -194,6 +194,10 @@ int superWav(Player *playerArguments){
     int maxLenghFile = getMaxInt(playerArguments->fileWAV.leido, playerArguments->sound.sounds_number);
     int maxDellay = ceil(getMaxFloatVector(playerArguments->wfsVector, playerArguments->sound.sounds_number, playerArguments->speakers.speakers_number));
 
+    printf("%d, %d, %d, %d\n",playerArguments->fileWAV.leido[0],playerArguments->fileWAV.leido[1],playerArguments->fileWAV.leido[2],playerArguments->fileWAV.leido[3]);
+    printf(" ==> %d\n",maxLenghFile+maxDellay);
+    printf(" ==> %d\n",(maxLenghFile+maxDellay)/512);
+
     //while(playerArguments->l1 < 10000) {
     while(playerArguments->l1 < (maxLenghFile+maxDellay)/512 ){
 
@@ -201,7 +205,9 @@ int superWav(Player *playerArguments){
         /*Para avanzar 512 byts necesarios en el buffs*/
 
         pthread_mutex_lock(&playerArguments->lock);
-        generateSongWFS(pruebaBuffGnerado,playerArguments->l1,playerArguments->fileWAV,0,playerArguments->card.buffer,playerArguments->wfsVector[0],playerArguments->speakers.chanels_number);
+
+        generateSongWFS(pruebaBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 0, playerArguments->card.buffer,
+                playerArguments->wfsVector[0], playerArguments->speakers.chanels_number);
         pthread_mutex_unlock(&playerArguments->lock);
 
 
@@ -216,7 +222,7 @@ int superWav(Player *playerArguments){
         /************************/
 
         pthread_mutex_lock(&playerArguments->lock);
-
+        printf("actual: %d max: %d\n",playerArguments->l1,(maxLenghFile+maxDellay)/512);
         playerArguments->l1++;
         maxDellay = ceil(getMaxFloatVector(playerArguments->wfsVector, playerArguments->sound.sounds_number, playerArguments->speakers.speakers_number));
 

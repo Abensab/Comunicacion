@@ -138,9 +138,6 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
             playerArguments.songPos[j][0] = configFromServer.songPosX;
             playerArguments.songPos[j][1] = configFromServer.songPosY;
-
-            printf("%f, %f",configFromServer.songPosX,configFromServer.songPosY);
-
             playerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,configFromServer.songPosX,configFromServer.songPosY);
 
         }
@@ -228,23 +225,33 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
                     for(j=0; j<newPlayerArguments.sound.sounds_number; j++){
 
+
+                        pthread_mutex_lock(&playerArguments.lock);
+
                         playerArguments.songPos[j][0] = newConfigFromServer.songPosX;
                         playerArguments.songPos[j][1] = newConfigFromServer.songPosY;
                         playerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,newConfigFromServer.songPosX,newConfigFromServer.songPosY);
-                        /*newPlayerArguments.songPos[j][0] = newConfigFromServer.songPosX;
+                        /*
+                        newPlayerArguments.songPos[j][0] = newConfigFromServer.songPosX;
                         newPlayerArguments.songPos[j][1] = newConfigFromServer.songPosY;
                         newPlayerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,newConfigFromServer.songPosX,newConfigFromServer.songPosY);
                         */
 
+                        pthread_mutex_unlock(&playerArguments.lock);
 
                     }
                 }else{
 
                     if(newConfigFromServer.song < newPlayerArguments.sound.sounds_number){
 
+                        pthread_mutex_lock(&playerArguments.lock);
+
                         playerArguments.songPos[newConfigFromServer.song][0] = newConfigFromServer.songPosX;
                         playerArguments.songPos[newConfigFromServer.song][1] = newConfigFromServer.songPosY;
                         playerArguments.wfsVector[newConfigFromServer.song] = waveFieldSynthesis(playerArguments.speakers,newConfigFromServer.songPosX,newConfigFromServer.songPosY);
+
+                        pthread_mutex_unlock(&playerArguments.lock);
+
 
                         /*newPlayerArguments.songPos[newConfigFromServer.song][0] = newConfigFromServer.songPosX;
                         newPlayerArguments.songPos[newConfigFromServer.song][1] = newConfigFromServer.songPosY;
@@ -261,11 +268,11 @@ int startClientConnection(char *address, int portNumber, char* configFile){
                 printf("Sound: %d, PosX: %f, PosY: %f \n", newConfigFromServer.song, newConfigFromServer.songPosX,
                        newConfigFromServer.songPosY);
 
-                pthread_mutex_lock(&playerArguments.lock);
+                /*pthread_mutex_lock(&playerArguments.lock);
                 playerArguments.songPos = newPlayerArguments.songPos;
                 playerArguments.wfsVector = newPlayerArguments.wfsVector;
                 pthread_mutex_unlock(&playerArguments.lock);
-
+                */
             }
 
         }

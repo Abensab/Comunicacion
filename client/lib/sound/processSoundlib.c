@@ -53,6 +53,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
        int sizeOfPos = 0;
        //memset(pos, -1, sizeof(int)*speakers.speakers_number);
        for (i = 0; i < speakers.speakers_number; ++i) {
+           printf("alfa: %f, tecta1: %f, tecta2: %f\n",alfa[i],speakers.speakers_tecta[i]+90,speakers.speakers_tecta[i]-90);
            if ( ( ( alfa[i] <= speakers.speakers_tecta[i]+90 ) && ( alfa[i] >= speakers.speakers_tecta[i]-90 ) ) ){
                result.pos[i]=i;
                result.parray[i] = 1;
@@ -127,7 +128,7 @@ SuperWAV loadFile(ClientSound soundConfig){
 }
 
 // channels starts in 1.
-void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songNumber, int buffSize, WFS values, int chanals) {
+void generateSongWFS(int** bufferToModify, int index, SuperWAV fileWAV, int songNumber, int buffSize, WFS values, int chanals) {
 
     int i;
     int j;
@@ -159,9 +160,15 @@ void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songN
                     actualPosBuff = i+startPosBuffer;
 
                     if(itn <= actualPosBuff && actualPosBuff < maxPos){
-                        val = (*((int *) fileWAV.filewav[j] + actualPosBuff - itn ));
+                        //val = (*((int *) fileWAV.filewav[j] + actualPosBuff - itn ));
+                        val = (*((int *) fileWAV.filewav[songNumber] + actualPosBuff - itn ));
                     }
                 }
+
+                //printf("valueInt: %d\t\t value*an: %d\t\t an: %f\t\t valueIni: %d \n",val, (int)(values.an[j]*val),
+                //        (float)values.an[j] ,bufferToModify[j][i]);
+
+
                 bufferToModify[j][i] = (int)(values.an[j]*val);
                 //bufferToModify[j][i] += (int)(values.an[j]*val);
             }
