@@ -222,6 +222,10 @@ int superWav(Player *playerArguments){
 
         pthread_mutex_unlock(&playerArguments->lock);
 
+        if(playerArguments->finishPlaying == TRUE){
+            break;
+        }
+
     }
 
     pthread_mutex_lock(&playerArguments->lock);

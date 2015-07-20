@@ -81,14 +81,14 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float posX, float posY ){
            result.tn[i] =-land*(FS*(r/c));
        }
 
-/*       printf("\n\n Resultados obtenidos: \n\n");
+       printf("\n\n Resultados obtenidos: \n\n");
        for (i = 0; i < speakers.speakers_number; ++i) {
             printf("    an\t\t\t[%f]\t", result.an[i]);
             printf("    tn\t\t\t[%f]\t", result.tn[i]);
             printf("    pos\t\t\t[%d]\t", result.pos[i]);
             printf("    parray\t\t\t[%d]\n", result.parray[i]);
        }
-*/
+
        return result;
    }
 
@@ -134,7 +134,8 @@ void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songN
 
     for (j = 0; j < chanals; ++j) {
         if( NULL == bufferToModify[j] ) {
-            bufferToModify[j] = (int *) malloc (buffSize * sizeof(int));
+            //bufferToModify[j] = (int *) malloc (buffSize * sizeof(int));
+            bufferToModify[j] = (int *) calloc (buffSize , sizeof(int));
         }
     }
 
@@ -146,7 +147,7 @@ void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songN
     for (j = 0; j < chanals; ++j) {
 
             if(values.parray[j] == 1){
-                itn = ceil(values.tn[j]);
+                itn = (int)ceil(values.tn[j]);
                 maxPos = itn + (fileWAV.leido[songNumber]);
             }
 
@@ -161,7 +162,8 @@ void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songN
                         val = (*((int *) fileWAV.filewav[j] + actualPosBuff - itn ));
                     }
                 }
-                bufferToModify[j][i] = (int)(values.an[j]*val); //por an1
+                bufferToModify[j][i] = (int)(values.an[j]*val);
+                //bufferToModify[j][i] += (int)(values.an[j]*val);
             }
         }
 

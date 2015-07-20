@@ -139,6 +139,8 @@ int startClientConnection(char *address, int portNumber, char* configFile){
             playerArguments.songPos[j][0] = configFromServer.songPosX;
             playerArguments.songPos[j][1] = configFromServer.songPosY;
 
+            printf("%f, %f",configFromServer.songPosX,configFromServer.songPosY);
+
             playerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,configFromServer.songPosX,configFromServer.songPosY);
 
         }
@@ -211,8 +213,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
             if( strcmp(newConfigFromServer.action, "exit") == 0){
 
                 printf("See youn soon!\n");
-                //playerArguments.flag = -1;
-                //avisar de que se acabó
+                playerArguments.finishPlaying = TRUE;
                 break;
             }
 
@@ -251,33 +252,11 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
                 pthread_mutex_lock(&playerArguments.lock);
                 playerArguments.songPos = newPlayerArguments.songPos;
+                playerArguments.wfsVector = newPlayerArguments.wfsVector;
                 pthread_mutex_unlock(&playerArguments.lock);
 
             }
 
-
-
-
-/*
-            printf("Aplicando nuevos cambios al buffer");
-
-            if(newPlayerArguments.IDPlaying == client.clientID){
-                pthread_mutex_lock(&playerArguments.lock);
-                playerArguments.flag = TRUE;
-                printf("Son iguales\n");
-                pthread_mutex_unlock(&playerArguments.lock);
-            }else{
-                pthread_mutex_lock(&playerArguments.lock);
-                playerArguments.flag = FALSE;
-                printf("NO son iguales\n");
-                pthread_mutex_unlock(&playerArguments.lock);
-            }
-            if(newPlayerArguments.IDPlaying == -1){
-                printf("\n¡¡Se acabo!!\n");
-                playerArguments.flag = -1;
-                break;
-            }
-*/
         }
         if(playerArguments.finishPlaying == TRUE){
             break;
