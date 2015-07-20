@@ -228,18 +228,29 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
                     for(j=0; j<newPlayerArguments.sound.sounds_number; j++){
 
-                        newPlayerArguments.songPos[j][0] = newConfigFromServer.songPosX;
+                        playerArguments.songPos[j][0] = newConfigFromServer.songPosX;
+                        playerArguments.songPos[j][1] = newConfigFromServer.songPosY;
+                        playerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,newConfigFromServer.songPosX,newConfigFromServer.songPosY);
+                        /*newPlayerArguments.songPos[j][0] = newConfigFromServer.songPosX;
                         newPlayerArguments.songPos[j][1] = newConfigFromServer.songPosY;
-                        newPlayerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,configFromServer.songPosX,configFromServer.songPosY);
+                        newPlayerArguments.wfsVector[j] = waveFieldSynthesis(playerArguments.speakers,newConfigFromServer.songPosX,newConfigFromServer.songPosY);
+                        */
+
 
                     }
                 }else{
 
                     if(newConfigFromServer.song < newPlayerArguments.sound.sounds_number){
 
-                        newPlayerArguments.songPos[newConfigFromServer.song][0] = newConfigFromServer.songPosX;
+                        playerArguments.songPos[newConfigFromServer.song][0] = newConfigFromServer.songPosX;
+                        playerArguments.songPos[newConfigFromServer.song][1] = newConfigFromServer.songPosY;
+                        playerArguments.wfsVector[newConfigFromServer.song] = waveFieldSynthesis(playerArguments.speakers,newConfigFromServer.songPosX,newConfigFromServer.songPosY);
+
+                        /*newPlayerArguments.songPos[newConfigFromServer.song][0] = newConfigFromServer.songPosX;
                         newPlayerArguments.songPos[newConfigFromServer.song][1] = newConfigFromServer.songPosY;
-                        newPlayerArguments.wfsVector[newConfigFromServer.song] = waveFieldSynthesis(playerArguments.speakers,configFromServer.songPosX,configFromServer.songPosY);
+                        newPlayerArguments.wfsVector[newConfigFromServer.song] = waveFieldSynthesis(playerArguments.speakers,newConfigFromServer.songPosX,newConfigFromServer.songPosY);
+                        */
+
 
                     }else{
 
