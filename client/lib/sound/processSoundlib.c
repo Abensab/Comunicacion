@@ -140,8 +140,8 @@ void generateSongWFS(int** bufferToModify, int index, SuperWAV fileWAV, int song
         }
     }
 
+    int val;
     int itn = 0;
-    int val = 0;
     int startPosBuffer = index*buffSize;
     int maxPos = 0;
 
@@ -154,7 +154,7 @@ void generateSongWFS(int** bufferToModify, int index, SuperWAV fileWAV, int song
 
             int actualPosBuff = 0;
             for (i = 0; i < buffSize; ++i) {
-
+                val = 0;
                 if(values.parray[j] == 1){
 
                     actualPosBuff = i+startPosBuffer;
@@ -169,8 +169,14 @@ void generateSongWFS(int** bufferToModify, int index, SuperWAV fileWAV, int song
                 //        (float)values.an[j] ,bufferToModify[j][i]);
 
 
-                bufferToModify[j][i] = (int)(values.an[j]*val);
-                //bufferToModify[j][i] += (int)(values.an[j]*val);
+                //bufferToModify[j][i] = (int)(values.an[j]*val);
+                bufferToModify[j][i] += (int)(values.an[j]*val);
+
+                if(j == 0){
+                    printf("val: %d\t parray: %d\t bufferValue: %d\n", val, values.parray[j], bufferToModify[j][i]);
+                }
+
+
             }
         }
 

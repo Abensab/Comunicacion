@@ -156,6 +156,16 @@ float getMaxFloatVector(WFS* a, int soundsNumber, int speakersNumber) {
     return max;
 }
 
+void printBufferValues(int** pruebaBuffGnerado, int bufferSize, int chanelsNumber){
+    int i, j;
+    for (i = 0; i < bufferSize; ++i) {
+        for(j = 0; j < chanelsNumber; j++){
+            printf("channel: %d\t\t value: %d\t\t", j, pruebaBuffGnerado[j][i]);
+        }
+        printf("\n");
+    }
+}
+
 /**********************************************************************/
 /* START PLAY */
 /**********************************************************************/
@@ -204,15 +214,21 @@ int superWav(Player *playerArguments){
         /*2048bits /4 bits/byte = 512bytes*/
         /*Para avanzar 512 byts necesarios en el buffs*/
 
-        pthread_mutex_lock(&playerArguments->lock);
 
+
+        pthread_mutex_lock(&playerArguments->lock);
         generateSongWFS(pruebaBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 0, playerArguments->card.buffer,
                 playerArguments->wfsVector[0], playerArguments->speakers.chanels_number);
+
+        //generateSongWFS(pruebaBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 1, playerArguments->card.buffer,
+        //                playerArguments->wfsVector[1], playerArguments->speakers.chanels_number);
+
         pthread_mutex_unlock(&playerArguments->lock);
 
 
         //Reproducción del sonido
         /************************/
+        pthread_mutex_lock(&playerArguments->lock);
         while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(pruebaBuffGnerado,playerArguments->speakers.chanels_number), playerArguments->card.buffer)) < 0) {
             printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
             // snd_pcm_prepare(playback_handle);
@@ -220,9 +236,12 @@ int superWav(Player *playerArguments){
             break;
         }
         /************************/
+        pthread_mutex_unlock(&playerArguments->lock);
 
         pthread_mutex_lock(&playerArguments->lock);
-        printf("actual: %d max: %d\n",playerArguments->l1,(maxLenghFile+maxDellay)/512);
+        //printf("actual: %d max: %d\n",playerArguments->l1,(maxLenghFile+maxDellay)/512);
+        //printBufferValues(pruebaBuffGnerado, playerArguments->card.buffer,playerArguments->speakers.chanels_number);
+
         playerArguments->l1++;
         maxDellay = ceil(getMaxFloatVector(playerArguments->wfsVector, playerArguments->sound.sounds_number, playerArguments->speakers.speakers_number));
 

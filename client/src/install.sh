@@ -6,7 +6,7 @@ tmp=$(dpkg-query -W -f='${Package} ${Status} \n' libasound2-dev | grep "no packa
 if [[ $tmp =~ "no package found" ]]
 then
 printf "Working\n\n"
-apt-get install $tmp
+apt-get install libasound2-dev
 else
 printf "Packages installed\n"
 fi

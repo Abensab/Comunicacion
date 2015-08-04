@@ -1,15 +1,15 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
-    <inspection_tool class="OCUnusedGlobalDeclarationInspection" enabled="true" level="UNUSED" enabled_by_default="true" />
-    <inspection_tool class="OCUnusedMacroInspection" enabled="true" level="UNUSED" enabled_by_default="true" />
-    <inspection_tool class="OCUnusedStructInspection" enabled="true" level="UNUSED" enabled_by_default="true" />
+    <inspection_tool class="OCUnusedGlobalDeclarationInspection" enabled="true" level="TYPO" enabled_by_default="true" />
+    <inspection_tool class="OCUnusedMacroInspection" enabled="true" level="TYPO" enabled_by_default="true" />
+    <inspection_tool class="OCUnusedStructInspection" enabled="true" level="TYPO" enabled_by_default="true" />
     <inspection_tool class="UnusedCppSymbol" enabled="false" level="WARNING" enabled_by_default="false" />
-    <inspection_tool class="UnusedExpressionResult" enabled="true" level="UNUSED" enabled_by_default="true" />
-    <inspection_tool class="UnusedImportStatement" enabled="true" level="UNUSED" enabled_by_default="true" />
-    <inspection_tool class="UnusedLocalVariable" enabled="true" level="UNUSED" enabled_by_default="true" />
-    <inspection_tool class="UnusedLocalization" enabled="true" level="UNUSED" enabled_by_default="true" />
-    <inspection_tool class="UnusedParameter" enabled="true" level="UNUSED" enabled_by_default="true" />
-    <inspection_tool class="UnusedValue" enabled="true" level="UNUSED" enabled_by_default="true" />
+    <inspection_tool class="UnusedExpressionResult" enabled="true" level="TYPO" enabled_by_default="true" />
+    <inspection_tool class="UnusedImportStatement" enabled="true" level="TYPO" enabled_by_default="true" />
+    <inspection_tool class="UnusedLocalVariable" enabled="true" level="TYPO" enabled_by_default="true" />
+    <inspection_tool class="UnusedLocalization" enabled="true" level="TYPO" enabled_by_default="true" />
+    <inspection_tool class="UnusedParameter" enabled="true" level="TYPO" enabled_by_default="true" />
+    <inspection_tool class="UnusedValue" enabled="true" level="TYPO" enabled_by_default="true" />
   </profile>
 </component>
