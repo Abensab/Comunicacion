@@ -169,18 +169,43 @@ void generateSongWFS(int** bufferToModify, int index, SuperWAV fileWAV, int song
                 //        (float)values.an[j] ,bufferToModify[j][i]);
 
 
-                //bufferToModify[j][i] = (int)(values.an[j]*val);
-                bufferToModify[j][i] += (int)(values.an[j]*val);
+                bufferToModify[j][i] = (int)(values.an[j]*val);
+                //bufferToModify[j][i] += (int)(values.an[j]*val);
 
-                if(j == 0){
-                    printf("val: %d\t parray: %d\t bufferValue: %d\n", val, values.parray[j], bufferToModify[j][i]);
-                }
+                //if(j == 0){
+                //    printf("val: %d\t parray: %d\t bufferValue: %d\n", val, values.parray[j], bufferToModify[j][i]);
+                //}
 
 
             }
         }
 
 }
+
+void setBuffMem(int** bufferToStore, int bufferSize, int chanelsNumber){
+    int j;
+
+    for (j = 0; j < chanelsNumber; ++j) {
+        if( NULL == bufferToStore[j] ) {
+            bufferToStore[j] = (int *) calloc (bufferSize , sizeof(int));
+        }else{
+            memset(bufferToStore[j] , 0, sizeof(int) * bufferSize);
+        }
+    }
+}
+
+void addToBuffer(int** bufferToStore, int** bufferToAdd,  int bufferSize, int chanelsNumber){
+    int i, j;
+
+    for(j = 0; j < chanelsNumber; j++){
+        for (i = 0; i < bufferSize; ++i) {
+            //printf("channel: %d\t bufferToAdd: %d\t bufferToStore: %d\t", j, bufferToAdd[j][i], bufferToStore[j][i]);
+            bufferToStore[j][i] = bufferToStore[j][i] + bufferToAdd[j][i];
+            //printf("new bufferToStore: %d\n", bufferToStore[j][i]);
+        }
+    }
+}
+
 void** castBufferToVoid(int** buffer, int chanals){
 
     int i;

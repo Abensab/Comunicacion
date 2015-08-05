@@ -52,6 +52,10 @@ SuperWAV loadFile(ClientSound soundConfig);
 
 void generateSongWFS(int** bufferToModify, int index,SuperWAV fileWAV, int songNumber, int buffSize, WFS values, int chanals);
 
+void setBuffMem(int** bufferToStore,  int bufferSize, int chanelsNumber);
+void addToBuffer(int** bufferToStore, int** bufferToAdd,  int bufferSize, int chanelsNumber);
+
+
 void** castBufferToVoid(int** buffer, int chanals);
 
 

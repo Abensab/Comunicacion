@@ -156,11 +156,13 @@ float getMaxFloatVector(WFS* a, int soundsNumber, int speakersNumber) {
     return max;
 }
 
-void printBufferValues(int** pruebaBuffGnerado, int bufferSize, int chanelsNumber){
+
+//no está en el .h
+void printBufferValues(int** Buff, int bufferSize, int chanelsNumber){
     int i, j;
     for (i = 0; i < bufferSize; ++i) {
         for(j = 0; j < chanelsNumber; j++){
-            printf("channel: %d\t\t value: %d\t\t", j, pruebaBuffGnerado[j][i]);
+            printf("channel: %d\t\t value: %d\t\t", j, Buff[j][i]);
         }
         printf("\n");
     }
@@ -186,11 +188,24 @@ int superWav(Player *playerArguments){
 
     playback_handle = configurePlayBack_handle(playback_handle,playerArguments->card,err);
 
-    int* pruebaBuffGnerado[playerArguments->speakers.chanels_number];
+    // =================================================================================================================
+    int* temporalBuffGnerado[playerArguments->speakers.chanels_number];
     int j;
     for (j = 0; j < playerArguments->speakers.chanels_number; ++j) {
-        pruebaBuffGnerado[j] = NULL;
+        temporalBuffGnerado[j] = NULL;
     }
+
+    // ===================================================
+
+    int** buffTotal;
+    buffTotal= (int **) malloc ( playerArguments->speakers.chanels_number * sizeof(int *));
+    for (j = 0; j < playerArguments->speakers.chanels_number; ++j) {
+        buffTotal[j] = NULL;
+    }
+
+    // =================================================================================================================
+
+
 
     // -- FOR REPRODUCCING ---- //
     int pcmreturn;
@@ -214,22 +229,54 @@ int superWav(Player *playerArguments){
         /*2048bits /4 bits/byte = 512bytes*/
         /*Para avanzar 512 byts necesarios en el buffs*/
 
-
+        setBuffMem(buffTotal, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
 
         pthread_mutex_lock(&playerArguments->lock);
-        generateSongWFS(pruebaBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 0, playerArguments->card.buffer,
+
+//  ====================================================================================================================
+        generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 0, playerArguments->card.buffer,
                 playerArguments->wfsVector[0], playerArguments->speakers.chanels_number);
 
-        //generateSongWFS(pruebaBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 1, playerArguments->card.buffer,
-        //                playerArguments->wfsVector[1], playerArguments->speakers.chanels_number);
+        addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
+
+//  ====================================================================================================================
+
+        generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 1, playerArguments->card.buffer,
+                        playerArguments->wfsVector[1], playerArguments->speakers.chanels_number);
+
+        addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
+
+//  ====================================================================================================================
+
+        generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 2, playerArguments->card.buffer,
+                        playerArguments->wfsVector[2], playerArguments->speakers.chanels_number);
+
+        addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
+
+//  ====================================================================================================================
+
+        generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 3, playerArguments->card.buffer,
+                        playerArguments->wfsVector[3], playerArguments->speakers.chanels_number);
+
+        addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
+
+
 
         pthread_mutex_unlock(&playerArguments->lock);
+/*
+        int i;
+        for(j = 0; j < playerArguments->speakers.chanels_number; j++){
+            for (i = 0; i < playerArguments->card.buffer; ++i) {
+                printf("channel: %d\t bufferToAdd: %d\t bufferToStore: %d\n", j, temporalBuffGnerado[j][i], buffTotal[j][i]);
 
+            }
+        }
+*/
 
         //Reproducción del sonido
         /************************/
         pthread_mutex_lock(&playerArguments->lock);
-        while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(pruebaBuffGnerado,playerArguments->speakers.chanels_number), playerArguments->card.buffer)) < 0) {
+        while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(buffTotal,playerArguments->speakers.chanels_number), playerArguments->card.buffer)) < 0) {
             printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
             // snd_pcm_prepare(playback_handle);
             fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
@@ -240,7 +287,7 @@ int superWav(Player *playerArguments){
 
         pthread_mutex_lock(&playerArguments->lock);
         //printf("actual: %d max: %d\n",playerArguments->l1,(maxLenghFile+maxDellay)/512);
-        //printBufferValues(pruebaBuffGnerado, playerArguments->card.buffer,playerArguments->speakers.chanels_number);
+        //printBufferValues(buffTotal, playerArguments->card.buffer,playerArguments->speakers.chanels_number);
 
         playerArguments->l1++;
         maxDellay = ceil(getMaxFloatVector(playerArguments->wfsVector, playerArguments->sound.sounds_number, playerArguments->speakers.speakers_number));
@@ -250,6 +297,10 @@ int superWav(Player *playerArguments){
         if(playerArguments->finishPlaying == TRUE){
             break;
         }
+
+        setBuffMem(buffTotal, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
+        //printBufferValues(buffTotal, playerArguments->card.buffer,playerArguments->speakers.chanels_number);
+
 
     }
 
