@@ -189,6 +189,7 @@ int superWav(Player *playerArguments){
     playback_handle = configurePlayBack_handle(playback_handle,playerArguments->card,err);
 
     // =================================================================================================================
+    // Buffer temporal de cada pista
     int* temporalBuffGnerado[playerArguments->speakers.chanels_number];
     int j;
     for (j = 0; j < playerArguments->speakers.chanels_number; ++j) {
@@ -196,7 +197,7 @@ int superWav(Player *playerArguments){
     }
 
     // ===================================================
-
+    // Buffer con la suma de todas las pistas
     int** buffTotal;
     buffTotal= (int **) malloc ( playerArguments->speakers.chanels_number * sizeof(int *));
     for (j = 0; j < playerArguments->speakers.chanels_number; ++j) {
@@ -233,33 +234,42 @@ int superWav(Player *playerArguments){
 
         pthread_mutex_lock(&playerArguments->lock);
 
-//  ====================================================================================================================
+        int soundIndex;
+        for (soundIndexi = 0; i < playerArguments->sound.sounds_number; soundIndex++) {
+            generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, soundIndex, playerArguments->card.buffer,
+                            playerArguments->wfsVector[soundIndex], playerArguments->speakers.chanels_number);
+
+            addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
+        }
+
+/*
+  ====================================================================================================================
         generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 0, playerArguments->card.buffer,
                 playerArguments->wfsVector[0], playerArguments->speakers.chanels_number);
 
         addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
 
-//  ====================================================================================================================
+  ====================================================================================================================
 
         generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 1, playerArguments->card.buffer,
                         playerArguments->wfsVector[1], playerArguments->speakers.chanels_number);
 
         addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
 
-//  ====================================================================================================================
+  ====================================================================================================================
 
         generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 2, playerArguments->card.buffer,
                         playerArguments->wfsVector[2], playerArguments->speakers.chanels_number);
 
         addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
 
-//  ====================================================================================================================
+  ====================================================================================================================
 
         generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 3, playerArguments->card.buffer,
                         playerArguments->wfsVector[3], playerArguments->speakers.chanels_number);
 
         addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
-
+*/
 
 
         pthread_mutex_unlock(&playerArguments->lock);
