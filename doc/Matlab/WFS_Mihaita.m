@@ -7,7 +7,7 @@ FS=44100;
 land=-1; % porque está fuera del array de altavoces
 
 
-%load H1.mat
+load H1.mat
 
 
 %% Altavoces y fte
