@@ -1,7 +1,7 @@
 load H1.mat
 filtro = H_1';
 
-[y,Fs] = audioread('/Users/myhay/ClionProjects/Comunicacion/bin/sound/001_piano.wav','native');
+[y,Fs] = audioread('/home/myhay/ClionProjects/Comunicacion/bin/sound/001_piano.wav','native');
 yy=int32(y);
 bb=yy.*(2^16);
 
@@ -11,9 +11,15 @@ tic
 resultConv = conv(sonido, filtro);
 toc
 
+%tic
+%resultConv2 = convolution1(sonido, filtro);
+%toc
+
 tic
-resultConv2 = convolution1(sonido, filtro);
+resultConv3 = overlapSaveFFT(sonido', filtro', 512);
 toc
+
+
 
 % for i = 1: length(resultConv)
 %     if (resultConv(i) ~= resultConv2(i))
@@ -23,8 +29,17 @@ toc
 %     end
 % end
 
-plot(resultConv);
 
-hold on;
-
-plot(resultConv2,'r');
+% plot(resultConv);
+% 
+% hold on;
+% 
+% pause
+% 
+% plot(resultConv2,'r');
+% 
+% hold on;
+% 
+% pause
+% 
+% plot(resultConv3,'g');
