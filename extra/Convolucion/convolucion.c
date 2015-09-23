@@ -82,12 +82,12 @@ int main(void)
     tic = clock();
     convolve(soundRandom, signalLength, H_1, filterLength, C);
     toc = clock();
-    printf("Elapsed: %f seconds\n", (double)(toc - tic) / CLOCKS_PER_SEC);
+    printf("Elapsed: %f miliseconds\n", (double)(toc - tic)+1000 / CLOCKS_PER_SEC);
 
     tic = clock();
     input_side_conv(soundRandom, signalLength, H_1, filterLength, C);
     toc = clock();
-    printf("Elapsed: %f seconds\n", (double)(toc - tic) / CLOCKS_PER_SEC);
+    printf("Elapsed: %f miliseconds\n", (double)(toc - tic)*1000 / CLOCKS_PER_SEC);
 
     return 0;
 }
