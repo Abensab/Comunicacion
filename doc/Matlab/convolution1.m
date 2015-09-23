@@ -4,6 +4,7 @@ function [ resultConv ] = convolution1( sound, filter )
 
 soundLength = length(sound);
 filterLength = length(filter);
+
 resutlLength = soundLength + filterLength - 1;
 resultConv = zeros(1, resutlLength );
 
