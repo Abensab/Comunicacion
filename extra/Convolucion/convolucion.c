@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+//ceil
+#include <math.h>
+#include <string.h>
 
 double H_1[61] ={-0.00661109583724264,-0.00650043529566125,-0.00632930310706349,-0.00617482490003971,-0.00602953993132536,-0.00598452022424796,-0.00604361199320415,-0.00630563700873370,-0.00677794258748761,-0.00755797763617839,-0.00864652310346542,-0.0101290944464563,-0.0119893471647713,-0.0142908353440042,-0.0169911140198601,-0.0201243563895989,-0.0236165930309936,-0.0274695564585432,-0.0315773165621993,-0.0359115018748141,-0.0403393430824099,-0.0448101568406542,-0.0491745430350945,-0.0533717619323007,-0.0572496004201327,-0.0607520798261281,-0.0637393605766290,-0.0661751281673016,-0.0679458772409232,-0.0690473584402903,2.29712671743954,-0.0690473584402903,-0.0679458772409232,-0.0661751281673016,-0.0637393605766290,-0.0607520798261281,-0.0572496004201327,-0.0533717619323007,-0.0491745430350945,-0.0448101568406542,-0.0403393430824099,-0.0359115018748141,-0.0315773165621993,-0.0274695564585432,-0.0236165930309936,-0.0201243563895989,-0.0169911140198601,-0.0142908353440042,-0.0119893471647713,-0.0101290944464563,-0.00864652310346542,-0.00755797763617839,-0.00677794258748761,-0.00630563700873370,-0.00604361199320415,-0.00598452022424796,-0.00602953993132536,-0.00617482490003971,-0.00632930310706349,-0.00650043529566125,-0.00661109583724264};
 
@@ -29,6 +32,38 @@ void convolve(double* signal, size_t signalLen, double* filter, size_t filterLen
         }
     }
 }
+
+void convolve2(double* signal, size_t signalStart, size_t signalEnd, double* filter, size_t filterLen, double* result/*inicializado a 0*/){
+    size_t n;
+
+    size_t kmin, kmax, k;
+
+    size_t signalLen = signalEnd-signalStart;
+
+
+    if(signalLen <= filterLen){
+        printf("H size must be smaller than X size\n");
+        exit(0);
+    }
+
+    for (n = signalStart; n < signalLen + filterLen - 1; n++)
+    {
+        result[n] = 0;
+
+        //Optimización del recorrer.
+        kmin = (n >= filterLen - 1) ? n - (filterLen - 1) : 0;
+        kmax = (n < signalLen - 1) ? n : signalLen - 1;
+
+        //printf("%d kmin, %d kmax\n",(int)kmin,(int)kmax);
+
+        for (k = kmin; k <= kmax; k++)
+        {
+            result[n] += signal[k] * filter[n - k];
+        }
+    }
+}
+
+
 void input_side_conv(double *x, size_t lx, double *h, size_t lh, double *y)
 {
     size_t i,j;
@@ -39,7 +74,52 @@ void input_side_conv(double *x, size_t lx, double *h, size_t lh, double *y)
 
             y[i+j]=y[i+j]+x[i]*h[j];
 }
+/*
+void convOverlapAdd(double* x, size_t lx, double* h, size_t lh, double *y, size_t l)
+{
+    if(lx < lh){
+        printf("H size must be smaller than X size\n");
+        break;
+    }
 
+    size_t lo = (size_t) pow(2, ceil(log(l+lh)/log(2)));
+    printf("%f\n",lo);
+
+
+    double* localBuffer = (double *) calloc(lh-1, sizeof(double));
+
+    size_t ly = lx + lh - 1;
+
+    size_t i = 0;
+    while(i < lx){
+    //for(i=0; i < lx; i+=l){
+/////////////////////////////////////////////////
+        size_t n;
+
+        size_t kmin, kmax, k;
+
+        for (n = 0; n < l; n++)
+        {
+            y[n] = 0;
+
+            //Optimización del recorrer.
+            kmin = (n >= lh - 1) ? n - (lh - 1) : 0;
+            kmax = (n < lo-(lh-1) - 1) ? n : lo - (lh - 1) - 1;
+
+            //printf("%d kmin, %d kmax\n",(int)kmin,(int)kmax);
+
+            for (k = kmin; k <= kmax; k++)
+            {
+                y[n] += x[k] * x[n - k];
+            }
+        }
+/////////////////////////////////////////////////
+        i+=l;
+    }
+
+
+}
+*/
 
 
 #define COUNT(X) (sizeof(X) / sizeof((X)[0]))
@@ -48,7 +128,7 @@ int main(void)
 {
     clock_t tic,toc;
 
- /*   double signal[] = { 3,4,5,6,7,8,9,10 };
+    double signal[] = { 3,4,5,6,7,8,9,10 };
     double filter[] = { 2,1 };
     double result[COUNT(signal) + COUNT(filter) - 1];
 
@@ -57,17 +137,31 @@ int main(void)
     toc = clock();
     printf("Elapsed: %f seconds\n", (double)(toc - tic) / CLOCKS_PER_SEC);
 
+    int j;
+    for( j=0; j<(COUNT(signal) + COUNT(filter) - 1); j++ ) {
+        printf("%f ",result[j]);
+    }
+    printf("\n");
+
     tic = clock();
-    input_side_conv(signal, COUNT(signal), filter, COUNT(filter), result);
+    convolve2(signal,0, COUNT(signal), filter, COUNT(filter), result);
     toc = clock();
     printf("Elapsed: %f seconds\n", (double)(toc - tic) / CLOCKS_PER_SEC);
-*/
 
-    size_t signalLength = 5000;
+
+    j;
+    for( j=0; j<(COUNT(signal) + COUNT(filter) - 1); j++ ) {
+        printf("%f ",result[j]);
+    }
+    printf("\n");
+
+/*    size_t signalLength = 5000;
     size_t filterLength = 61;
     size_t resultLength = signalLength + filterLength - 1;
 
     double *C = malloc( resultLength*sizeof(double) );
+    double *A = malloc( resultLength*sizeof(double) );
+*/
 
     /* datos aleatorios */
     /*    printf("[");
@@ -79,15 +173,39 @@ int main(void)
     printf("]\n");
      */
 
-    tic = clock();
-    convolve(soundRandom, signalLength, H_1, filterLength, C);
+ /*   tic = clock();
+    convolve(soundRandom, signalLength, H_1, filterLength, A);
     toc = clock();
-    printf("Elapsed: %f miliseconds\n", (double)(toc - tic)+1000 / CLOCKS_PER_SEC);
+    printf("Elapsed: %f miliseconds\n", (double)(toc - tic)*1000 / CLOCKS_PER_SEC);
+
 
     tic = clock();
     input_side_conv(soundRandom, signalLength, H_1, filterLength, C);
     toc = clock();
     printf("Elapsed: %f miliseconds\n", (double)(toc - tic)*1000 / CLOCKS_PER_SEC);
+*/
 
+/*
+    printf("A\tC\n");
+    int j;
+    for( j=0; j<resultLength; j++ ) {
+        if(A[j]-C[j] != 0){
+            printf("%f\t%f\n ",A[j],C[j]);
+        }
+
+    }
+
+
+    printf("[");
+    int j;
+    for( j=0; j<resultLength; j++ ) {
+        if (j == resultLength-1){
+            printf("%f ",C[j]);
+        }else{
+            printf("%f, ",C[j]);
+        }
+    }
+    printf("]\n");
+*/
     return 0;
 }
