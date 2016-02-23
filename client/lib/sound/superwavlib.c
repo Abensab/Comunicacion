@@ -235,7 +235,7 @@ int superWav(Player *playerArguments){
         pthread_mutex_lock(&playerArguments->lock);
 
         int soundIndex;
-        for (soundIndexi = 0; i < playerArguments->sound.sounds_number; soundIndex++) {
+        for (soundIndex = 0; soundIndex < playerArguments->sound.sounds_number; soundIndex++) {
             generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, soundIndex, playerArguments->card.buffer,
                             playerArguments->wfsVector[soundIndex], playerArguments->speakers.chanels_number);
 
