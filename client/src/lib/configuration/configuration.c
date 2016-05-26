@@ -16,7 +16,7 @@
    ----------------------------------------------------------------------------
 */
 
-#include "./../include/configurationlib.h"
+#include "configuration.h"
 
 int checkConfig(config_t* cfg, char* configFile){
 

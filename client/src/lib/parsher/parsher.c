@@ -2,7 +2,7 @@
 // Created by mihai on 24/06/15.
 //
 
-#include "./../include/parsher.h"
+#include "parsher.h"
 
 char **strsplit(const char* str, const char* delim, size_t* numtokens) {
     // copy the original string so that we don't overwrite parts of it

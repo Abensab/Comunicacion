@@ -1,7 +1,7 @@
 #ifndef SPATIALLIB_H
 #define SPATIALLIB_H
 
-#include "functionlib.h"
+#include "../functions/functions.h"
 
 unsigned char * newWavdieciseis(char nombre[]);
 unsigned char * newWav2ch(char nombreL[], char nombreR[]);

@@ -1,4 +1,4 @@
-#include "./../../include/client.h"
+#include "client.h"
 /*  A simple server in the internet domain using TCP
     The port number is passed as an argument
     http://www.linuxhowtos.org/C_C++/socket.htm
@@ -75,7 +75,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     //Config reader
     if (strcmp(configFile,"NULL") == 0 ){
-        configFile    = "./config/default3.cfg";
+        configFile    = "../config/default3.cfg";
     }
     getConfig(&playerArguments, configFile);
 

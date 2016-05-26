@@ -1,4 +1,4 @@
-#include "../../include/superwavlib.h"
+#include "superwav.h"
 
 snd_pcm_t * assignPCMName( snd_pcm_t *playback_handle, snd_pcm_stream_t stream, char* pcm_name_config,int err){
 

@@ -1,8 +1,8 @@
 #ifndef PROCESSLIB_H
 #define PROCESSLIB_H
 
-#include "spatiallib.h"
-#include "configurationlib.h"
+#include "../spacial/spatial.h"
+#include "../configuration/configuration.h"
 
 typedef struct SuperWAVTag{
     int* leido;

@@ -1,10 +1,11 @@
 #ifndef CONNECTION_CLIENT
 #define CONNECTION_CLIENT
 
-#include "socketUtils.h"
-#include "processSoundlib.h"
-#include "superwavlib.h"
-#include "parsher.h"
+#include "../functions/functions.h"
+#include "../socketUtils/socketUtils.h"
+#include "../processSount/processSound.h"
+#include "../superWAV/superwav.h"
+#include "../parsher/parsher.h"
 
 typedef struct ClientConnectionTag{
     /* *********************************************************************

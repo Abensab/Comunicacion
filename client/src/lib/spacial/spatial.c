@@ -1,4 +1,4 @@
-#include "./../../include/spatiallib.h"
+#include "spatial.h"
 
 
 int OpenWav(unsigned char **pwav, char nombre[])

@@ -1,5 +1,5 @@
-#ifndef _INCLUDE_FUNCTIONSLIB_H
-#define _INCLUDE_FUNCTIONSLIB_H
+#ifndef _INCLUDE_FUNCTIONS_H
+#define _INCLUDE_FUNCTIONS_H
 
 #include <stdio.h>
 #include <stdlib.h>
