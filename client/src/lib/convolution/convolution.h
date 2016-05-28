@@ -23,8 +23,8 @@ void convolution(float* x, size_t signalStart, size_t signalEnd, float *h, size_
 void convolutionOverlapAdd(float* partX, size_t lx, float localBuffer[], size_t lb/*potencia de 2*/, float* h, size_t lh, float y[]);
 void convolution8(float* x, size_t signalStart, size_t signalEnd, float *h, size_t lh, float y[]);
 void convolutionOverlapAdd8(float* partX, size_t lx, float localBuffer[], size_t lb/*potencia de 2*/, float* h, size_t lh, float y[]);
-//void convolutionNEON8(float* x, size_t signalStart, size_t signalEnd, float *h, size_t lh, float y[]);
-//void convolutionOverlapAddNEON8(float* partX, size_t lx, float localBuffer[], size_t lb/*potencia de 2*/, float* h, size_t lh, float y[]);
+void convolutionNEON8(float* x, size_t signalStart, size_t signalEnd, float *h, size_t lh, float y[]);
+void convolutionOverlapAddNEON8(float* partX, size_t lx, float localBuffer[], size_t lb/*potencia de 2*/, float* h, size_t lh, float y[]);
 
 
 #endif //COMUCINACION_CONVOLUTION_H

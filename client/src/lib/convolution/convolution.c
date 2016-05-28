@@ -52,7 +52,7 @@ void convolution8(float* x, size_t signalStart, size_t signalEnd, float *h, size
         }
     }
 }
-/*
+
 void convolutionNEON8(float* x, size_t signalStart, size_t signalEnd, float *h, size_t lh, float y[])
 {
     size_t i,j;
@@ -84,7 +84,7 @@ void convolutionNEON8(float* x, size_t signalStart, size_t signalEnd, float *h, 
         }
     }
 }
-*/
+
 void convolutionOverlapAdd(float* partX, size_t lx, float localBuffer[], size_t lb/*potencia de 2*/, float* h, size_t lh, float y[]) {
 
     size_t i,j = 0;
@@ -130,7 +130,7 @@ void convolutionOverlapAdd8(float* partX, size_t lx, float localBuffer[], size_t
         j++;
     }
 }
-/*
+
 void convolutionOverlapAddNEON8(float* partX, size_t lx, float localBuffer[], size_t lb, float* h, size_t lh, float y[]) {
 
     size_t i,j = 0;
@@ -153,4 +153,3 @@ void convolutionOverlapAddNEON8(float* partX, size_t lx, float localBuffer[], si
         j++;
     }
 }
-*/
