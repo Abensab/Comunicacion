@@ -11,7 +11,7 @@ int nextpw2(int valor){
 void convolution(float* x, size_t signalStart, size_t signalEnd, float *h, size_t lh, float y[])
 {
     size_t i,j;
-    size_t lx = signalEnd-signalStart;
+    //size_t lx = signalEnd-signalStart;
 
     for(i=signalStart;i<signalEnd; i++){
         for(j=0;j<lh;j++){
@@ -23,7 +23,7 @@ void convolution(float* x, size_t signalStart, size_t signalEnd, float *h, size_
 void convolution8(float* x, size_t signalStart, size_t signalEnd, float *h, size_t lh, float y[])
 {
     size_t i,j;
-    size_t lx = signalEnd-signalStart;
+    //size_t lx = signalEnd-signalStart;
 
     float temp[8];
 
@@ -89,6 +89,11 @@ void convolutionOverlapAdd(float* partX, size_t lx, float localBuffer[], size_t 
 
     size_t i,j = 0;
 
+    if(lx < lh){
+        printf("H size (%d) must be smaller than X size (%d)\n",(int)lh,(int)lx);
+        exit(0);
+    }
+
     convolution(partX, 0, lx, h, lh, localBuffer);
 
     for (j = 0; j < lx; j++) {
@@ -107,6 +112,11 @@ void convolutionOverlapAdd8(float* partX, size_t lx, float localBuffer[], size_t
 
     size_t i,j = 0;
 
+    if(lx < lh){
+        printf("H size (%d) must be smaller than X size (%d)\n",(int)lh,(int)lx);
+        exit(0);
+    }
+
     convolution8(partX, 0, lx, h, lh, localBuffer);
 
     for (j = 0; j < lx; j++) {
@@ -124,6 +134,11 @@ void convolutionOverlapAdd8(float* partX, size_t lx, float localBuffer[], size_t
 void convolutionOverlapAddNEON8(float* partX, size_t lx, float localBuffer[], size_t lb, float* h, size_t lh, float y[]) {
 
     size_t i,j = 0;
+
+    if(lx < lh){
+        printf("H size (%d) must be smaller than X size (%d)\n",(int)lh,(int)lx);
+        exit(0);
+    }
 
     convolutionNEON8(partX, 0, lx, h, lh, localBuffer);
 

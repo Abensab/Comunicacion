@@ -1,21 +1,24 @@
 CC = gcc
-CFLAGS  = -Wa,-adhln -g -Wall -Wextra
+CFLAGS  = -g -Wall -Wextra
 
 LIBS = -lm
 
 NEONLIBS = -march=armv7 -mfpu=neon -lm
 
-test:
+all:
 	$(CC) -O3 testConvolution.c  ./../../lib/convolution/convolution.c $(LIBS) -o test.o
 
+test:
+	$(CC) -O3 $(CFLAGS) testConvolution.c  ./../../lib/convolution/convolution.c $(LIBS) -o test.o
+
 testNEON:
-	$(CC) -O3 testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o
+	$(CC) -O3 $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o
 
 source:
-	$(CC) -O3 $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(LIBS) -o test.o > estudio.s
+	$(CC) -O3 -Wa,-adhln $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(LIBS) -o test.o > estudio.s
 
 sourceNEON:
-	$(CC) -O3 $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o > estudio.s
+	$(CC) -O3 -Wa,-adhln $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o > estudio.s
 
 clean:
 	$(RM) *.o *.s *~
