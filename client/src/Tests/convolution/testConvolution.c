@@ -72,10 +72,10 @@ int main(int argc, char **argv) {
     Test vectors with the result size resultSize+bs
 */
     float *C = (float *) calloc(tamResultado + bs, sizeof(float));
-    //float *D = (float *) calloc(tamResultado + bs, sizeof(float));
+    float *D = (float *) calloc(tamResultado + bs, sizeof(float));
     float *E = (float *) calloc(tamResultado + bs, sizeof(float));
     float *F = (float *) calloc(tamResultado + bs, sizeof(float));
-    //float *G = (float *) calloc(tamResultado + bs, sizeof(float));
+    float *G = (float *) calloc(tamResultado + bs, sizeof(float));
 
 
 /*=============================================================================================================*/
