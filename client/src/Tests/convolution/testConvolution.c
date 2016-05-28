@@ -30,8 +30,6 @@ int main(int argc, char **argv) {
 
     int lx = 8;
     int lh = 8;
-    int bs = 8;
-
     /* Extract Arguments */
     if (argc >= 2) {
         if ((lx = atoi(argv[1])) < 8) lx = 8;
@@ -39,12 +37,10 @@ int main(int argc, char **argv) {
     if (argc >= 3) {
         if ((lh = atoi(argv[2])) < 4) lh = 4;
     }
-    //if (argc >= 4) {
-    //    if ((bs = atoi(argv[3])) < 16) bs = 16;
-    //}
-
-    bs = lh;
-
+    int bs = lh;
+    if (argc >= 4) {
+        if ((bs = atoi(argv[3])) < 16) bs = 16;
+    }
 
     struct timeval t0, t1;
 
@@ -72,10 +68,10 @@ int main(int argc, char **argv) {
     Test vectors with the result size resultSize+bs
 */
     float *C = (float *) calloc(tamResultado + bs, sizeof(float));
-    float *D = (float *) calloc(tamResultado + bs, sizeof(float));
+    //float *D = (float *) calloc(tamResultado + bs, sizeof(float));
     float *E = (float *) calloc(tamResultado + bs, sizeof(float));
     float *F = (float *) calloc(tamResultado + bs, sizeof(float));
-    float *G = (float *) calloc(tamResultado + bs, sizeof(float));
+    //float *G = (float *) calloc(tamResultado + bs, sizeof(float));
 
 
 /*=============================================================================================================*/
@@ -115,7 +111,7 @@ int main(int argc, char **argv) {
         printf("error: %.20f \n",errorValue);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
     gettimeofday (&t0, NULL);
     for (i = 0; i < nTimes; ++i) {
         convolutionNEON8(A,0,lx,H1,lh,D);
@@ -129,7 +125,7 @@ int main(int argc, char **argv) {
     if(errorValue != 0)
         printf("Error: %.20f \n",errorValue);
 
-
+*/
     printf("\n");
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     printf("Testing Convolution Overlap Add:\n");
@@ -203,7 +199,7 @@ int main(int argc, char **argv) {
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+/*
     gettimeofday (&t0, NULL);
     for (i = 0; i < nTimes; ++i) {
         int j;
@@ -233,6 +229,6 @@ int main(int argc, char **argv) {
     errorValue = errorCheck(B,G,lx,lh);
     if(errorValue != 0)
         printf("G error: %.20f \n",errorValue);
-
+*/
     return 0;
 }
