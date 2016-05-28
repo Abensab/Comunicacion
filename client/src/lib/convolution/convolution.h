@@ -18,6 +18,9 @@
 #include <math.h>
 #include <string.h>
 
+//NEON
+#include <arm_neon.h>
+
 int nextpw2(int valor);
 void convolution(float* x, size_t signalStart, size_t signalEnd, float *h, size_t lh, float y[]);
 void convolutionOverlapAdd(float* partX, size_t lx, float localBuffer[], size_t lb/*potencia de 2*/, float* h, size_t lh, float y[]);

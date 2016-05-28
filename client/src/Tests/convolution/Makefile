@@ -15,7 +15,7 @@ ARM:
 	$(CC) -O3 $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o
 
 ARMdebug:
-    $(CC) -O3 $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o
+	$(CC) -O3 $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o
 
 source:
 	$(CC) -O3 -Wa,-adhln $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(LIBS) -o test.o > estudio.s
