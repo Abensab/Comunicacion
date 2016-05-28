@@ -20,6 +20,7 @@
 
 //NEON
 #include <arm_neon.h>
+//#include "arm_neon.h"
 
 int nextpw2(int valor);
 void convolution(float* x, size_t signalStart, size_t signalEnd, float *h, size_t lh, float y[]);

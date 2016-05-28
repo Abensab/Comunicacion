@@ -208,7 +208,7 @@ int main(int argc, char **argv) {
     for (i = 0; i < nTimes; ++i) {
         int j;
         for(j=0; j<(lx/bs); j++ ) {
-            convolutionOverlapAdd8(&A[j*bs], bs, localBuffer, l_localBuffer, H1, lh, &G[j*bs]);
+            convolutionOverlapAddNEON8(&A[j*bs], bs, localBuffer, l_localBuffer, H1, lh, &G[j*bs]);
         }
 
         // Para tener un vector de 0 y añadir los ultimos ejementos.
@@ -222,7 +222,7 @@ int main(int argc, char **argv) {
                 lastPass[z] = A[z+last_index];
             }
         }
-        convolutionOverlapAdd8(lastPass, bs, localBuffer, l_localBuffer, H1, lh, &G[j*bs]);
+        convolutionOverlapAddNEON8(lastPass, bs, localBuffer, l_localBuffer, H1, lh, &G[j*bs]);
     }
 
     gettimeofday (&t1, NULL);

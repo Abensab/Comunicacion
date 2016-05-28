@@ -12,7 +12,7 @@ debug:
 	$(CC) -O3 $(CFLAGS) testConvolution.c  ./../../lib/convolution/convolution.c $(LIBS) -o test.o
 
 ARM:
-	$(CC) -O3 $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o
+	$(CC) -O3 testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o
 
 ARMdebug:
 	$(CC) -O3 $(CFLAGS) testConvolution.c ./../../lib/convolution/convolution.c $(NEONLIBS) -o testNEON.o
