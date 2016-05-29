@@ -20,7 +20,8 @@ float errorCheck(float* A,float* B, size_t lx, size_t lh){
     for( j=0; j<(lx+lh-1);j++ ) {
         sum+= A[j]-B[j];
     }
-    if(sum != 0){checkPrinter(A,B,lx,lh);}
+
+    //if(sum != 0){checkPrinter(A,B,lx,lh);}
 
     return sum;
 
@@ -67,10 +68,10 @@ int main(int argc, char **argv) {
 /*
     Test vectors with the result size resultSize+bs
 */
-    float *C = (float *) calloc(tamResultado + bs, sizeof(float));
+    float *C = (float *) calloc(tamResultado*2, sizeof(float));
     //float *D = (float *) calloc(tamResultado + bs, sizeof(float));
-    float *E = (float *) calloc(tamResultado + bs, sizeof(float));
-    float *F = (float *) calloc(tamResultado + bs, sizeof(float));
+    float *E = (float *) calloc(tamResultado*2, sizeof(float));
+    float *F = (float *) calloc(tamResultado*2, sizeof(float));
     //float *G = (float *) calloc(tamResultado + bs, sizeof(float));
 
 
@@ -111,49 +112,38 @@ int main(int argc, char **argv) {
         printf("error: %.20f \n",errorValue);
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-    gettimeofday (&t0, NULL);
-    for (i = 0; i < nTimes; ++i) {
-        convolutionNEON8(A,0,lx,H1,lh,D);
-    }
-    gettimeofday (&t1, NULL);
-    elapsedTime = (t1.tv_sec - t0.tv_sec) * 1000.0;      // sec to ms
-    elapsedTime += (t1.tv_usec - t0.tv_usec) / 1000.0;   // us to ms
-    printf("Elapsed: %.20f miliseconds => convolution NEON 8\n", elapsedTime/nTimes );
-
-    errorValue = errorCheck(B,D,lx,lh);
-    if(errorValue != 0)
-        printf("Error: %.20f \n",errorValue);
-
-*/
-    printf("\n");
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    printf("Testing Convolution Overlap Add:\n");
+    printf("\nTesting Convolution Overlap Add:\n");
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     int l_localBuffer = nextpw2(bs+lh-1);
-    float * localBuffer = (float *) calloc(l_localBuffer, sizeof(float));
+    float * localBuffer;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    localBuffer = (float *) calloc(l_localBuffer, sizeof(float));
+
     gettimeofday (&t0, NULL);
     for (i = 0; i < nTimes; ++i) {
-        int j;
-        for(j=0; j<(lx/bs); j++ ) {
-            convolutionOverlapAdd(&A[j*bs], bs, localBuffer, l_localBuffer, H1, lh, &E[j*bs]);
-        }
 
-        // Para tener un vector de 0 y añadir los ultimos ejementos.
-        float * lastPass = (float *) calloc(bs, sizeof(float));
-        int last_index = j*bs;
-        int sizeleft = lx - last_index;
-        int z;
+        float iterations = (float) lx / bs;
+        int posA = 0;
 
-        if( sizeleft != 0 ){
-            for (z = 0; z < sizeleft; ++z) {
-                lastPass[z] = A[z+last_index];
+        printf("Iterations=%f\n", iterations);
+        float *processBuffer = (float *) malloc(bs * sizeof(float));
+
+        for (int k = 0; k <= (int) iterations + 1; ++k) { // +1 en caso de que se tenga que el resto no de exactamente 0
+            //Esto en el código principal de reproducir está previsto
+
+            //set memory to 0
+            memset(processBuffer, 0, bs * sizeof(float));
+            int z = 0;
+            // copiar A a vector de procesamiento
+            for (posA = k * bs; posA < lx; ++posA) {
+                processBuffer[z] = A[posA];
+                ++z;
             }
+
+            convolutionOverlapAdd(processBuffer, bs, localBuffer, l_localBuffer, H1, lh, &E[k * bs]);
         }
-        convolutionOverlapAdd(lastPass, bs, localBuffer, l_localBuffer, H1, lh, &E[j*bs]);
     }
 
     gettimeofday (&t1, NULL);
@@ -165,27 +155,32 @@ int main(int argc, char **argv) {
     if(errorValue != 0)
         printf("Error: %.20f \n",errorValue);
 
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    memset(localBuffer , 0, l_localBuffer*sizeof(float));
 
     gettimeofday (&t0, NULL);
     for (i = 0; i < nTimes; ++i) {
-        int j;
-        for(j=0; j<(lx/bs); j++ ) {
-            convolutionOverlapAdd8(&A[j*bs], bs, localBuffer, l_localBuffer, H1, lh, &F[j*bs]);
-        }
 
-        // Para tener un vector de 0 y añadir los ultimos ejementos.
-        float * lastPass = (float *) calloc(bs, sizeof(float));
-        int last_index = j*bs;
-        int sizeleft = lx - last_index;
-        int z;
+        float iterations = (float) lx / bs;
+        int pos = 0;
 
-        if( sizeleft != 0 ){
-            for (z = 0; z < sizeleft; ++z) {
-                lastPass[z] = A[z+last_index];
+        float *processBuffer = (float *) malloc(bs * sizeof(float));
+
+        for (int k = 0; k <= (int) iterations + 1; ++k) { // +1 en caso de que se tenga que el resto no de exactamente 0
+            //Esto en el código principal de reproducir está previsto
+
+            //set memory to 0
+            memset(processBuffer, 0, bs * sizeof(float));
+            int z = 0;
+            // copiar A a vector de procesamiento
+            for (pos = k * bs; pos < lx; ++pos) {
+                processBuffer[z] = A[pos];
+                ++z;
             }
+            convolutionOverlapAdd8(processBuffer, bs, localBuffer, l_localBuffer, H1, lh, &F[k * bs]);
         }
-        convolutionOverlapAdd8(lastPass, bs, localBuffer, l_localBuffer, H1, lh, &F[j*bs]);
     }
 
     gettimeofday (&t1, NULL);
@@ -197,38 +192,7 @@ int main(int argc, char **argv) {
     if(errorValue != 0)
         printf("Error: %.20f \n",errorValue);
 
-
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
-    gettimeofday (&t0, NULL);
-    for (i = 0; i < nTimes; ++i) {
-        int j;
-        for(j=0; j<(lx/bs); j++ ) {
-            convolutionOverlapAddNEON8(&A[j*bs], bs, localBuffer, l_localBuffer, H1, lh, &G[j*bs]);
-        }
 
-        // Para tener un vector de 0 y añadir los ultimos ejementos.
-        float * lastPass = (float *) calloc(bs, sizeof(float));
-        int last_index = j*bs;
-        int sizeleft = lx - last_index;
-        int z;
-
-        if( sizeleft != 0 ){
-            for (z = 0; z < sizeleft; ++z) {
-                lastPass[z] = A[z+last_index];
-            }
-        }
-        convolutionOverlapAddNEON8(lastPass, bs, localBuffer, l_localBuffer, H1, lh, &G[j*bs]);
-    }
-
-    gettimeofday (&t1, NULL);
-    elapsedTime = (t1.tv_sec - t0.tv_sec) * 1000.0;      // sec to ms
-    elapsedTime += (t1.tv_usec - t0.tv_usec) / 1000.0;   // us to ms
-    printf("Elapsed: %.20f miliseconds => convolution Overlap ADD NEON 8\n", elapsedTime/nTimes );
-
-    errorValue = errorCheck(B,G,lx,lh);
-    if(errorValue != 0)
-        printf("G error: %.20f \n",errorValue);
-*/
     return 0;
 }
