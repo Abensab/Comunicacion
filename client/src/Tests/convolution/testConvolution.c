@@ -129,8 +129,8 @@ int main(int argc, char **argv) {
 
         printf("Iterations=%f\n", iterations);
         float *processBuffer = (float *) malloc(bs * sizeof(float));
-
-        for (int k = 0; k <= (int) iterations + 1; ++k) { // +1 en caso de que se tenga que el resto no de exactamente 0
+        int k;
+        for (k = 0; k <= (int) iterations + 1; ++k) { // +1 en caso de que se tenga que el resto no de exactamente 0
             //Esto en el código principal de reproducir está previsto
 
             //set memory to 0
@@ -144,6 +144,7 @@ int main(int argc, char **argv) {
 
             convolutionOverlapAdd(processBuffer, bs, localBuffer, l_localBuffer, H1, lh, &E[k * bs]);
         }
+        free(processBuffer);
     }
 
     gettimeofday (&t1, NULL);
@@ -167,8 +168,8 @@ int main(int argc, char **argv) {
         int pos = 0;
 
         float *processBuffer = (float *) malloc(bs * sizeof(float));
-
-        for (int k = 0; k <= (int) iterations + 1; ++k) { // +1 en caso de que se tenga que el resto no de exactamente 0
+        int k;
+        for (k = 0; k <= (int) iterations + 1; ++k) { // +1 en caso de que se tenga que el resto no de exactamente 0
             //Esto en el código principal de reproducir está previsto
 
             //set memory to 0
@@ -181,6 +182,7 @@ int main(int argc, char **argv) {
             }
             convolutionOverlapAdd8(processBuffer, bs, localBuffer, l_localBuffer, H1, lh, &F[k * bs]);
         }
+        free(processBuffer);
     }
 
     gettimeofday (&t1, NULL);

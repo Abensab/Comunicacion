@@ -88,7 +88,7 @@ void convolutionOverlapAdd8(float* partX, size_t lx, float localBuffer[], size_t
         exit(0);
     }
 
-    convolutionNEON8(partX, 0, lx, h, lh, localBuffer);
+    convolution8(partX, 0, lx, h, lh, localBuffer);
 
     for (j = 0; j < lx; j++) {
         y[j]= localBuffer[j];
