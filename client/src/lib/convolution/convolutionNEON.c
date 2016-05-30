@@ -90,14 +90,47 @@ void convolutionOverlapAdd8(float* partX, size_t lx, float localBuffer[], size_t
 
     convolution8(partX, 0, lx, h, lh, localBuffer);
 
-    for (j = 0; j < lx; j++) {
-        y[j]= localBuffer[j];
-        localBuffer[j] = 0;
+    for (j = 0; j < lx; j+=8) {
+        y[j+0]= localBuffer[j+0];
+        y[j+1]= localBuffer[j+1];
+        y[j+2]= localBuffer[j+2];
+        y[j+3]= localBuffer[j+3];
+        y[j+4]= localBuffer[j+4];
+        y[j+5]= localBuffer[j+5];
+        y[j+6]= localBuffer[j+6];
+        y[j+7]= localBuffer[j+7];
+
+        localBuffer[j+0] = 0;
+        localBuffer[j+1] = 0;
+        localBuffer[j+2] = 0;
+        localBuffer[j+3] = 0;
+        localBuffer[j+4] = 0;
+        localBuffer[j+5] = 0;
+        localBuffer[j+6] = 0;
+        localBuffer[j+7] = 0;
     }
 
-    for (i = 0; i < lx; i++) {
-        localBuffer[i] = localBuffer[j];
-        localBuffer[j] = 0;
-        j++;
+    for (i = 0; i < lx; i+=8) {
+        localBuffer[i+0] = localBuffer[j+0];
+        localBuffer[i+1] = localBuffer[j+1];
+        localBuffer[i+2] = localBuffer[j+2];
+        localBuffer[i+3] = localBuffer[j+3];
+        localBuffer[i+4] = localBuffer[j+4];
+        localBuffer[i+5] = localBuffer[j+5];
+        localBuffer[i+6] = localBuffer[j+6];
+        localBuffer[i+7] = localBuffer[j+7];
+        localBuffer[i+7] = localBuffer[j+7];
+
+
+        localBuffer[j+0] = 0;
+        localBuffer[j+1] = 0;
+        localBuffer[j+2] = 0;
+        localBuffer[j+3] = 0;
+        localBuffer[j+4] = 0;
+        localBuffer[j+5] = 0;
+        localBuffer[j+6] = 0;
+        localBuffer[j+7] = 0;
+
+        j+=8;
     }
 }

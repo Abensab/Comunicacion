@@ -26,7 +26,6 @@ void convolution8(float* x, size_t signalStart, size_t signalEnd, float *h, size
     //size_t lx = signalEnd-signalStart;
 
     float temp[8];
-
     for(i=signalStart;i<signalEnd; i++){
         for(j=0;j<lh;j+=8){
 

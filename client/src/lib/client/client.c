@@ -177,7 +177,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
         return 1;
     }
 
-    //New playaer that will listen and save all the new configurations that the server ahs sended.
+    //New playaer that will listen and save all the new configurations that the server has sended.
     Player newPlayerArguments;
     newPlayerArguments.timeToStart = playerArguments.timeToStart;
     getConfig(&newPlayerArguments, configFile);

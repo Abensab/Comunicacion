@@ -117,9 +117,11 @@ int main(int argc, char **argv) {
 
     int l_localBuffer = nextpw2(bs+lh-1);
     float * localBuffer;
-
+    float *processBuffer;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     localBuffer = (float *) calloc(l_localBuffer, sizeof(float));
+    processBuffer = (float *) malloc(bs * sizeof(float));
+
 
     gettimeofday (&t0, NULL);
     for (i = 0; i < nTimes; ++i) {
@@ -144,7 +146,6 @@ int main(int argc, char **argv) {
 
             convolutionOverlapAdd(processBuffer, bs, localBuffer, l_localBuffer, H1, lh, &E[k * bs]);
         }
-        free(processBuffer);
     }
 
     gettimeofday (&t1, NULL);
@@ -167,7 +168,6 @@ int main(int argc, char **argv) {
         float iterations = (float) lx / bs;
         int pos = 0;
 
-        float *processBuffer = (float *) malloc(bs * sizeof(float));
         int k;
         for (k = 0; k <= (int) iterations + 1; ++k) { // +1 en caso de que se tenga que el resto no de exactamente 0
             //Esto en el código principal de reproducir está previsto
@@ -182,7 +182,6 @@ int main(int argc, char **argv) {
             }
             convolutionOverlapAdd8(processBuffer, bs, localBuffer, l_localBuffer, H1, lh, &F[k * bs]);
         }
-        free(processBuffer);
     }
 
     gettimeofday (&t1, NULL);
