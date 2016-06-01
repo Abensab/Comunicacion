@@ -188,10 +188,12 @@ int superWav(Player *playerArguments){
 
     playback_handle = configurePlayBack_handle(playback_handle,playerArguments->card,err);
 
-    // =================================================================================================================
-    // Buffer temporal de cada pista
-    int* temporalBuffGnerado[playerArguments->speakers.chanels_number];
+    // Indice general
     int j;
+
+    // =================================================================================================================
+    // Buffer temporal de cada pista donde temporalBuffGnerado[pista] contiene la pista
+    int* temporalBuffGnerado[playerArguments->speakers.chanels_number];
     for (j = 0; j < playerArguments->speakers.chanels_number; ++j) {
         temporalBuffGnerado[j] = NULL;
     }
@@ -206,7 +208,22 @@ int superWav(Player *playerArguments){
 
     // =================================================================================================================
 
+    float filter[64] ={-0.00661109583724264,-0.00650043529566125,-0.00632930310706349,-0.00617482490003971,-0.00602953993132536,-0.00598452022424796,-0.00604361199320415,-0.00630563700873370,-0.00677794258748761,-0.00755797763617839,-0.00864652310346542,-0.0101290944464563,-0.0119893471647713,-0.0142908353440042,-0.0169911140198601,-0.0201243563895989,-0.0236165930309936,-0.0274695564585432,-0.0315773165621993,-0.0359115018748141,-0.0403393430824099,-0.0448101568406542,-0.0491745430350945,-0.0533717619323007,-0.0572496004201327,-0.0607520798261281,-0.0637393605766290,-0.0661751281673016,-0.0679458772409232,-0.0690473584402903,2.29712671743954,-0.0690473584402903,-0.0679458772409232,-0.0661751281673016,-0.0637393605766290,-0.0607520798261281,-0.0572496004201327,-0.0533717619323007,-0.0491745430350945,-0.0448101568406542,-0.0403393430824099,-0.0359115018748141,-0.0315773165621993,-0.0274695564585432,-0.0236165930309936,-0.0201243563895989,-0.0169911140198601,-0.0142908353440042,-0.0119893471647713,-0.0101290944464563,-0.00864652310346542,-0.00755797763617839,-0.00677794258748761,-0.00630563700873370,-0.00604361199320415,-0.00598452022424796,-0.00602953993132536,-0.00617482490003971,-0.00632930310706349,-0.00650043529566125,-0.00661109583724264,0,0,0};
+    int lengthFilter = 64;
 
+    // Buffers temporal con el residuo de la Convolución para cada pista
+    float** buffer_process_convolution;
+    int size_buffer_process_convolution = nextpw2(playerArguments->card.buffer+lengthFilter-1);
+    buffer_process_convolution= (float **) malloc ( playerArguments->speakers.chanels_number * sizeof(float *));
+    for (j = 0; j < playerArguments->speakers.chanels_number; ++j) {
+        buffer_process_convolution[j] = (float *) calloc(size_buffer_process_convolution, sizeof(float));;
+    }
+
+    // =================================================================================================================
+
+    // Buffer donde se cópia los valores de A indiferente de si es o no potencia de 2
+    // En caso de no tener más valores se queda en 0
+    float * processBuffer = (float *) malloc(playerArguments->card.buffer * sizeof(float));
 
 
     // =================================================================================================================
@@ -228,7 +245,8 @@ int superWav(Player *playerArguments){
     printf(" ==> %d\n",(maxLenghFile+maxDellay)/512);
 
     //while(playerArguments->l1 < 10000) {
-    while(playerArguments->l1 < (maxLenghFile+maxDellay)/512 ){
+    int max_Lenth_Song = (maxLenghFile+maxDellay)/512;
+    while(playerArguments->l1 < max_Lenth_Song ){
 
         /*2048bits /4 bits/byte = 512bytes*/
         /*Para avanzar 512 byts necesarios en el buffs*/
@@ -239,9 +257,10 @@ int superWav(Player *playerArguments){
 
         int soundIndex;
         for (soundIndex = 0; soundIndex < playerArguments->sound.sounds_number; soundIndex++) {
+            // Aplicar amplitud y retardo
             generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, soundIndex, playerArguments->card.buffer,
                             playerArguments->wfsVector[soundIndex], playerArguments->speakers.chanels_number);
-
+            // Sumar el resultando al buffer resultante.
             addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
         }
 
@@ -274,7 +293,6 @@ int superWav(Player *playerArguments){
         addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
 */
 
-
         pthread_mutex_unlock(&playerArguments->lock);
 /*
         int i;
@@ -285,6 +303,20 @@ int superWav(Player *playerArguments){
             }
         }
 */
+
+        for(j = 0; j < playerArguments->speakers.chanels_number; j++) {
+            // Make convolution
+            //set memory to 0
+            memset(processBuffer, 0, playerArguments->card.buffer * sizeof(float));
+            int z;
+            //int pos = playerArguments->l1 * playerArguments->card.buffer;
+            // copiar A a vector de procesamiento
+            for (z = 0; z < playerArguments->card.buffer; ++z) {
+                processBuffer[z] = (float)buffTotal[j][z];
+            }
+
+            convolutionOverlapAddINT(processBuffer, playerArguments->card.buffer, buffer_process_convolution[j], size_buffer_process_convolution, filter, lengthFilter, buffTotal[j]);
+        }
 
         //Reproducción del sonido
         /************************/

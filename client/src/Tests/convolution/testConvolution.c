@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
     }
     int bs = lh;
     if (argc >= 4) {
-        if ((bs = atoi(argv[3])) < 16) bs = 16;
+        if ((bs = atoi(argv[3])) < 8) bs = 8;
     }
 
     struct timeval t0, t1;
@@ -117,9 +117,12 @@ int main(int argc, char **argv) {
 
     int l_localBuffer = nextpw2(bs+lh-1);
     float * localBuffer;
-    float *processBuffer;
+    float * processBuffer;
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Buffer para almacenar el residuo de la convolución
     localBuffer = (float *) calloc(l_localBuffer, sizeof(float));
+    // Buffer donde se cópia los valores de A indiferente de si es o no potencia de 2
+    // En caso de no tener más valores se queda en 0
     processBuffer = (float *) malloc(bs * sizeof(float));
 
 

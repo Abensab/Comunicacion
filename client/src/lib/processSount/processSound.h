@@ -58,8 +58,6 @@ void addToBuffer(int** bufferToStore, int** bufferToAdd,  int bufferSize, int ch
 
 void** castBufferToVoid(int** buffer, int chanals);
 
-
-
 #endif
 
 
