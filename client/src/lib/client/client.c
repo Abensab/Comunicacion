@@ -75,7 +75,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     //Config reader
     if (strcmp(configFile,"NULL") == 0 ){
-        configFile    = "../config/default3.cfg";
+        configFile    = "../config/default.cfg";
     }
     getConfig(&playerArguments, configFile);
 

@@ -48,14 +48,14 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float x, float y ){
        int sizeOfPos = 0;
        //memset(pos, -1, sizeof(int)*speakers.speakers_number);
        for (i = 0; i < speakers.speakers_number; ++i) {
-           printf("%f=> %f <= %f : ",speakers.speakers_tecta[i]+90,alfa[i],speakers.speakers_tecta[i]-90  );
+           //printf("%f=> %f <= %f : ",speakers.speakers_tecta[i]+90,alfa[i],speakers.speakers_tecta[i]-90  );
            if ( ( ( alfa[i] <= speakers.speakers_tecta[i]+90 ) && ( alfa[i] >= speakers.speakers_tecta[i]-90 ) ) ){
-               printf("DENTRO\n");
+               //printf("DENTRO\n");
                result.pos[i]=i;
                result.parray[i] = 1;
                sizeOfPos++;
            }else{
-               printf("FUERA\n");
+               //printf("FUERA\n");
                result.pos[i]=-1;
                result.parray[i] = 0;
            }
@@ -78,15 +78,15 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float x, float y ){
            result.an[i] = 1/(sqrt(r));
            result.tn[i] =-land*(FS*(r/c));
        }
-
+/*
        printf("\n\n Resultados obtenidos: \n\n");
        for (i = 0; i < speakers.speakers_number; ++i) {
-            printf("    an\t\t\t[%f]\t", result.an[i]);
-            printf("    tn\t\t\t[%f]\t", result.tn[i]);
-            printf("    pos\t\t\t[%d]\t", result.pos[i]);
-            printf("    parray\t\t\t[%d]\n", result.parray[i]);
+            printf("    an\t[%5.f]\t", result.an[i]);
+            printf("    tn\t[%5.f]\t", result.tn[i]);
+            printf("    pos\t[%d]\t", result.pos[i]);
+            printf("    parray\t[%d]\n", result.parray[i]);
        }
-
+*/
        return result;
    }
 
