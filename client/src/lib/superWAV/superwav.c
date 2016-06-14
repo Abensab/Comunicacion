@@ -176,8 +176,6 @@ int superWav(Player *playerArguments){
     /* This holds the error code returned */
     int err = 0;
 
-    //SuperWAV fileWAV = loadFile(playerArguments->sound);
-
     /* Handle for the PCM device */
     snd_pcm_t *playback_handle = NULL;
 
@@ -256,6 +254,7 @@ int superWav(Player *playerArguments){
         pthread_mutex_lock(&playerArguments->lock);
 
         int soundIndex;
+        // Recorrer cada audio para aplicarle el WFS y almacenadrlo en el buffTotalFinal
         for (soundIndex = 0; soundIndex < playerArguments->sound.sounds_number; soundIndex++) {
             // Aplicar amplitud y retardo
             generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, soundIndex, playerArguments->card.buffer,
@@ -264,46 +263,9 @@ int superWav(Player *playerArguments){
             addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
         }
 
-/*
-  ====================================================================================================================
-        generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 0, playerArguments->card.buffer,
-                playerArguments->wfsVector[0], playerArguments->speakers.chanels_number);
-
-        addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
-
-  ====================================================================================================================
-
-        generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 1, playerArguments->card.buffer,
-                        playerArguments->wfsVector[1], playerArguments->speakers.chanels_number);
-
-        addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
-
-  ====================================================================================================================
-
-        generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 2, playerArguments->card.buffer,
-                        playerArguments->wfsVector[2], playerArguments->speakers.chanels_number);
-
-        addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
-
-  ====================================================================================================================
-
-        generateSongWFS(temporalBuffGnerado, playerArguments->l1, playerArguments->fileWAV, 3, playerArguments->card.buffer,
-                        playerArguments->wfsVector[3], playerArguments->speakers.chanels_number);
-
-        addToBuffer(buffTotal, temporalBuffGnerado, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
-*/
-
         pthread_mutex_unlock(&playerArguments->lock);
-/*
-        int i;
-        for(j = 0; j < playerArguments->speakers.chanels_number; j++){
-            for (i = 0; i < playerArguments->card.buffer; ++i) {
-                printf("channel: %d\t bufferToAdd: %d\t bufferToStore: %d\n", j, temporalBuffGnerado[j][i], buffTotal[j][i]);
 
-            }
-        }
-*/
-
+        // Realiza la convolución resultante en cada canal. De esa manera no se realiza tanto cómputo
         for(j = 0; j < playerArguments->speakers.chanels_number; j++) {
             // Make convolution
             //set memory to 0
@@ -314,38 +276,28 @@ int superWav(Player *playerArguments){
             for (z = 0; z < playerArguments->card.buffer; ++z) {
                 processBuffer[z] = (float)buffTotal[j][z];
             }
-
-            convolutionOverlapAddINT(processBuffer, playerArguments->card.buffer, buffer_process_convolution[j], size_buffer_process_convolution, filter, lengthFilter, buffTotal[j]);
+            //Convolución
+            convolutionOverlapAdd8INT(processBuffer, playerArguments->card.buffer, buffer_process_convolution[j], size_buffer_process_convolution, filter, lengthFilter, buffTotal[j]);
         }
 
         //Reproducción del sonido
         /************************/
         pthread_mutex_lock(&playerArguments->lock);
         while ((pcmreturn = snd_pcm_writen(playback_handle, castBufferToVoid(buffTotal,playerArguments->speakers.chanels_number), playerArguments->card.buffer)) < 0) {
-            printf("HOLA HOLA HOLA HOLA HOLA HOLA\n");
-            // snd_pcm_prepare(playback_handle);
             fprintf(stderr, "<<<<<<<<<<<<<<< Buffer Underrun >>>>>>>>>>>>>>>\n");
             break;
         }
         /************************/
         pthread_mutex_unlock(&playerArguments->lock);
 
-        pthread_mutex_lock(&playerArguments->lock);
-        //printf("actual: %d max: %d\n",playerArguments->l1,(maxLenghFile+maxDellay)/512);
-        //printBufferValues(buffTotal, playerArguments->card.buffer,playerArguments->speakers.chanels_number);
-
         playerArguments->l1++;
         maxDellay = ceil(getMaxFloatVector(playerArguments->wfsVector, playerArguments->sound.sounds_number, playerArguments->speakers.speakers_number));
-
-        pthread_mutex_unlock(&playerArguments->lock);
 
         if(playerArguments->finishPlaying == TRUE){
             break;
         }
-
+        // Resetea la memoria del bufferTotal
         setBuffMem(buffTotal, playerArguments->card.buffer, playerArguments->speakers.chanels_number);
-        //printBufferValues(buffTotal, playerArguments->card.buffer,playerArguments->speakers.chanels_number);
-
 
     }
 

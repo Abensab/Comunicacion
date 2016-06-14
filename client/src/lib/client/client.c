@@ -123,6 +123,8 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     playerArguments.client_pos[0] = configFromServer.clientPosX;
     playerArguments.client_pos[0] = configFromServer.clientPosY;
 
+    printf("Time offset: %lld\n", playerArguments.timeToStart - current_timestamp());
+
     long long delay = (playerArguments.timeToStart - (playerArguments.timeToStrartSeconds * 1000) ) - current_timestamp();
     printf("Delay (%d seconds program): %lld\n",playerArguments.timeToStrartSeconds,delay);
 
@@ -130,7 +132,6 @@ int startClientConnection(char *address, int portNumber, char* configFile){
     playerArguments.songPos = (float **) malloc( playerArguments.speakers.speakers_number * sizeof(float*));
     playerArguments.wfsVector = (WFS *) malloc( playerArguments.sound.sounds_number * sizeof(WFS));
 
-    //printf("BreakPoint 0, %lu\n",sizeof(WFS));
 
     if(configFromServer.song == -1){
        for(j=0; j<playerArguments.sound.sounds_number; j++){
@@ -143,11 +144,7 @@ int startClientConnection(char *address, int portNumber, char* configFile){
         }
     }
 
-    //printf("BreakPoint 2\n");
 
-
-    //buffer modified to read player
-    playerArguments.bufferToPlay = (int **) malloc (playerArguments.speakers.chanels_number*sizeof(int *));
 
     //desaparece y se cambia por el WFS
     //inicializo contador para el numero de frames.
@@ -155,10 +152,6 @@ int startClientConnection(char *address, int portNumber, char* configFile){
 
     // load songs
     playerArguments.fileWAV = loadFile(playerArguments.sound);
-
-    //generate buffer dor song 0
-    //generateSongWFS(playerArguments.bufferToPlay,playerArguments.l1,playerArguments.fileWAV, 0, playerArguments.card.buffer, playerArguments.wfsVector[0], playerArguments.speakers.chanels_number);
-
 
     // Make sure it can be shared across processes
     pthread_mutexattr_t shared;

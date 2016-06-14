@@ -27,6 +27,10 @@ else
    $(sudo ./configure && sudo make && sudo make check && sudo make install && sudo ldconfig -v)
 fi
 
+echo "Installing FFTW"
+tar -xvf ./../../bin/fftw/fftw-3.3.4.tar.gz -C ./../../bin/fftw/
+cd ./../../bin/fftw/fftw-3.3.4
+$(sudo ./configure && sudo make && sudo make check && sudo make install && sudo make install check)
 
 printf "Location:\n"
 route=$(pwd)

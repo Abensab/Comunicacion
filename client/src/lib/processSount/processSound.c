@@ -78,7 +78,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float x, float y ){
            result.an[i] = 1/(sqrt(r));
            result.tn[i] =-land*(FS*(r/c));
        }
-/*
+
        printf("\n\n Resultados obtenidos: \n\n");
        for (i = 0; i < speakers.speakers_number; ++i) {
             printf("    an\t[%5.f]\t", result.an[i]);
@@ -86,7 +86,7 @@ WFS waveFieldSynthesis(ClientSpeakers speakers, float x, float y ){
             printf("    pos\t[%d]\t", result.pos[i]);
             printf("    parray\t[%d]\n", result.parray[i]);
        }
-*/
+
        return result;
    }
 

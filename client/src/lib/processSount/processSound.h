@@ -29,11 +29,8 @@ typedef struct PlayerTAG{
 
     int l1;
     int finishPlaying;
-    int IDPlaying;
 
     pthread_mutex_t lock;
-
-    int **bufferToPlay;
 
     ClientCard card;
     ClientSound sound;
@@ -41,7 +38,6 @@ typedef struct PlayerTAG{
     int timeToStrartSeconds;
 
     SuperWAV fileWAV;
-
 
 } Player;
 
