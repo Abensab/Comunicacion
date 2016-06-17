@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
 
     /* make an array of 20 elements */
-    int N=512;
+    int N=20;
     int i;
     /* completely random! */
     unsigned int seed = 50085;

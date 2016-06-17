@@ -16,7 +16,7 @@
 #include <string.h>
 
 //fft
-#include "../../lib/fft/fftGS.h"
+#include "../../../lib/fft/fftGS.h"
 
 //neon
 #include <arm_neon.h>

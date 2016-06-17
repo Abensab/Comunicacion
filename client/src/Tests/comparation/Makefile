@@ -3,20 +3,13 @@ CFLAGS  = -g -Wall -Wextra
 
 LIBS = ./../../lib/fft/fftGS.c -lm
 
-NEONLIBS = -march=armv7 -mfpu=neon -lm
+NEONLIBS = -march=armv7 -mfpu=neon
 
 all:
-	$(CC) -O3 comparation.c $(LIBS) -o comparation.o
+	$(CC) -O3 comparation.c $(LIBS) $(NEONLIBS) -o comparation.o
 
 debug:
-	$(CC) -O3 $(CFLAGS) comparation.c $(LIBS) -o comparation.o
-
-ARM:
-	$(CC) -O3 comparation.c $(NEONLIBS) -o comparation.o
-
-ARMdebug:
-	$(CC) -O3 $(CFLAGS) comparation.c $(NEONLIBS) -o comparation.o
-
+	$(CC) -O3 $(CFLAGS) comparation.c $(LIBS) $(NEONLIBS) -o comparation.o	
 
 clean:
 	$(RM) -r *.o *.o.* *~
